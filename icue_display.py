@@ -1007,22 +1007,13 @@ class ScalingClass(QThread):
             if scr_geo0 != scr_geo1:
 
                 try:
-                    monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-                    work_area = monitor_info.get("Work")
-                    scr_geo1 = work_area[3]
-                    self.pos_x = int((work_area[2] / 2) - (self.width / 2))
-                    self.pos_x = int((work_area[3] / 2) - (self.height / 2))
-                    print('-- ScalingClass(QThread).run(self): x, y', self.pos_x, self.pos_x)
-                    # I Use This To Compliment AA_EnableHighDpiScaling, I Find Moving the Window Helps Update Re-Scaling
                     print('-- ScalingClass(QThread).run(self) ~ refreshing geometry')
-                    try:
-                        self.setGeometry(self.pos_x, self.pos_x, self.width, self.height)
-                    except Exception as e:
-                        print('-- ScalingClass(QThread).run(self):', e)
-                    # Store Current Work Area Geometry Again Since It Has Changed
-                    scr_geo0 = scr_geo1
+                    time.sleep(0.5)
+                    self.setGeometry(0, 0, self.width, self.height)
+                    time.sleep(3)
                 except Exception as e:
                     print('-- ScalingClass(QThread).run(self):', e)
+                    time.sleep(3)
 
             time.sleep(0.1)
 
