@@ -416,7 +416,7 @@ class ReadConfigurationClass(QThread):
     def __init__(self):
         QThread.__init__(self)
 
-    def all_led_sanitize(self):
+    def exclusiv_access(self):
         global exclusiv_access_bool, k95_rgb_platinum, k95_rgb_platinum_selected
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
@@ -690,7 +690,7 @@ class ReadConfigurationClass(QThread):
         global exclusiv_access_bool
         while True:
             try:
-                self.all_led_sanitize()
+                self.exclusiv_access()
                 self.hdd_sanitize()
                 self.cpu_sanitize()
                 self.dram_sanitize()
