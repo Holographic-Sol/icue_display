@@ -89,7 +89,7 @@ alpha_str = ['c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p
              'u', 'v', 'w', 'x', 'y', 'z']
 hdd_stat = []
 hdd_led_color = [255, 255, 255]
-hdd_led_color_off = [0, 255, 255]
+hdd_led_color_off = [0, 0, 0]
 hdd_led_time_on = 0.05
 hdd_initiation = False
 allow_hdd_mon_thread_bool = True
