@@ -61,7 +61,9 @@ sdk = CueSdk(os.path.join(os.getcwd(), 'bin\\CUESDK.x64_2017.dll'))
 k95_rgb_platinum = []
 k95_rgb_platinum_selected = 0
 
-alpha_led = [53,
+alpha_led = [38,
+             55,
+             53,
              40,
              28,
              41,
@@ -85,7 +87,7 @@ alpha_led = [53,
              52,
              31,
              51]
-alpha_str = ['c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
              'u', 'v', 'w', 'x', 'y', 'z']
 hdd_stat = []
 hdd_led_color = [255, 255, 255]
@@ -155,6 +157,9 @@ vram_led_off_item = [({118: (0, 0, 0)}),
                 ({115: (0, 0, 0)}),
                 ({111: (0, 0, 0)}),
                 ({105: (0, 0, 0)})]
+
+exclusiv_access_bool_initialize = True
+exclusiv_access_bool = False
 vram_initiation = False
 allow_vram_mon_thread_bool = True
 vram_display_key_bool = [False, False, False, False]
@@ -204,10 +209,6 @@ class ObjEveFilter(QObject):
                border:0px solid rgb(0, 0, 0);}"""
         )
         # print('-- ObjEveFilter(QObject).unhighlightObject(self):', glo_obj[4])
-
-
-def initialize():
-    print('initializing')
 
 
 class App(QMainWindow):
@@ -415,8 +416,25 @@ class ReadConfigurationClass(QThread):
     def __init__(self):
         QThread.__init__(self)
 
+    def all_led_sanitize(self):
+        global exclusiv_access_bool, k95_rgb_platinum, k95_rgb_platinum_selected
+        with open('.\\config.dat', 'r') as fo:
+            for line in fo:
+                line = line.strip()
+                if line.startswith('exclusiv_access: '):
+                    if line == 'exclusiv_access: true':
+                        # print('exclusiv_access: true')
+                        sdk.request_control()
+                        exclusiv_access_bool = True
+                        itm = {1: (255, 0, 0)}
+                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
+                    elif line == 'exclusiv_access: false':
+                        # print('exclusiv_access: false')
+                        sdk.release_control()
+                        exclusiv_access_bool = False
+
     def hdd_sanitize(self):
-        global hdd_led_color, hdd_led_time_on, hdd_led_item
+        global hdd_led_color, hdd_led_time_on, hdd_led_item, hdd_led_color_off, hdd_led_off_item, exclusiv_access_bool
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
@@ -456,6 +474,42 @@ class ReadConfigurationClass(QThread):
                             elif True in default_cpu_led_bool:
                                 # print('hdd_led_color: failed sanitization checks. using default color')
                                 hdd_led_color = [255, 255, 255]
+                if line.startswith('hdd_led_color_off: '):
+                    hdd_led_color_off = line.replace('hdd_led_color_off: ', '')
+                    hdd_led_color_off = hdd_led_color_off.split(',')
+                    # print('hdd_led_color_off:', hdd_led_color_off)
+                    if len(hdd_led_color_off) == 3:
+                        # print('hdd_led_color_off: has 3 items')
+                        if str(hdd_led_color_off[0]).isdigit() and str(hdd_led_color_off[1]).isdigit() and str(hdd_led_color_off[2]).isdigit():
+                            # print('hdd_led_color_off 0-3: isdigits')
+                            hdd_led_color_off[0] = int(hdd_led_color_off[0])
+                            hdd_led_color_off[1] = int(hdd_led_color_off[1])
+                            hdd_led_color_off[2] = int(hdd_led_color_off[2])
+                            default_cpu_led_bool = [True, True, True]
+                            if hdd_led_color_off[0] >= 0 and hdd_led_color_off[0] <= 255:
+                                default_cpu_led_bool[0] = False
+                            else:
+                                default_cpu_led_bool[0] = True
+                            if hdd_led_color_off[1] >= 0 and hdd_led_color_off[1] <= 255:
+                                default_cpu_led_bool[1] = False
+                            else:
+                                default_cpu_led_bool[1] = True
+                            if hdd_led_color_off[2] >= 0 and hdd_led_color_off[2] <= 255:
+                                default_cpu_led_bool[2] = False
+                            else:
+                                default_cpu_led_bool[2] = True
+                            if True not in default_cpu_led_bool:
+                                # print('hdd_led_color_off: passed sanitization checks. using custom color')
+                                i = 0
+                                hdd_led_off_item = []
+                                for _ in alpha_led:
+                                    itm = {alpha_led[i]: hdd_led_color_off}
+                                    hdd_led_off_item.append(itm)
+                                    i += 1
+                                # print(hdd_led_item)
+                            elif True in default_cpu_led_bool:
+                                # print('hdd_led_color_off: failed sanitization checks. using default color')
+                                hdd_led_color_off = [0, 0, 0]
                 if line.startswith('hdd_led_time_on: '):
                     line = line.replace('hdd_led_time_on: ', '')
                     # print('hdd_led_time_on:', line)
@@ -633,8 +687,10 @@ class ReadConfigurationClass(QThread):
                         gpu_num = 0
 
     def run(self):
+        global exclusiv_access_bool
         while True:
             try:
+                self.all_led_sanitize()
                 self.hdd_sanitize()
                 self.cpu_sanitize()
                 self.dram_sanitize()
@@ -662,8 +718,9 @@ class HddMonClass(QThread):
 
     def send_instruction(self):
         global hdd_initiation, hdd_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
-        global hdd_led_item
+        global hdd_led_item, alpha_led
         self.get_stat()
+
         hdd_i = 0
         for _ in hdd_display_key_bool:
             if hdd_display_key_bool[hdd_i] is True:
