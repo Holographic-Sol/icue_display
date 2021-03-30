@@ -13,4 +13,4 @@ Keyboard HUD Displays:
 
 Preferred over Knight Rider C# project becuase:
 	* Uses less resources.
-	* Self contained control of icue running from threads instead of of running subprograms which could become orphaned.
+	* Self contained control of icue running from threads instead of running subprograms which could become orphaned.
