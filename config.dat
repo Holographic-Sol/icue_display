@@ -1,0 +1,12 @@
+hdd_led_color: 255,0,255
+hdd_led_time_on: 0.5
+
+cpu_led_color: 255,0,255
+cpu_led_time_on: 0.5
+
+dram_led_color: 255,0,255
+dram_led_time_on: 0.5
+
+vram_led_color: 255,0,255
+vram_led_time_on: 0.5
+gpu_num: 0
