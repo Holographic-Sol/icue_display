@@ -10,3 +10,7 @@ Keyboard HUD Displays:
 	* CPU Utilization Monitor
 	* DRAM Utilization Monitor
 	* VRAM Utilization Monitor
+
+Preferred over Knight Rider C# project becuase:
+	* Uses less resources.
+	* Self contained control of icue running from threads instead of of running subprograms which could become orphaned.
