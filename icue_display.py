@@ -813,10 +813,6 @@ class CpuMonClass(QThread):
     def send_instruction(self):
         global cpu_initiation, cpu_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
-        if cpu_initiation is False:
-            for _ in cpu_led_off_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
-            cpu_initiation = True
         i = 0
         for _ in cpu_led_item:
             if cpu_display_key_bool[i] is True:
@@ -876,13 +872,6 @@ class DramMonClass(QThread):
     def send_instruction(self):
         global dram_initiation, dram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
-        if dram_initiation is False:
-            for _ in dram_led_off_item:
-                try:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
-                except Exception as e:
-                    print('[NAME]: DramMonClass [FUNCTION]: send_instruction [EXCEPTION]:', e)
-            dram_initiation = True
         i = 0
         for _ in dram_led_item:
             if dram_display_key_bool[i] is True:
@@ -942,13 +931,6 @@ class VramMonClass(QThread):
     def send_instruction(self):
         global vram_initiation, vram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
-        if vram_initiation is False:
-            for _ in vram_led_off_item:
-                try:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
-                except Exception as e:
-                    print('[NAME]: VramMonClass [FUNCTION]: send_instruction [EXCEPTION]:', e)
-            vram_initiation = True
         i = 0
         for _ in vram_led_item:
             if vram_display_key_bool[i] is True:
