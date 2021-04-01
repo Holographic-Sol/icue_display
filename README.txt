@@ -16,3 +16,5 @@ Preferred over Knight Rider C# project becuase:
 	* Self contained control of icue running from threads instead of of running subprograms which could become orphaned.
 
 Frontend is a personal template of mine and currently provides only some control to the backend.
+
+Values are saved to config.dat for memory accross reboots.
