@@ -59,6 +59,7 @@ prev_obj_eve = []
 
 mon_threads = []
 conf_thread = []
+
 allow_mon_threads_bool = False
 connected_bool = None
 connected_bool_prev = None
@@ -171,7 +172,6 @@ class ObjEveFilter(QObject):
         # Uncomment This Line To See All Object Events
         # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
 
-        # Filtered Object Events
         if out_of_bounds is False:
             if str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] == glo_obj[1]:
                 self.unhighlightObject()
@@ -196,17 +196,14 @@ class ObjEveFilter(QObject):
             """QLabel {background-color: rgb(15, 15, 15);
            border:0px solid rgb(35, 35, 35);}"""
         )
-        # print('-- ObjEveFilter(QObject).unhighlightObject(self):', glo_obj[2])
         glo_obj[3].setStyleSheet(
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
-        # print('-- ObjEveFilter(QObject).unhighlightObject(self):', glo_obj[3])
         glo_obj[4].setStyleSheet(
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
-        # print('-- ObjEveFilter(QObject).unhighlightObject(self):', glo_obj[4])
 
 
 class App(QMainWindow):
@@ -222,7 +219,6 @@ class App(QMainWindow):
         self.timer.timeout.connect(self.pollCursor)
         self.timer.start()
         self.cursor = None
-
         self.filter = ObjEveFilter()
 
         self.setWindowIcon(QIcon('./icon.png'))
@@ -313,25 +309,18 @@ class App(QMainWindow):
 
     def initUI(self):
         global mon_threads, conf_thread
-
         compile_devices_thread = CompileDevicesClass()
         compile_devices_thread.start()
-
         read_configuration_thread = ReadConfigurationClass()
         conf_thread.append(read_configuration_thread)
-
         hdd_mon_thread = HddMonClass()
         mon_threads.append(hdd_mon_thread)
-
         cpu_mon_thread = CpuMonClass()
         mon_threads.append(cpu_mon_thread)
-
         dram_mon_thread = DramMonClass()
         mon_threads.append(dram_mon_thread)
-
         vram_mon_thread = VramMonClass()
         mon_threads.append(vram_mon_thread)
-
         print('\ndisplaying application:')
         self.show()
 
@@ -383,16 +372,12 @@ class CompileDevicesClass(QThread):
         global connected_bool, connected_bool_prev
         global exclusive_access_bool_prev
         global mon_threads, conf_thread
-
         while True:
             connected = sdk.connect()
-
             if not connected:
                 err = sdk.get_last_error()
-                # print('[NAME]: CompileDevicesClass [FUNCTION]: run [MESSAGE]: Handshake failed: %s' % err)
                 connected_bool = False
                 allow_configuration_read_bool = False
-
             elif connected:
                 device = sdk.get_devices()
                 i = 0
@@ -400,15 +385,12 @@ class CompileDevicesClass(QThread):
                     target_name = str(device[i])
                     if 'K95 RGB PLATINUM' in target_name:
                         k95_rgb_platinum.append(i)
-                        # print('[NAME]: CompileDevicesClass [FUNCTION]: run [MESSAGE]: Found Device:', i)
                     i += 1
-
                 if len(k95_rgb_platinum) >= 1:
                     connected_bool = True
                     allow_configuration_read_bool = True
-
             if connected_bool is False and connected_bool != connected_bool_prev:
-                print('stopping threads: configuration read and instructions', )
+                print('stopping threads:', )
                 conf_thread[0].stop()
                 mon_threads[0].stop()
                 mon_threads[1].stop()
@@ -417,7 +399,7 @@ class CompileDevicesClass(QThread):
                 connected_bool_prev = False
                 exclusive_access_bool_prev = None
             elif connected_bool is True and connected_bool != connected_bool_prev:
-                print('starting threads: configuration read and instructions', )
+                print('starting threads:', )
                 itm = {1: (255, 0, 0)}
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
                 conf_thread[0].start()
@@ -441,19 +423,15 @@ class ReadConfigurationClass(QThread):
                 line = line.strip()
                 if line.startswith('exclusive_access: '):
                     if line == 'exclusive_access: true':
-                        # print('exclusive_access: true')
                         exclusive_access_bool = True
                     elif line == 'exclusive_access: false':
-                        # print('exclusive_access: false')
                         exclusive_access_bool = False
-
         if exclusive_access_bool is True and exclusive_access_bool != exclusive_access_bool_prev:
             print('exclusive access request changed: requesting control')
             sdk.request_control()
             itm = {1: (255, 0, 0)}
             sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
             exclusive_access_bool_prev = True
-
         elif exclusive_access_bool is False and exclusive_access_bool != exclusive_access_bool_prev:
             print('exclusive access request changed: releasing control')
             sdk.release_control()
@@ -467,11 +445,8 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('hdd_led_color: '):
                     hdd_led_color = line.replace('hdd_led_color: ', '')
                     hdd_led_color = hdd_led_color.split(',')
-                    # print('hdd_led_color:', hdd_led_color)
                     if len(hdd_led_color) == 3:
-                        # print('hdd_led_color: has 3 items')
                         if str(hdd_led_color[0]).isdigit() and str(hdd_led_color[1]).isdigit() and str(hdd_led_color[2]).isdigit():
-                            # print('hdd_led_color 0-3: isdigits')
                             hdd_led_color[0] = int(hdd_led_color[0])
                             hdd_led_color[1] = int(hdd_led_color[1])
                             hdd_led_color[2] = int(hdd_led_color[2])
@@ -489,25 +464,19 @@ class ReadConfigurationClass(QThread):
                             else:
                                 default_hdd_led_bool[2] = True
                             if True not in default_hdd_led_bool:
-                                # print('hdd_led_color: passed sanitization checks. using custom color')
                                 i = 0
                                 hdd_led_item = []
                                 for _ in alpha_led:
                                     itm = {alpha_led[i]: hdd_led_color}
                                     hdd_led_item.append(itm)
                                     i += 1
-                                # print(hdd_led_item)
                             elif True in default_hdd_led_bool:
-                                # print('hdd_led_color: failed sanitization checks. using default color')
                                 hdd_led_color = [255, 255, 255]
                 if line.startswith('hdd_led_color_off: '):
                     hdd_led_color_off = line.replace('hdd_led_color_off: ', '')
                     hdd_led_color_off = hdd_led_color_off.split(',')
-                    # print('hdd_led_color_off:', hdd_led_color_off)
                     if len(hdd_led_color_off) == 3:
-                        # print('hdd_led_color_off: has 3 items')
                         if str(hdd_led_color_off[0]).isdigit() and str(hdd_led_color_off[1]).isdigit() and str(hdd_led_color_off[2]).isdigit():
-                            # print('hdd_led_color_off 0-3: isdigits')
                             hdd_led_color_off[0] = int(hdd_led_color_off[0])
                             hdd_led_color_off[1] = int(hdd_led_color_off[1])
                             hdd_led_color_off[2] = int(hdd_led_color_off[2])
@@ -525,25 +494,19 @@ class ReadConfigurationClass(QThread):
                             else:
                                 default_hdd_led_bool[2] = True
                             if True not in default_hdd_led_bool:
-                                # print('hdd_led_color_off: passed sanitization checks. using custom color')
                                 i = 0
                                 hdd_led_off_item = []
                                 for _ in alpha_led:
                                     itm = {alpha_led[i]: hdd_led_color_off}
                                     hdd_led_off_item.append(itm)
                                     i += 1
-                                # print(hdd_led_item)
                             elif True in default_hdd_led_bool:
-                                # print('hdd_led_color_off: failed sanitization checks. using default color')
                                 hdd_led_color_off = [0, 0, 0]
                 if line.startswith('hdd_led_time_on: '):
                     line = line.replace('hdd_led_time_on: ', '')
-                    # print('hdd_led_time_on:', line)
                     try:
-                        # print('hdd_led_time_on: is decimal. using custom hdd_led_time_on value')
                         hdd_led_time_on = float(line)
                     except Exception as e:
-                        # print('hdd_led_time_on: is not decimal. using default hdd_led_time_on value')
                         hdd_led_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
 
@@ -555,11 +518,8 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('cpu_led_color: '):
                     cpu_led_color = line.replace('cpu_led_color: ', '')
                     cpu_led_color = cpu_led_color.split(',')
-                    # print('cpu_led_color:', cpu_led_color)
                     if len(cpu_led_color) == 3:
-                        # print('cpu_led_color: has 3 items')
                         if str(cpu_led_color[0]).isdigit() and str(cpu_led_color[1]).isdigit() and str(cpu_led_color[2]).isdigit():
-                            # print('cpu_led_color 0-3: isdigits')
                             cpu_led_color[0] = int(cpu_led_color[0])
                             cpu_led_color[1] = int(cpu_led_color[1])
                             cpu_led_color[2] = int(cpu_led_color[2])
@@ -577,23 +537,18 @@ class ReadConfigurationClass(QThread):
                             else:
                                 default_cpu_led_bool[2] = True
                             if True not in default_cpu_led_bool:
-                                # print('cpu_led_color: passed sanitization checks. using custom color')
                                 cpu_led_item = [
                                     ({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 1
                                     ({113: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 4
                                     ({109: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 7
                                     ({103: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])})]  # num
                             elif True in default_cpu_led_bool:
-                                # print('cpu_led_color: failed sanitization checks. using default color')
                                 cpu_led_color = [255, 255, 255]
                 if line.startswith('cpu_led_time_on: '):
                     line = line.replace('cpu_led_time_on: ', '')
-                    # print('cpu_led_time_on:', line)
                     try:
-                        # print('cpu_led_time_on: is decimal. using custom cpu_led_time_on value')
                         cpu_led_time_on = float(line)
                     except Exception as e:
-                        # print('cpu_led_time_on: is not decimal. using default cpu_led_time_on value')
                         cpu_led_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
 
@@ -605,11 +560,8 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('dram_led_color: '):
                     dram_led_color = line.replace('dram_led_color: ', '')
                     dram_led_color = dram_led_color.split(',')
-                    # print('dram_led_color:', dram_led_color)
                     if len(dram_led_color) == 3:
-                        # print('dram_led_color: has 3 items')
                         if str(dram_led_color[0]).isdigit() and str(dram_led_color[1]).isdigit() and str(dram_led_color[2]).isdigit():
-                            # print('dram_led_color 0-3: isdigits')
                             dram_led_color[0] = int(dram_led_color[0])
                             dram_led_color[1] = int(dram_led_color[1])
                             dram_led_color[2] = int(dram_led_color[2])
@@ -627,23 +579,18 @@ class ReadConfigurationClass(QThread):
                             else:
                                 default_dram_led_bool[2] = True
                             if True not in default_dram_led_bool:
-                                # print('dram_led_color: passed sanitization checks. using custom color')
                                 dram_led_item = [
                                     ({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 2
                                     ({114: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 5
                                     ({110: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 8
                                     ({104: (dram_led_color[0], dram_led_color[1], dram_led_color[2])})]  # /
                             elif True in default_dram_led_bool:
-                                # print('dram_led_color: failed sanitization checks. using default color')
                                 dram_led_color = [255, 255, 255]
                 if line.startswith('dram_led_time_on: '):
                     line = line.replace('dram_led_time_on: ', '')
-                    # print('dram_led_time_on:', line)
                     try:
-                        # print('dram_led_time_on: is decimal. using custom dram_led_time_on value')
                         dram_led_time_on = float(line)
                     except Exception as e:
-                        # print('dram_led_time_on: is not decimal. using default dram_led_time_on value')
                         dram_led_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_sanitize [EXCEPTION]:', e)
 
@@ -655,11 +602,8 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('vram_led_color: '):
                     vram_led_color = line.replace('vram_led_color: ', '')
                     vram_led_color = vram_led_color.split(',')
-                    # print('vram_led_color:', vram_led_color)
                     if len(vram_led_color) == 3:
-                        # print('vram_led_color: has 3 items')
                         if str(vram_led_color[0]).isdigit() and str(vram_led_color[1]).isdigit() and str(vram_led_color[2]).isdigit():
-                            # print('vram_led_color 0-3: isdigits')
                             vram_led_color[0] = int(vram_led_color[0])
                             vram_led_color[1] = int(vram_led_color[1])
                             vram_led_color[2] = int(vram_led_color[2])
@@ -677,42 +621,35 @@ class ReadConfigurationClass(QThread):
                             else:
                                 default_vram_led_bool[2] = True
                             if True not in default_vram_led_bool:
-                                # print('vram_led_color: passed sanitization checks. using custom color')
                                 vram_led_item = [
                                     ({118: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 3
                                     ({115: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 6
                                     ({111: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 9
                                     ({105: (vram_led_color[0], vram_led_color[1], vram_led_color[2])})]  # *
                             elif True in default_vram_led_bool:
-                                # print('vram_led_color: failed sanitization checks. using default color')
                                 vram_led_color = [255, 255, 255]
                 if line.startswith('vram_led_time_on: '):
                     line = line.replace('vram_led_time_on: ', '')
-                    # print('vram_led_time_on:', line)
                     try:
-                        # print('vram_led_time_on: is decimal. using custom vram_led_time_on value')
                         vram_led_time_on = float(line)
                     except Exception as e:
-                        # print('vram_led_time_on: is not decimal. using default vram_led_time_on value')
                         vram_led_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: vram_sanitize [EXCEPTION]:', e)
                 if line.startswith('gpu_num: '):
                     line = line.replace('gpu_num: ', '')
-                    # print('gpu_num:', line)
                     if line.isdigit():
-                        # print('gpu_num: is digit')
                         line = int(line)
                         gpus = GPUtil.getGPUs()
                         if len(gpus) >= line:
-                            # print('gpu_num: exists. using custom gpu_num value')
                             gpu_num = line
                         else:
                             print('gpu_num: may exceed gpus currently active on the system. using default value')
+                            gpu_num = 0
                     else:
-                        # print('gpu_num: is not digit. using default gpu_num value')
                         gpu_num = 0
 
     def run(self):
+        print('-- thread started: ReadConfigurationClass(QThread).run(self)')
         global allow_configuration_read_bool, allow_mon_threads_bool
         try:
             print('allow_configuration_read_bool', allow_configuration_read_bool)
@@ -761,7 +698,6 @@ class HddMonClass(QThread):
         sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
-        print()
         global hdd_display_key_bool, alpha_str, hdd_display_key_bool
         try:
             hdd_display_key_bool = []
