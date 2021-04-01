@@ -8,13 +8,11 @@ import win32com.client
 import win32api
 import win32process
 import win32con
-from win32api import GetMonitorInfo, MonitorFromPoint
 from PyQt5.QtCore import Qt, QThread, QSize, QPoint, QCoreApplication, QObject, QTimer
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QDesktopWidget
-from PyQt5.QtGui import QIcon, QCursor
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QDesktopWidget, QLineEdit
+from PyQt5.QtGui import QIcon, QCursor, QFont
 from PyQt5 import QtCore
 from cuesdk import CueSdk
-import time
 import GPUtil
 import psutil
 import pythoncom
@@ -60,10 +58,14 @@ prev_obj_eve = []
 mon_threads = []
 conf_thread = []
 
+allow_display_application = False
+hdd_startup_bool = False
+cpu_startup_bool = False
+dram_startup_bool = False
+vram_startup_bool = False
 allow_mon_threads_bool = False
 connected_bool = None
 connected_bool_prev = None
-allow_configuration_read_bool = False
 
 sdk = CueSdk(os.path.join(os.getcwd(), 'bin\\CUESDK.x64_2017.dll'))
 k95_rgb_platinum = []
@@ -119,6 +121,7 @@ for _ in alpha_led:
 
 cpu_stat = ()
 cpu_led_color = [255, 255, 255]
+cpu_led_color_off = [0, 0, 0]
 cpu_led_time_on = 0.05
 cpu_led_item = [({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 2
     ({113: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 5
@@ -133,6 +136,7 @@ cpu_led_off_item = [({116: (0, 0, 0)}),
 
 dram_stat = ()
 dram_led_color = [255, 255, 255]
+dram_led_color_off = [0, 0, 0]
 dram_led_time_on = 0.05
 dram_led_item = [({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 2
     ({114: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 5
@@ -148,6 +152,7 @@ dram_led_off_item = [({117: (0, 0, 0)}),
 gpu_num = ()
 vram_stat = ()
 vram_led_color = [255, 255, 255]
+vram_led_color_off = [0, 0, 0]
 vram_led_time_on = 0.05
 vram_led_item = [({118: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 3
     ({115: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 6
@@ -157,9 +162,7 @@ vram_led_off_item = [({118: (0, 0, 0)}),
                 ({115: (0, 0, 0)}),
                 ({111: (0, 0, 0)}),
                 ({105: (0, 0, 0)})]
-
 exclusive_access_bool = False
-exclusive_access_bool_prev = None
 vram_initiation = False
 vram_display_key_bool = [False, False, False, False]
 
@@ -186,7 +189,7 @@ class ObjEveFilter(QObject):
             elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] == glo_obj[4]:
                 self.unhighlightObject()
                 glo_obj[4].setStyleSheet(
-                    """QPushButton{background-color: rgb(0, 0, 255);
+                    """QPushButton{background-color: rgb(37, 37, 37);
                        border:0px solid rgb(0, 0, 0);}"""
                 )
         return False
@@ -226,8 +229,8 @@ class App(QMainWindow):
         print('-- setting self.title as:', self.title)
         self.setWindowTitle(self.title)
 
-        self.width = 605
-        self.height = 110
+        self.width = 371
+        self.height = 175
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -242,39 +245,48 @@ class App(QMainWindow):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setPalette(p)
 
+        self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
+
+        self.title_bar_h = 20
+        self.title_bar_btn_w = (self.title_bar_h * 1.5)
+        self.monitor_btn_h = 20
+        self.monitor_btn_w = 68
+        self.monitor_btn_pos_w = 2
+        self.monitor_btn_pos_h = 25
+
         self.btn_title_logo = QPushButton(self)
         self.btn_title_logo.move(0, 0)
-        self.btn_title_logo.resize(20, 20)
-        # self.btn_title_logo.setIcon(QIcon("./image/img_logo_titlebar.png"))
-        self.btn_title_logo.setIconSize(QSize(20, 20))
+        self.btn_title_logo.resize(self.title_bar_h, self.title_bar_h)
+        # self.btn_title_logo.setIcon(QIcon("./image/dev_target_25x25.png"))
+        self.btn_title_logo.setIconSize(QSize(self.title_bar_btn_w, self.title_bar_btn_w))
         self.btn_title_logo.setStyleSheet(
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
         self.btn_title_logo.installEventFilter(self.filter)
-        print('-- created btn_title_logo', self.btn_title_logo)
+        print('-- created:', self.btn_title_logo)
         glo_obj.append(self.btn_title_logo)
 
         self.lbl_title_bg = QLabel(self)
-        self.lbl_title_bg.move(20, 0)
-        self.lbl_title_bg.resize(self.width - 40, 20)
+        self.lbl_title_bg.move(self.title_bar_btn_w, 0)
+        self.lbl_title_bg.resize((self.width - (self.title_bar_btn_w * 2)), self.title_bar_h)
         self.lbl_title_bg.setStyleSheet(
             """QLabel {background-color: rgb(0, 0, 0);
            border:0px solid rgb(35, 35, 35);}"""
         )
         self.lbl_title_bg.installEventFilter(self.filter)
-        print('-- created lbl_title_bg', self.lbl_title_bg)
+        print('-- created:', self.lbl_title_bg)
         glo_obj.append(self.lbl_title_bg)
 
         self.lbl_main_bg = QLabel(self)
-        self.lbl_main_bg.move(0, 20)
-        self.lbl_main_bg.resize(self.width, self.height)
+        self.lbl_main_bg.move(0, self.title_bar_h)
+        self.lbl_main_bg.resize(self.width, (self.height - self.title_bar_h))
         self.lbl_main_bg.setStyleSheet(
             """QLabel {background-color: rgb(15, 15, 15);
            border:0px solid rgb(35, 35, 35);}"""
         )
         self.lbl_main_bg.installEventFilter(self.filter)
-        print('-- created lbl_main_bg', self.lbl_main_bg)
+        print('-- created:', self.lbl_main_bg)
         glo_obj.append(self.lbl_main_bg)
 
         self.btn_quit = QPushButton(self)
@@ -288,7 +300,7 @@ class App(QMainWindow):
                border:0px solid rgb(0, 0, 0);}"""
         )
         self.btn_quit.installEventFilter(self.filter)
-        print('-- created self.btn_quit', self.btn_quit)
+        print('-- created:', self.btn_quit)
         glo_obj.append(self.btn_quit)
 
         self.btn_minimize = QPushButton(self)
@@ -305,13 +317,527 @@ class App(QMainWindow):
         print('-- created self.btn_minimize', self.btn_minimize)
         glo_obj.append(self.btn_minimize)
 
+        self.lbl_cpu_mon = QLabel(self)
+        self.lbl_cpu_mon.move(2, (self.monitor_btn_pos_h * 2))
+        self.lbl_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_cpu_mon.setFont(self.font_s8b)
+        self.lbl_cpu_mon.setText('CPU')
+        self.lbl_cpu_mon.setStyleSheet(
+            """QLabel {background-color: rgb(15, 15, 15);
+           color: rgb(200, 200, 200);
+           border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.lbl_cpu_mon.installEventFilter(self.filter)
+        print('-- created:', self.lbl_cpu_mon)
+        glo_obj.append(self.lbl_cpu_mon)
+
+        self.btn_cpu_mon = QPushButton(self)
+        self.btn_cpu_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_cpu_mon.setFont(self.font_s8b)
+        self.btn_cpu_mon.setFont(self.font_s8b)
+        self.btn_cpu_mon.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.btn_cpu_mon.clicked.connect(self.btn_cpu_mon_function)
+        self.btn_cpu_mon.installEventFilter(self.filter)
+        print('-- created:', self.btn_cpu_mon)
+        glo_obj.append(self.btn_cpu_mon)
+
+        self.btn_cpu_mon_rgb_on = QLineEdit(self)
+        self.btn_cpu_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_cpu_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon_rgb_on.setFont(self.font_s8b)
+        self.btn_cpu_mon_rgb_on.returnPressed.connect(self.btn_cpu_mon_rgb_on_function)
+        self.btn_cpu_mon_rgb_on.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.btn_cpu_mon_rgb_off = QLineEdit(self)
+        self.btn_cpu_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_cpu_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon_rgb_off.setFont(self.font_s8b)
+        self.btn_cpu_mon_rgb_off.returnPressed.connect(self.btn_cpu_mon_rgb_off_function)
+        self.btn_cpu_mon_rgb_off.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.lbl_dram_mon = QLabel(self)
+        self.lbl_dram_mon.move(2, (self.monitor_btn_pos_h * 3))
+        self.lbl_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_dram_mon.setFont(self.font_s8b)
+        self.lbl_dram_mon.setText('DRAM')
+        self.lbl_dram_mon.setStyleSheet(
+            """QLabel {background-color: rgb(15, 15, 15);
+           color: rgb(200, 200, 200);
+           border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.lbl_dram_mon.installEventFilter(self.filter)
+        print('-- created:', self.lbl_dram_mon)
+        glo_obj.append(self.lbl_dram_mon)
+
+        self.btn_dram_mon = QPushButton(self)
+        self.btn_dram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_dram_mon.setFont(self.font_s8b)
+        self.btn_dram_mon.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.btn_dram_mon.clicked.connect(self.btn_dram_mon_function)
+        self.btn_dram_mon.installEventFilter(self.filter)
+        print('-- created:', self.btn_dram_mon)
+        glo_obj.append(self.btn_dram_mon)
+
+        self.btn_dram_mon_rgb_on = QLineEdit(self)
+        self.btn_dram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_dram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon_rgb_on.setFont(self.font_s8b)
+        self.btn_dram_mon_rgb_on.returnPressed.connect(self.btn_dram_mon_rgb_on_function)
+        self.btn_dram_mon_rgb_on.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.btn_dram_mon_rgb_off = QLineEdit(self)
+        self.btn_dram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_dram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon_rgb_off.setFont(self.font_s8b)
+        self.btn_dram_mon_rgb_off.returnPressed.connect(self.btn_dram_mon_rgb_off_function)
+        self.btn_dram_mon_rgb_off.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.lbl_vram_mon = QLabel(self)
+        self.lbl_vram_mon.move(2, (self.monitor_btn_pos_h * 4))
+        self.lbl_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_vram_mon.setFont(self.font_s8b)
+        self.lbl_vram_mon.setText('VRAM')
+        self.lbl_vram_mon.setStyleSheet(
+            """QLabel {background-color: rgb(15, 15, 15);
+           color: rgb(200, 200, 200);
+           border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.lbl_vram_mon.installEventFilter(self.filter)
+        print('-- created:', self.lbl_vram_mon)
+        glo_obj.append(self.lbl_vram_mon)
+
+        self.btn_vram_mon = QPushButton(self)
+        self.btn_vram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_vram_mon.setFont(self.font_s8b)
+        self.btn_vram_mon.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.btn_vram_mon.clicked.connect(self.btn_vram_mon_function)
+        self.btn_vram_mon.installEventFilter(self.filter)
+        print('-- created:', self.btn_vram_mon)
+        glo_obj.append(self.btn_vram_mon)
+
+        self.btn_vram_mon_rgb_on = QLineEdit(self)
+        self.btn_vram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_vram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon_rgb_on.setFont(self.font_s8b)
+        self.btn_vram_mon_rgb_on.returnPressed.connect(self.btn_vram_mon_rgb_on_function)
+        self.btn_vram_mon_rgb_on.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.btn_vram_mon_rgb_off = QLineEdit(self)
+        self.btn_vram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_vram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon_rgb_off.setFont(self.font_s8b)
+        self.btn_vram_mon_rgb_off.returnPressed.connect(self.btn_vram_mon_rgb_off_function)
+        self.btn_vram_mon_rgb_off.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.lbl_hdd_mon = QLabel(self)
+        self.lbl_hdd_mon.move(2, (self.monitor_btn_pos_h * 5))
+        self.lbl_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_hdd_mon.setFont(self.font_s8b)
+        self.lbl_hdd_mon.setText('HDD')
+        self.lbl_hdd_mon.setStyleSheet(
+            """QLabel {background-color: rgb(15, 15, 15);
+           color: rgb(200, 200, 200);
+           border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.lbl_hdd_mon.installEventFilter(self.filter)
+        print('-- created:', self.lbl_hdd_mon)
+        glo_obj.append(self.lbl_hdd_mon)
+
+        self.btn_hdd_mon = QPushButton(self)
+        self.btn_hdd_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_hdd_mon.setFont(self.font_s8b)
+        self.btn_hdd_mon.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.btn_hdd_mon.clicked.connect(self.btn_hdd_mon_function)
+        self.btn_hdd_mon.installEventFilter(self.filter)
+        print('-- created:', self.btn_hdd_mon)
+        glo_obj.append(self.btn_hdd_mon)
+
+        self.btn_hdd_mon_rgb_on = QLineEdit(self)
+        self.btn_hdd_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_hdd_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon_rgb_on.setFont(self.font_s8b)
+        self.btn_hdd_mon_rgb_on.returnPressed.connect(self.btn_hdd_mon_rgb_on_function)
+        self.btn_hdd_mon_rgb_on.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.btn_hdd_mon_rgb_off = QLineEdit(self)
+        self.btn_hdd_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_hdd_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon_rgb_off.setFont(self.font_s8b)
+        self.btn_hdd_mon_rgb_off.returnPressed.connect(self.btn_hdd_mon_rgb_off_function)
+        self.btn_hdd_mon_rgb_off.setStyleSheet(
+            """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+
+        self.lbl_exclusive_con = QLabel(self)
+        self.lbl_exclusive_con.move(2, (self.monitor_btn_pos_h * 6))
+        self.lbl_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_exclusive_con.setFont(self.font_s8b)
+        self.lbl_exclusive_con.setText('EX_CON')
+        self.lbl_exclusive_con.setStyleSheet(
+            """QLabel {background-color: rgb(15, 15, 15);
+           color: rgb(200, 200, 200);
+           border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.lbl_exclusive_con.installEventFilter(self.filter)
+        print('-- created:', self.lbl_exclusive_con)
+        glo_obj.append(self.lbl_exclusive_con)
+
+        self.btn_exclusive_con = QPushButton(self)
+        self.btn_exclusive_con.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 6))
+        self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_exclusive_con.setFont(self.font_s8b)
+        self.btn_exclusive_con.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+        )
+        self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
+        self.btn_exclusive_con.installEventFilter(self.filter)
+        print('-- created:', self.btn_exclusive_con)
+        glo_obj.append(self.btn_exclusive_con)
+
+        self.cpu_led_color_str = ""
+        self.dram_led_color_str = ""
+        self.vram_led_color_str = ""
+        self.hdd_led_color_str = ""
+
+        self.cpu_led_color_off_str = ""
+        self.dram_led_color_off_str = ""
+        self.vram_led_color_off_str = ""
+        self.hdd_led_color_off_str = ""
+
+        self.write_var = ''
+        self.write_var_bool = False
+        self.write_var_key = -1
+
         self.initUI()
 
+    def sanitize_rgb_values(self):
+        global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
+        global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
+        print('-- attempting to sanitize input:', self.btn_cpu_mon_rgb_on.text())
+        var_str = self.btn_cpu_mon_rgb_on.text()
+        var_str = var_str.replace(' ', '')
+        var_str = var_str.split(',')
+
+        self.write_var_bool = False
+        if len(var_str) == 3:
+            if len(var_str[0]) >= 1 and len(var_str[0]) <= 3:
+                if len(var_str[1]) >= 1 and len(var_str[1]) <= 3:
+                    if len(var_str[2]) >= 1 and len(var_str[2]) <= 3:
+                        if var_str[0].isdigit():
+                            if var_str[1].isdigit():
+                                if var_str[2].isdigit():
+                                    var_int_0 = int(var_str[0])
+                                    var_int_1 = int(var_str[1])
+                                    var_int_2 = int(var_str[2])
+                                    if var_int_0 >= 0 and var_int_0 <= 255:
+                                        if var_int_1 >= 0 and var_int_1 <= 255:
+                                            if var_int_2 >= 0 and var_int_2 <= 255:
+                                                self.write_var_bool = True
+                                                if self.write_var_key == 0:
+                                                    cpu_led_color = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'cpu_led_color: ' + self.btn_cpu_mon_rgb_on.text().replace(' ', '')
+                                                elif self.write_var_key == 1:
+                                                    dram_led_color = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'dram_led_color: ' + self.btn_dram_mon_rgb_on.text().replace(' ', '')
+                                                elif self.write_var_key == 2:
+                                                    vram_led_color = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'vram_led_color: ' + self.btn_vram_mon_rgb_on.text().replace(' ', '')
+                                                elif self.write_var_key == 3:
+                                                    hdd_led_color = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'hdd_led_color: ' + self.btn_hdd_mon_rgb_on.text().replace(' ', '')
+                                                elif self.write_var_key == 4:
+                                                    cpu_led_color_off = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'cpu_led_color_off: ' + self.btn_cpu_mon_rgb_off.text().replace(' ', '')
+                                                elif self.write_var_key == 5:
+                                                    dram_led_color_off = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'dram_led_color_off: ' + self.btn_dram_mon_rgb_off.text().replace(' ', '')
+                                                elif self.write_var_key == 6:
+                                                    vram_led_color_off = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'vram_led_color_off: ' + self.btn_vram_mon_rgb_off.text().replace(' ', '')
+                                                elif self.write_var_key == 7:
+                                                    hdd_led_color_off = [var_int_0, var_int_1, var_int_2]
+                                                    self.write_var = 'hdd_led_color_off: ' + self.btn_hdd_mon_rgb_off.text().replace(' ', '')
+
+    def write_changes(self):
+        write_var_split = self.write_var.split()
+        write_var_split_key = write_var_split[0]
+        self.write_var = self.write_var.strip()
+        print(write_var_split)
+
+        new_config_data = []
+        print('-- writing changes to configuration file:', self.write_var)
+        with open('./config.dat', 'r') as fo:
+            for line in fo:
+                line = line.strip()
+                print('0', line)
+                if line.startswith(write_var_split_key):
+                    print('1', line)
+                    new_config_data.append(self.write_var)
+                    print(self.write_var)
+                else:
+                    new_config_data.append(line)
+        fo.close()
+
+        open('./config.dat', 'w').close()
+
+        with open('./config.dat', 'a') as fo:
+            i = 0
+            for new_config_datas in new_config_data:
+                fo.writelines(new_config_data[i] + '\n')
+                i += 1
+        fo.close()
+
+    def btn_cpu_mon_rgb_off_function(self):
+        global conf_thread
+        self.write_var_key = 4
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
+        self.cpu_led_color_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
+        self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_str)
+        conf_thread[0].start()
+
+    def btn_dram_mon_rgb_off_function(self):
+        global conf_thread
+        self.write_var_key = 5
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_off.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_off.text())
+        self.dram_led_color_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
+        self.btn_dram_mon_rgb_off.setText(self.dram_led_color_str)
+        conf_thread[0].start()
+
+    def btn_vram_mon_rgb_off_function(self):
+        global conf_thread
+        self.write_var_key = 6
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_off.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_off.text())
+        self.vram_led_color_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
+        self.btn_vram_mon_rgb_off.setText(self.vram_led_color_str)
+        conf_thread[0].start()
+
+    def btn_hdd_mon_rgb_off_function(self):
+        global hdd_led_color, conf_thread
+        self.write_var_key = 7
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
+        self.hdd_led_color_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
+        self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_str)
+        conf_thread[0].start()
+
+    def btn_cpu_mon_rgb_on_function(self):
+        global cpu_led_color, conf_thread
+        self.write_var_key = 0
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
+        self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
+        self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+        conf_thread[0].start()
+
+    def btn_dram_mon_rgb_on_function(self):
+        global conf_thread
+        self.write_var_key = 1
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_on.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_on.text())
+        self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
+        self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+        conf_thread[0].start()
+
+    def btn_vram_mon_rgb_on_function(self):
+        global conf_thread
+        self.write_var_key = 2
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_on.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_on.text())
+        self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
+        self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+        conf_thread[0].start()
+
+    def btn_hdd_mon_rgb_on_function(self):
+        global hdd_led_color, conf_thread
+        self.write_var_key = 3
+        self.sanitize_rgb_values()
+        if self.write_var_bool is True:
+            print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
+            self.write_changes()
+        else:
+            print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
+        self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
+        self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+        conf_thread[0].start()
+
+    def btn_cpu_mon_function(self):
+        print('-- clicked: btn_cpu_mon')
+        global cpu_startup_bool, mon_threads
+        if cpu_startup_bool is True:
+            print('-- stopping: cpu monitor')
+            self.write_var = 'cpu_startup: false'
+            mon_threads[1].stop()
+            cpu_startup_bool = False
+            self.btn_cpu_mon.setText('DISABLED')
+        elif cpu_startup_bool is False:
+            print('-- starting: cpu monitor')
+            self.write_var = 'cpu_startup: true'
+            mon_threads[1].start()
+            cpu_startup_bool = True
+            self.btn_cpu_mon.setText('ENABLED')
+        self.write_changes()
+
+    def btn_dram_mon_function(self):
+        print('-- clicked: btn_dram_mon')
+        global dram_startup_bool
+        if dram_startup_bool is True:
+            print('-- stopping: dram monitor')
+            self.write_var = 'dram_startup: false'
+            mon_threads[2].stop()
+            dram_startup_bool = False
+            self.btn_dram_mon.setText('DISABLED')
+        elif dram_startup_bool is False:
+            print('-- starting: dram monitor')
+            self.write_var = 'dram_startup: true'
+            mon_threads[2].start()
+            dram_startup_bool = True
+            self.btn_dram_mon.setText('ENABLED')
+        self.write_changes()
+
+    def btn_vram_mon_function(self):
+        print('-- clicked: btn_vram_mon')
+        global vram_startup_bool
+        if vram_startup_bool is True:
+            print('-- stopping: vram monitor')
+            self.write_var = 'vram_startup: false'
+            mon_threads[3].stop()
+            vram_startup_bool = False
+            self.btn_vram_mon.setText('DISABLED')
+        elif vram_startup_bool is False:
+            print('-- starting: vram monitor')
+            self.write_var = 'vram_startup: true'
+            mon_threads[3].start()
+            vram_startup_bool = True
+            self.btn_vram_mon.setText('ENABLED')
+        self.write_changes()
+
+    def btn_hdd_mon_function(self):
+        print('-- clicked: btn_hdd_mon')
+        global hdd_startup_bool
+        if hdd_startup_bool is True:
+            print('-- stopping: hdd monitor')
+            self.write_var = 'hdd_startup: false'
+            mon_threads[0].stop()
+            hdd_startup_bool = False
+            self.btn_hdd_mon.setText('DISABLED')
+        elif hdd_startup_bool is False:
+            print('-- starting: hdd monitor')
+            self.write_var = 'hdd_startup: true'
+            mon_threads[0].start()
+            hdd_startup_bool = True
+            self.btn_hdd_mon.setText('ENABLED')
+        self.write_changes()
+
+    def btn_exclusive_con_function(self):
+        print('clicked: btn_exclusive_con_function')
+        global exclusive_access_bool
+        if exclusive_access_bool is True:
+            print('-- exclusive access request changed: requesting control')
+            self.write_var = 'exclusive_access: true'
+            sdk.request_control()
+            exclusive_access_bool = False
+            self.btn_exclusive_con.setText('ENABLED')
+
+        elif exclusive_access_bool is False:
+            print('-- exclusive access request changed: releasing control')
+            self.write_var = 'exclusive_access: false'
+            sdk.release_control()
+            exclusive_access_bool = True
+            self.btn_exclusive_con.setText('DISABLED')
+        self.write_changes()
+
     def initUI(self):
-        global mon_threads, conf_thread
+        global mon_threads, conf_thread, allow_display_application, exclusive_access_bool
+        global cpu_startup_bool, dram_startup_bool, vram_startup_bool, hdd_startup_bool
+        global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
+        global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
         compile_devices_thread = CompileDevicesClass()
         compile_devices_thread.start()
         read_configuration_thread = ReadConfigurationClass()
+        read_configuration_thread.start()
         conf_thread.append(read_configuration_thread)
         hdd_mon_thread = HddMonClass()
         mon_threads.append(hdd_mon_thread)
@@ -322,6 +848,73 @@ class App(QMainWindow):
         vram_mon_thread = VramMonClass()
         mon_threads.append(vram_mon_thread)
         print('\n-- displaying application:')
+        while allow_display_application is False:
+            time.sleep(1)
+        if cpu_startup_bool is True:
+            self.btn_cpu_mon.setText('ENABLED')
+        elif cpu_startup_bool is False:
+            self.btn_cpu_mon.setText('DISABLED')
+        if dram_startup_bool is True:
+            self.btn_dram_mon.setText('ENABLED')
+        elif dram_startup_bool is False:
+            self.btn_dram_mon.setText('DISABLED')
+        if vram_startup_bool is True:
+            self.btn_vram_mon.setText('ENABLED')
+        elif vram_startup_bool is False:
+            self.btn_vram_mon.setText('DISABLED')
+        if hdd_startup_bool is True:
+            self.btn_hdd_mon.setText('ENABLED')
+        elif hdd_startup_bool is False:
+            self.btn_hdd_mon.setText('DISABLED')
+
+        if exclusive_access_bool is True:
+            self.btn_exclusive_con.setText('ENABLED')
+            exclusive_access_bool = True
+
+        elif exclusive_access_bool is False:
+            self.btn_exclusive_con.setText('DISABLED')
+            exclusive_access_bool = False
+
+        self.cpu_led_color_str = str(cpu_led_color).strip()
+        self.cpu_led_color_str = self.cpu_led_color_str.replace('[', '')
+        self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
+        self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+
+        self.dram_led_color_str = str(dram_led_color).strip()
+        self.dram_led_color_str = self.dram_led_color_str.replace('[', '')
+        self.dram_led_color_str = self.dram_led_color_str.replace(']', '')
+        self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+
+        self.vram_led_color_str = str(vram_led_color).strip()
+        self.vram_led_color_str = self.vram_led_color_str.replace('[', '')
+        self.vram_led_color_str = self.vram_led_color_str.replace(']', '')
+        self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+
+        self.hdd_led_color_str = str(hdd_led_color).strip()
+        self.hdd_led_color_str = self.hdd_led_color_str.replace('[', '')
+        self.hdd_led_color_str = self.hdd_led_color_str.replace(']', '')
+        self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+
+        self.cpu_led_color_off_str = str(cpu_led_color_off).strip()
+        self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace('[', '')
+        self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(']', '')
+        self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
+
+        self.dram_led_color_off_str = str(dram_led_color_off).strip()
+        self.dram_led_color_off_str = self.dram_led_color_off_str.replace('[', '')
+        self.dram_led_color_off_str = self.dram_led_color_off_str.replace(']', '')
+        self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
+
+        self.vram_led_color_off_str = str(vram_led_color_off).strip()
+        self.vram_led_color_off_str = self.vram_led_color_off_str.replace('[', '')
+        self.vram_led_color_off_str = self.vram_led_color_off_str.replace(']', '')
+        self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
+
+        self.hdd_led_color_off_str = str(hdd_led_color_off).strip()
+        self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace('[', '')
+        self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
+        self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
+
         self.show()
 
     def mousePressEvent(self, event):
@@ -368,16 +961,15 @@ class CompileDevicesClass(QThread):
 
     def run(self):
         global sdk, k95_rgb_platinum
-        global allow_configuration_read_bool
         global connected_bool, connected_bool_prev
-        global exclusive_access_bool_prev
         global mon_threads, conf_thread
+        global hdd_startup_bool, cpu_startup_bool, dram_startup_bool, vram_startup_bool, exclusive_access_bool
+        time.sleep(3)
         while True:
             connected = sdk.connect()
             if not connected:
                 err = sdk.get_last_error()
                 connected_bool = False
-                allow_configuration_read_bool = False
             elif connected:
                 device = sdk.get_devices()
                 i = 0
@@ -388,7 +980,6 @@ class CompileDevicesClass(QThread):
                     i += 1
                 if len(k95_rgb_platinum) >= 1:
                     connected_bool = True
-                    allow_configuration_read_bool = True
             if connected_bool is False and connected_bool != connected_bool_prev:
                 print('-- stopping threads:', )
                 conf_thread[0].stop()
@@ -396,112 +987,127 @@ class CompileDevicesClass(QThread):
                 mon_threads[1].stop()
                 mon_threads[2].stop()
                 mon_threads[3].stop()
+                if exclusive_access_bool is True:
+                    sdk.request_control()
+                    exclusive_access_bool = False
+                elif exclusive_access_bool is False:
+                    sdk.release_control()
+                    exclusive_access_bool = True
                 connected_bool_prev = False
-                exclusive_access_bool_prev = None
             elif connected_bool is True and connected_bool != connected_bool_prev:
                 print('-- starting threads:', )
-                itm = {1: (255, 0, 0)}
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
-                conf_thread[0].start()
-                mon_threads[0].start()
-                mon_threads[1].start()
-                mon_threads[2].start()
-                mon_threads[3].start()
+                print('compile hdd_startup_bool:', hdd_startup_bool)
+                print('compile cpu_startup_bool:', cpu_startup_bool)
+                print('compile dram_startup_bool:', dram_startup_bool)
+                print('compile vram_startup_bool:', vram_startup_bool)
+                if hdd_startup_bool is True:
+                    mon_threads[0].start()
+                if cpu_startup_bool is True:
+                    mon_threads[1].start()
+                if dram_startup_bool is True:
+                    mon_threads[2].start()
+                if vram_startup_bool is True:
+                    mon_threads[3].start()
+                if exclusive_access_bool is True:
+                    sdk.request_control()
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                    exclusive_access_bool = False
+                elif exclusive_access_bool is False:
+                    sdk.release_control()
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                    exclusive_access_bool = True
                 connected_bool_prev = True
-                exclusive_access_bool_prev = None
             time.sleep(3)
 
 
 class ReadConfigurationClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.sanitize_passed = False
+        self.sanitize_str = ''
+
+    def sanitize_rgb_values(self):
+        print('-- attempting to sanitize input:', self.sanitize_str)
+        var_str = self.sanitize_str
+        self.sanitize_passed = False
+        if len(var_str) == 3:
+            if len(var_str[0]) >= 1 and len(var_str[0]) <= 3:
+                if len(var_str[1]) >= 1 and len(var_str[1]) <= 3:
+                    if len(var_str[2]) >= 1 and len(var_str[2]) <= 3:
+                        if var_str[0].isdigit():
+                            if var_str[1].isdigit():
+                                if var_str[2].isdigit():
+                                    var_int_0 = int(var_str[0])
+                                    var_int_1 = int(var_str[1])
+                                    var_int_2 = int(var_str[2])
+                                    if var_int_0 >= 0 and var_int_0 <= 255:
+                                        if var_int_1 >= 0 and var_int_1 <= 255:
+                                            if var_int_2 >= 0 and var_int_2 <= 255:
+                                                self.sanitize_passed = True
 
     def exclusive_access(self):
-        global exclusive_access_bool, exclusive_access_bool_prev, k95_rgb_platinum, k95_rgb_platinum_selected
+        global exclusive_access_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
                 if line.startswith('exclusive_access: '):
                     if line == 'exclusive_access: true':
+                        print('-- setting exclusive_access true')
                         exclusive_access_bool = True
                     elif line == 'exclusive_access: false':
+                        print('-- setting exclusive_access false')
                         exclusive_access_bool = False
-        if exclusive_access_bool is True and exclusive_access_bool != exclusive_access_bool_prev:
-            print('-- exclusive access request changed: requesting control')
-            sdk.request_control()
-            itm = {1: (255, 0, 0)}
-            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
-            exclusive_access_bool_prev = True
-        elif exclusive_access_bool is False and exclusive_access_bool != exclusive_access_bool_prev:
-            print('-- exclusive access request changed: releasing control')
-            sdk.release_control()
-            exclusive_access_bool_prev = False
 
     def hdd_sanitize(self):
         global hdd_led_color, hdd_led_color_off, hdd_led_time_on, hdd_led_item, hdd_led_off_item
+        global hdd_startup_bool
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
+
+                if line == 'hdd_startup: true':
+                    hdd_startup_bool = True
+                    print('hdd_startup_bool:', hdd_startup_bool)
+                if line == 'hdd_startup: false':
+                    hdd_startup_bool = False
+                    print('hdd_startup_bool:', hdd_startup_bool)
+
                 if line.startswith('hdd_led_color: '):
                     hdd_led_color = line.replace('hdd_led_color: ', '')
                     hdd_led_color = hdd_led_color.split(',')
-                    if len(hdd_led_color) == 3:
-                        if str(hdd_led_color[0]).isdigit() and str(hdd_led_color[1]).isdigit() and str(hdd_led_color[2]).isdigit():
-                            hdd_led_color[0] = int(hdd_led_color[0])
-                            hdd_led_color[1] = int(hdd_led_color[1])
-                            hdd_led_color[2] = int(hdd_led_color[2])
-                            default_hdd_led_bool = [True, True, True]
-                            if hdd_led_color[0] >= 0 and hdd_led_color[0] <= 255:
-                                default_hdd_led_bool[0] = False
-                            else:
-                                default_hdd_led_bool[0] = True
-                            if hdd_led_color[1] >= 0 and hdd_led_color[1] <= 255:
-                                default_hdd_led_bool[1] = False
-                            else:
-                                default_hdd_led_bool[1] = True
-                            if hdd_led_color[2] >= 0 and hdd_led_color[2] <= 255:
-                                default_hdd_led_bool[2] = False
-                            else:
-                                default_hdd_led_bool[2] = True
-                            if True not in default_hdd_led_bool:
-                                i = 0
-                                hdd_led_item = []
-                                for _ in alpha_led:
-                                    itm = {alpha_led[i]: hdd_led_color}
-                                    hdd_led_item.append(itm)
-                                    i += 1
-                            elif True in default_hdd_led_bool:
-                                hdd_led_color = [255, 255, 255]
+                    self.sanitize_str = hdd_led_color
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        hdd_led_color[0] = int(hdd_led_color[0])
+                        hdd_led_color[1] = int(hdd_led_color[1])
+                        hdd_led_color[2] = int(hdd_led_color[2])
+                        i = 0
+                        hdd_led_item = []
+                        for _ in alpha_led:
+                            itm = {alpha_led[i]: hdd_led_color}
+                            hdd_led_item.append(itm)
+                            i += 1
+                    elif self.sanitize_passed is False:
+                        hdd_led_color = [255, 255, 255]
+
                 if line.startswith('hdd_led_color_off: '):
                     hdd_led_color_off = line.replace('hdd_led_color_off: ', '')
                     hdd_led_color_off = hdd_led_color_off.split(',')
-                    if len(hdd_led_color_off) == 3:
-                        if str(hdd_led_color_off[0]).isdigit() and str(hdd_led_color_off[1]).isdigit() and str(hdd_led_color_off[2]).isdigit():
-                            hdd_led_color_off[0] = int(hdd_led_color_off[0])
-                            hdd_led_color_off[1] = int(hdd_led_color_off[1])
-                            hdd_led_color_off[2] = int(hdd_led_color_off[2])
-                            default_hdd_led_bool = [True, True, True]
-                            if hdd_led_color_off[0] >= 0 and hdd_led_color_off[0] <= 255:
-                                default_hdd_led_bool[0] = False
-                            else:
-                                default_hdd_led_bool[0] = True
-                            if hdd_led_color_off[1] >= 0 and hdd_led_color_off[1] <= 255:
-                                default_hdd_led_bool[1] = False
-                            else:
-                                default_hdd_led_bool[1] = True
-                            if hdd_led_color_off[2] >= 0 and hdd_led_color_off[2] <= 255:
-                                default_hdd_led_bool[2] = False
-                            else:
-                                default_hdd_led_bool[2] = True
-                            if True not in default_hdd_led_bool:
-                                i = 0
-                                hdd_led_off_item = []
-                                for _ in alpha_led:
-                                    itm = {alpha_led[i]: hdd_led_color_off}
-                                    hdd_led_off_item.append(itm)
-                                    i += 1
-                            elif True in default_hdd_led_bool:
-                                hdd_led_color_off = [0, 0, 0]
+                    self.sanitize_str = hdd_led_color_off
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        hdd_led_color_off[0] = int(hdd_led_color_off[0])
+                        hdd_led_color_off[1] = int(hdd_led_color_off[1])
+                        hdd_led_color_off[2] = int(hdd_led_color_off[2])
+                        i = 0
+                        hdd_led_off_item = []
+                        for _ in alpha_led:
+                            itm = {alpha_led[i]: hdd_led_color_off}
+                            hdd_led_off_item.append(itm)
+                            i += 1
+                    elif self.sanitize_passed is False:
+                        hdd_led_color_off = [0, 0, 0]
+
                 if line.startswith('hdd_led_time_on: '):
                     line = line.replace('hdd_led_time_on: ', '')
                     try:
@@ -511,39 +1117,53 @@ class ReadConfigurationClass(QThread):
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
 
     def cpu_sanitize(self):
-        global cpu_led_color, cpu_led_time_on, cpu_led_item
+        global cpu_led_color, cpu_led_time_on, cpu_led_item, cpu_startup_bool
+        global cpu_led_color_off, cpu_led_off_item
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
+
+                if line == 'cpu_startup: true':
+                    cpu_startup_bool = True
+                    print('cpu_startup_bool:', cpu_startup_bool)
+
+                if line == 'cpu_startup: false':
+                    cpu_startup_bool = False
+                    print('cpu_startup_bool:', cpu_startup_bool)
+
                 if line.startswith('cpu_led_color: '):
                     cpu_led_color = line.replace('cpu_led_color: ', '')
                     cpu_led_color = cpu_led_color.split(',')
-                    if len(cpu_led_color) == 3:
-                        if str(cpu_led_color[0]).isdigit() and str(cpu_led_color[1]).isdigit() and str(cpu_led_color[2]).isdigit():
-                            cpu_led_color[0] = int(cpu_led_color[0])
-                            cpu_led_color[1] = int(cpu_led_color[1])
-                            cpu_led_color[2] = int(cpu_led_color[2])
-                            default_cpu_led_bool = [True, True, True]
-                            if cpu_led_color[0] >= 0 and cpu_led_color[0] <= 255:
-                                default_cpu_led_bool[0] = False
-                            else:
-                                default_cpu_led_bool[0] = True
-                            if cpu_led_color[1] >= 0 and cpu_led_color[1] <= 255:
-                                default_cpu_led_bool[1] = False
-                            else:
-                                default_cpu_led_bool[1] = True
-                            if cpu_led_color[2] >= 0 and cpu_led_color[2] <= 255:
-                                default_cpu_led_bool[2] = False
-                            else:
-                                default_cpu_led_bool[2] = True
-                            if True not in default_cpu_led_bool:
-                                cpu_led_item = [
-                                    ({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 1
-                                    ({113: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 4
-                                    ({109: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 7
-                                    ({103: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])})]  # num
-                            elif True in default_cpu_led_bool:
-                                cpu_led_color = [255, 255, 255]
+                    self.sanitize_str = cpu_led_color
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        cpu_led_color[0] = int(cpu_led_color[0])
+                        cpu_led_color[1] = int(cpu_led_color[1])
+                        cpu_led_color[2] = int(cpu_led_color[2])
+                        cpu_led_item = [
+                            ({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 1
+                            ({113: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 4
+                            ({109: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 7
+                            ({103: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])})]  # num
+                    elif self.sanitize_passed is False:
+                        cpu_led_color = [255, 255, 255]
+
+                if line.startswith('cpu_led_color_off: '):
+                    cpu_led_color_off = line.replace('cpu_led_color_off: ', '')
+                    cpu_led_color_off = cpu_led_color_off.split(',')
+                    self.sanitize_str = cpu_led_color_off
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        cpu_led_color_off[0] = int(cpu_led_color_off[0])
+                        cpu_led_color_off[1] = int(cpu_led_color_off[1])
+                        cpu_led_color_off[2] = int(cpu_led_color_off[2])
+                        cpu_led_off_item = [
+                            ({116: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])}),  # 1
+                            ({113: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])}),  # 4
+                            ({109: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])}),  # 7
+                            ({103: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])})]  # num
+                    elif self.sanitize_passed is False:
+                        cpu_led_color_off = [0, 0, 0]
                 if line.startswith('cpu_led_time_on: '):
                     line = line.replace('cpu_led_time_on: ', '')
                     try:
@@ -553,39 +1173,53 @@ class ReadConfigurationClass(QThread):
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
 
     def dram_sanitize(self):
-        global dram_led_color, dram_led_time_on, dram_led_item
+        global dram_led_color, dram_led_time_on, dram_led_item, dram_startup_bool, dram_led_color_off, dram_led_off_item
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
+
+                if line == 'dram_startup: true':
+                    dram_startup_bool = True
+                    print('dram_startup_bool:', dram_startup_bool)
+                if line == 'dram_startup: false':
+                    dram_startup_bool = False
+                    print('dram_startup_bool:', dram_startup_bool)
+
                 if line.startswith('dram_led_color: '):
                     dram_led_color = line.replace('dram_led_color: ', '')
                     dram_led_color = dram_led_color.split(',')
-                    if len(dram_led_color) == 3:
-                        if str(dram_led_color[0]).isdigit() and str(dram_led_color[1]).isdigit() and str(dram_led_color[2]).isdigit():
-                            dram_led_color[0] = int(dram_led_color[0])
-                            dram_led_color[1] = int(dram_led_color[1])
-                            dram_led_color[2] = int(dram_led_color[2])
-                            default_dram_led_bool = [True, True, True]
-                            if dram_led_color[0] >= 0 and dram_led_color[0] <= 255:
-                                default_dram_led_bool[0] = False
-                            else:
-                                default_dram_led_bool[0] = True
-                            if dram_led_color[1] >= 0 and dram_led_color[1] <= 255:
-                                default_dram_led_bool[1] = False
-                            else:
-                                default_dram_led_bool[1] = True
-                            if dram_led_color[2] >= 0 and dram_led_color[2] <= 255:
-                                default_dram_led_bool[2] = False
-                            else:
-                                default_dram_led_bool[2] = True
-                            if True not in default_dram_led_bool:
-                                dram_led_item = [
-                                    ({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 2
-                                    ({114: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 5
-                                    ({110: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 8
-                                    ({104: (dram_led_color[0], dram_led_color[1], dram_led_color[2])})]  # /
-                            elif True in default_dram_led_bool:
-                                dram_led_color = [255, 255, 255]
+                    self.sanitize_str = dram_led_color
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        print('dram_led_color: sanitize_passed')
+                        dram_led_color[0] = int(dram_led_color[0])
+                        dram_led_color[1] = int(dram_led_color[1])
+                        dram_led_color[2] = int(dram_led_color[2])
+                        dram_led_item = [({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 2
+                                         ({114: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 5
+                                         ({110: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 8
+                                         ({104: (dram_led_color[0], dram_led_color[1], dram_led_color[2])})]  # /
+                        print(dram_led_item)
+                    elif self.sanitize_passed is False:
+                        print('dram_led_color: sanitize_failed')
+                        dram_led_color = [255, 255, 255]
+
+                if line.startswith('dram_led_color_off: '):
+                    dram_led_color_off = line.replace('dram_led_color_off: ', '')
+                    dram_led_color_off = dram_led_color_off.split(',')
+                    self.sanitize_str = dram_led_color_off
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        dram_led_color_off[0] = int(dram_led_color_off[0])
+                        dram_led_color_off[1] = int(dram_led_color_off[1])
+                        dram_led_color_off[2] = int(dram_led_color_off[2])
+                        dram_led_off_item = [({117: (dram_led_color_off[0], dram_led_color_off[1], dram_led_color_off[2])}),  # 2
+                                         ({114: (dram_led_color_off[0], dram_led_color_off[1], dram_led_color_off[2])}),  # 5
+                                         ({110: (dram_led_color_off[0], dram_led_color_off[1], dram_led_color_off[2])}),  # 8
+                                         ({104: (dram_led_color_off[0], dram_led_color_off[1], dram_led_color_off[2])})]  # /
+                    elif self.sanitize_passed is False:
+                        dram_led_color_off = [0, 0, 0]
+
                 if line.startswith('dram_led_time_on: '):
                     line = line.replace('dram_led_time_on: ', '')
                     try:
@@ -595,39 +1229,53 @@ class ReadConfigurationClass(QThread):
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_sanitize [EXCEPTION]:', e)
 
     def vram_sanitize(self):
-        global vram_led_color, vram_led_time_on, gpu_num, vram_led_item
+        global vram_led_color, vram_led_time_on, gpu_num, vram_led_item, vram_startup_bool, vram_led_off_item, vram_led_color_off
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
+
+                if line == 'vram_startup: true':
+                    vram_startup_bool = True
+                    print('vram_startup_bool:', vram_startup_bool)
+                if line == 'vram_startup: false':
+                    vram_startup_bool = False
+                    print('vram_startup_bool:', vram_startup_bool)
+
                 if line.startswith('vram_led_color: '):
                     vram_led_color = line.replace('vram_led_color: ', '')
                     vram_led_color = vram_led_color.split(',')
-                    if len(vram_led_color) == 3:
-                        if str(vram_led_color[0]).isdigit() and str(vram_led_color[1]).isdigit() and str(vram_led_color[2]).isdigit():
-                            vram_led_color[0] = int(vram_led_color[0])
-                            vram_led_color[1] = int(vram_led_color[1])
-                            vram_led_color[2] = int(vram_led_color[2])
-                            default_vram_led_bool = [True, True, True]
-                            if vram_led_color[0] >= 0 and vram_led_color[0] <= 255:
-                                default_vram_led_bool[0] = False
-                            else:
-                                default_vram_led_bool[0] = True
-                            if vram_led_color[1] >= 0 and vram_led_color[1] <= 255:
-                                default_vram_led_bool[1] = False
-                            else:
-                                default_vram_led_bool[1] = True
-                            if vram_led_color[2] >= 0 and vram_led_color[2] <= 255:
-                                default_vram_led_bool[2] = False
-                            else:
-                                default_vram_led_bool[2] = True
-                            if True not in default_vram_led_bool:
-                                vram_led_item = [
-                                    ({118: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 3
-                                    ({115: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 6
-                                    ({111: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 9
-                                    ({105: (vram_led_color[0], vram_led_color[1], vram_led_color[2])})]  # *
-                            elif True in default_vram_led_bool:
-                                vram_led_color = [255, 255, 255]
+                    self.sanitize_str = vram_led_color
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        print('vram_led_color: sanitize_passed')
+                        vram_led_color[0] = int(vram_led_color[0])
+                        vram_led_color[1] = int(vram_led_color[1])
+                        vram_led_color[2] = int(vram_led_color[2])
+                        vram_led_item = [({118: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 3
+                                         ({115: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 6
+                                         ({111: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 9
+                                         ({105: (vram_led_color[0], vram_led_color[1], vram_led_color[2])})]  # *
+                        print(vram_led_item)
+                    elif self.sanitize_passed is False:
+                        print('vram_led_color: sanitize_failed')
+                        vram_led_color = [255, 255, 255]
+
+                if line.startswith('vram_led_color_off: '):
+                    vram_led_color_off = line.replace('vram_led_color_off: ', '')
+                    vram_led_color_off = vram_led_color_off.split(',')
+                    self.sanitize_str = vram_led_color_off
+                    self.sanitize_rgb_values()
+                    if self.sanitize_passed is True:
+                        vram_led_color_off[0] = int(vram_led_color_off[0])
+                        vram_led_color_off[1] = int(vram_led_color_off[1])
+                        vram_led_color_off[2] = int(vram_led_color_off[2])
+                        vram_led_off_item = [({118: (vram_led_color_off[0], vram_led_color_off[1], vram_led_color_off[2])}),  # 3
+                                         ({115: (vram_led_color_off[0], vram_led_color_off[1], vram_led_color_off[2])}),  # 6
+                                         ({111: (vram_led_color_off[0], vram_led_color_off[1], vram_led_color_off[2])}),  # 9
+                                         ({105: (vram_led_color_off[0], vram_led_color_off[1], vram_led_color_off[2])})]  # *
+                    elif self.sanitize_passed is False:
+                        vram_led_color_off = [0, 0, 0]
+
                 if line.startswith('vram_led_time_on: '):
                     line = line.replace('vram_led_time_on: ', '')
                     try:
@@ -650,17 +1298,15 @@ class ReadConfigurationClass(QThread):
 
     def run(self):
         print('-- thread started: ReadConfigurationClass(QThread).run(self)')
-        global allow_configuration_read_bool, allow_mon_threads_bool
+        global allow_mon_threads_bool, exclusive_access_bool, allow_display_application
         try:
-            print('-- allow_configuration_read_bool: ', allow_configuration_read_bool)
-            if allow_configuration_read_bool is True:
-                self.exclusive_access()
-                self.hdd_sanitize()
-                self.cpu_sanitize()
-                self.dram_sanitize()
-                self.vram_sanitize()
-                allow_configuration_read_bool = False
-                allow_mon_threads_bool = True
+            self.exclusive_access()
+            self.hdd_sanitize()
+            self.cpu_sanitize()
+            self.dram_sanitize()
+            self.vram_sanitize()
+            allow_mon_threads_bool = True
+            allow_display_application = True
         except Exception as e:
             print('[NAME]: ReadConfigurationClass [FUNCTION]: run [EXCEPTION]:', e)
 
@@ -729,6 +1375,12 @@ class HddMonClass(QThread):
 
     def stop(self):
         print('-- stopping: HddMonClass')
+        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
+        hdd_i = 0
+        for _ in hdd_led_off_item:
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_off_item[hdd_i])
+            hdd_i += 1
+        sdk.set_led_colors_flush_buffer()
         self.terminate()
 
 
@@ -753,6 +1405,7 @@ class CpuMonClass(QThread):
 
     def send_instruction(self):
         global cpu_initiation, cpu_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global cpu_led_item, cpu_led_off_item
         self.get_stat()
         i = 0
         for _ in cpu_led_item:
@@ -781,6 +1434,12 @@ class CpuMonClass(QThread):
 
     def stop(self):
         print('-- stopping: CpuMonClass')
+        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, cpu_led_off_item
+        hdd_i = 0
+        for _ in cpu_led_off_item:
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[hdd_i])
+            hdd_i += 1
+        sdk.set_led_colors_flush_buffer()
         self.terminate()
 
 
@@ -832,6 +1491,12 @@ class DramMonClass(QThread):
 
     def stop(self):
         print('-- stopping: DramMonClass')
+        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, dram_led_off_item
+        hdd_i = 0
+        for _ in dram_led_off_item:
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[hdd_i])
+            hdd_i += 1
+        sdk.set_led_colors_flush_buffer()
         self.terminate()
 
 
@@ -886,6 +1551,12 @@ class VramMonClass(QThread):
 
     def stop(self):
         print('-- stopping: VramMonClass')
+        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, vram_led_off_item
+        hdd_i = 0
+        for _ in vram_led_off_item:
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[hdd_i])
+            hdd_i += 1
+        sdk.set_led_colors_flush_buffer()
         self.terminate()
 
 
