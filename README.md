@@ -11,7 +11,8 @@ Set the values and run at startup. Then leave it alone. Now the leds do somethin
 Get on with your day.
 Less is more.
 
-Recommended Polling Rate:
+
+Recommended Polling Rate (Eficiency is key. Lowest possible resource consumption):
 CPU 1.0 Seconds
 DRAM 1.0 Seconds
 VRAM 1.0 Seconds
