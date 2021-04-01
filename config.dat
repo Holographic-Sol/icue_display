@@ -1,18 +1,18 @@
 hdd_led_color: 255,0,255
-hdd_led_color_off: 0,0,0
-hdd_led_time_on: 0.5
+hdd_led_color_off: 0,255,0
+hdd_led_time_on: 1
 
 cpu_led_color: 255,0,255
 cpu_led_color_off: 0,0,0
-cpu_led_time_on: 0.5
+cpu_led_time_on: 1
 
 dram_led_color: 255,0,255
 dram_led_color_off: 0,0,0
-dram_led_time_on: 0.5
+dram_led_time_on: 1
 
 vram_led_color: 255,0,255
 vram_led_color_off: 0,0,0
-vram_led_time_on: 0.5
+vram_led_time_on: 1
 gpu_num: 0
 
-exclusiv_access: true
+exclusive_access: true
