@@ -13,6 +13,6 @@ vram_startup: true
 gpu_num: 0
 hdd_led_color: 255,0,255
 hdd_led_color_off: 0,0,0
-hdd_led_time_on: 1
+hdd_led_time_on: 0.1
 hdd_startup: true
 exclusive_access: true
