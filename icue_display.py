@@ -418,6 +418,8 @@ class CompileDevicesClass(QThread):
                 exclusive_access_bool_prev = None
             elif connected_bool is True and connected_bool != connected_bool_prev:
                 print('starting threads: configuration read and instructions', )
+                itm = {1: (255, 0, 0)}
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
                 conf_thread[0].start()
                 mon_threads[0].start()
                 mon_threads[1].start()
@@ -455,8 +457,6 @@ class ReadConfigurationClass(QThread):
         elif exclusive_access_bool is False and exclusive_access_bool != exclusive_access_bool_prev:
             print('exclusive access request changed: releasing control')
             sdk.release_control()
-            itm = {1: (255, 0, 0)}
-            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
             exclusive_access_bool_prev = False
 
     def hdd_sanitize(self):
