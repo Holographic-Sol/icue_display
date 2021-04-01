@@ -10,3 +10,9 @@ Set the values and run at startup. Then leave it alone. Now the leds do somethin
 
 Get on with your day.
 Less is more.
+
+Recommended Polling Rate:
+CPU 1.0 Seconds
+DRAM 1.0 Seconds
+VRAM 1.0 Seconds
+HDD 0.1 Seconds (Catch Writes with other values at one second is nice & efficient in profiling tests).
