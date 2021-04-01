@@ -20,6 +20,15 @@ import psutil
 import pythoncom
 import unicodedata
 
+
+def NFD(text):
+    return unicodedata.normalize('NFD', text)
+
+
+def canonical_caseless(text):
+    return NFD(NFD(text).casefold())
+
+
 print('initializing:')
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -44,18 +53,16 @@ handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
 win32process.SetPriorityClass(handle, priority_classes[4])
 print('-- win32process priority class:', priority_classes[4])
 
-
-def NFD(text):
-    return unicodedata.normalize('NFD', text)
-
-
-def canonical_caseless(text):
-    return NFD(NFD(text).casefold())
-
-
 out_of_bounds = False
 glo_obj = []
 prev_obj_eve = []
+
+mon_threads = []
+conf_thread = []
+allow_mon_threads_bool = False
+connected_bool = None
+connected_bool_prev = None
+allow_configuration_read_bool = False
 
 sdk = CueSdk(os.path.join(os.getcwd(), 'bin\\CUESDK.x64_2017.dll'))
 k95_rgb_platinum = []
@@ -89,12 +96,10 @@ alpha_led = [38,
              51]
 alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
              'u', 'v', 'w', 'x', 'y', 'z']
-hdd_stat = []
 hdd_led_color = [255, 255, 255]
 hdd_led_color_off = [0, 0, 0]
 hdd_led_time_on = 0.05
 hdd_initiation = False
-allow_hdd_mon_thread_bool = True
 hdd_led_item = []
 hdd_led_off_item = []
 hdd_display_key_bool = []
@@ -110,10 +115,6 @@ for _ in alpha_led:
     i += 1
 for _ in alpha_led:
     hdd_display_key_bool.append(False)
-print('hdd_display_key_bool:', len(hdd_display_key_bool))
-print('hdd_led_item:', len(hdd_led_item))
-print('hdd_display_key_bool:', len(hdd_display_key_bool))
-print('alpha_led:', len(alpha_led))
 
 cpu_stat = ()
 cpu_led_color = [255, 255, 255]
@@ -123,7 +124,6 @@ cpu_led_item = [({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),
     ({109: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 8
     ({103: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])})]   # /
 cpu_initiation = False
-allow_cpu_mon_thread_bool = True
 cpu_display_key_bool = [False, False, False, False]
 cpu_led_off_item = [({116: (0, 0, 0)}),
                 ({113: (0, 0, 0)}),
@@ -138,7 +138,6 @@ dram_led_item = [({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2]
     ({110: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 8
     ({104: (dram_led_color[0], dram_led_color[1], dram_led_color[2])})]   # /
 dram_initiation = False
-allow_dram_mon_thread_bool = True
 dram_display_key_bool = [False, False, False, False]
 dram_led_off_item = [({117: (0, 0, 0)}),
                 ({114: (0, 0, 0)}),
@@ -158,10 +157,9 @@ vram_led_off_item = [({118: (0, 0, 0)}),
                 ({111: (0, 0, 0)}),
                 ({105: (0, 0, 0)})]
 
-exclusiv_access_bool_initialize = True
-exclusiv_access_bool = False
+exclusive_access_bool = False
+exclusive_access_bool_prev = None
 vram_initiation = False
-allow_vram_mon_thread_bool = True
 vram_display_key_bool = [False, False, False, False]
 
 
@@ -218,6 +216,13 @@ class App(QMainWindow):
         super(App, self).__init__()
         global glo_obj
 
+        self.cursorMove.connect(self.handleCursorMove)
+        self.timer = QTimer(self)
+        self.timer.setInterval(50)
+        self.timer.timeout.connect(self.pollCursor)
+        self.timer.start()
+        self.cursor = None
+
         self.filter = ObjEveFilter()
 
         self.setWindowIcon(QIcon('./icon.png'))
@@ -227,29 +232,19 @@ class App(QMainWindow):
 
         self.width = 605
         self.height = 110
-        self.prev_width = ()
-        self.prev_height = ()
-        self.prev_pos_w = ()
-        self.prev_pos_h = ()
         self.prev_pos = self.pos()
-        pos_w = QDesktopWidget().availableGeometry().width()
-        pos_h = QDesktopWidget().availableGeometry().height()
-        pos_w = (pos_w / 2) - (self.width / 2)
-        pos_h = (pos_h / 2) - (self.height / 2)
+        self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
+        self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
+        self.pos_w = int(self.pos_w)
+        self.pos_h = int(self.pos_h)
         print('-- setting window dimensions:', self.width, self.height)
-        self.setGeometry(pos_w, pos_h, self.width, self.height)
+        print('-- setting window position:', self.pos_w, self.pos_h)
+        self.setGeometry(int(self.pos_w), int(self.pos_h), self.width, self.height)
 
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.black)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setPalette(p)
-
-        self.cursorMove.connect(self.handleCursorMove)
-        self.timer = QTimer(self)
-        self.timer.setInterval(50)
-        self.timer.timeout.connect(self.pollCursor)
-        self.timer.start()
-        self.cursor = None
 
         self.btn_title_logo = QPushButton(self)
         self.btn_title_logo.move(0, 0)
@@ -317,36 +312,28 @@ class App(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        scaling_thread = ScalingClass(self.setGeometry, self.width, self.height, self.pos, self.frameGeometry,
-                                      self.setFixedSize)
-        scaling_thread.start()
+        global mon_threads, conf_thread
 
         compile_devices_thread = CompileDevicesClass()
         compile_devices_thread.start()
 
         read_configuration_thread = ReadConfigurationClass()
-        read_configuration_thread.start()
+        conf_thread.append(read_configuration_thread)
 
         hdd_mon_thread = HddMonClass()
-        hdd_mon_thread.start()
+        mon_threads.append(hdd_mon_thread)
 
         cpu_mon_thread = CpuMonClass()
-        cpu_mon_thread.start()
+        mon_threads.append(cpu_mon_thread)
 
         dram_mon_thread = DramMonClass()
-        dram_mon_thread.start()
+        mon_threads.append(dram_mon_thread)
 
         vram_mon_thread = VramMonClass()
-        vram_mon_thread.start()
+        mon_threads.append(vram_mon_thread)
 
         print('\ndisplaying application:')
         self.show()
-
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
 
     def mousePressEvent(self, event):
         self.prev_pos = event.globalPos()
@@ -364,12 +351,14 @@ class App(QMainWindow):
 
     def handleCursorMove(self, pos):
         global out_of_bounds
-        if pos.x() > self.x() and pos.x() < (self.x() + self.width) and\
-                pos.y() < (self.y() + self.height) and pos.y() > self.y() and self.isMinimized() is False:
-            # print('-- App(QMainWindow).handleCursorMove(self, pos):', pos)
-            out_of_bounds = False
-        else:
-            out_of_bounds = True
+        out_of_bounds = True
+        if pos.x() > self.x():
+            if pos.x() < (self.x() + self.width):
+                if pos.y() < (self.y() + self.height):
+                    if pos.y() > self.y():
+                        if self.isMinimized() is False:
+                            out_of_bounds = False
+        if out_of_bounds is True:
             glo_obj[2].setStyleSheet(
                 """QLabel {background-color: rgb(15, 15, 15);
                border:0px solid rgb(35, 35, 35);}"""
@@ -389,13 +378,21 @@ class CompileDevicesClass(QThread):
         QThread.__init__(self)
 
     def run(self):
-        global sdk, k95_rgb_platinum, allow_vram_mon_thread_bool
+        global sdk, k95_rgb_platinum
+        global allow_configuration_read_bool
+        global connected_bool, connected_bool_prev
+        global exclusive_access_bool_prev
+        global mon_threads, conf_thread
+
         while True:
             connected = sdk.connect()
+
             if not connected:
                 err = sdk.get_last_error()
                 # print('[NAME]: CompileDevicesClass [FUNCTION]: run [MESSAGE]: Handshake failed: %s' % err)
-                allow_vram_mon_thread_bool = False
+                connected_bool = False
+                allow_configuration_read_bool = False
+
             elif connected:
                 device = sdk.get_devices()
                 i = 0
@@ -404,11 +401,30 @@ class CompileDevicesClass(QThread):
                     if 'K95 RGB PLATINUM' in target_name:
                         k95_rgb_platinum.append(i)
                         # print('[NAME]: CompileDevicesClass [FUNCTION]: run [MESSAGE]: Found Device:', i)
-                        allow_vram_mon_thread_bool = True
                     i += 1
-                else:
-                    # print('[NAME]: CompileDevicesClass [FUNCTION]: run [MESSAGE]: Device Not Found')
-                    time.sleep(1)
+
+                if len(k95_rgb_platinum) >= 1:
+                    connected_bool = True
+                    allow_configuration_read_bool = True
+
+            if connected_bool is False and connected_bool != connected_bool_prev:
+                print('stopping threads: configuration read and instructions', )
+                conf_thread[0].stop()
+                mon_threads[0].stop()
+                mon_threads[1].stop()
+                mon_threads[2].stop()
+                mon_threads[3].stop()
+                connected_bool_prev = False
+                exclusive_access_bool_prev = None
+            elif connected_bool is True and connected_bool != connected_bool_prev:
+                print('starting threads: configuration read and instructions', )
+                conf_thread[0].start()
+                mon_threads[0].start()
+                mon_threads[1].start()
+                mon_threads[2].start()
+                mon_threads[3].start()
+                connected_bool_prev = True
+                exclusive_access_bool_prev = None
             time.sleep(3)
 
 
@@ -416,25 +432,35 @@ class ReadConfigurationClass(QThread):
     def __init__(self):
         QThread.__init__(self)
 
-    def exclusiv_access(self):
-        global exclusiv_access_bool, k95_rgb_platinum, k95_rgb_platinum_selected
+    def exclusive_access(self):
+        global exclusive_access_bool, exclusive_access_bool_prev, k95_rgb_platinum, k95_rgb_platinum_selected
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
-                if line.startswith('exclusiv_access: '):
-                    if line == 'exclusiv_access: true':
-                        # print('exclusiv_access: true')
-                        sdk.request_control()
-                        exclusiv_access_bool = True
-                        itm = {1: (255, 0, 0)}
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
-                    elif line == 'exclusiv_access: false':
-                        # print('exclusiv_access: false')
-                        sdk.release_control()
-                        exclusiv_access_bool = False
+                if line.startswith('exclusive_access: '):
+                    if line == 'exclusive_access: true':
+                        # print('exclusive_access: true')
+                        exclusive_access_bool = True
+                    elif line == 'exclusive_access: false':
+                        # print('exclusive_access: false')
+                        exclusive_access_bool = False
+
+        if exclusive_access_bool is True and exclusive_access_bool != exclusive_access_bool_prev:
+            print('exclusive access request changed: requesting control')
+            sdk.request_control()
+            itm = {1: (255, 0, 0)}
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
+            exclusive_access_bool_prev = True
+
+        elif exclusive_access_bool is False and exclusive_access_bool != exclusive_access_bool_prev:
+            print('exclusive access request changed: releasing control')
+            sdk.release_control()
+            itm = {1: (255, 0, 0)}
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
+            exclusive_access_bool_prev = False
 
     def hdd_sanitize(self):
-        global hdd_led_color, hdd_led_time_on, hdd_led_item, hdd_led_color_off, hdd_led_off_item, exclusiv_access_bool
+        global hdd_led_color, hdd_led_color_off, hdd_led_time_on, hdd_led_item, hdd_led_off_item
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
@@ -449,20 +475,20 @@ class ReadConfigurationClass(QThread):
                             hdd_led_color[0] = int(hdd_led_color[0])
                             hdd_led_color[1] = int(hdd_led_color[1])
                             hdd_led_color[2] = int(hdd_led_color[2])
-                            default_cpu_led_bool = [True, True, True]
+                            default_hdd_led_bool = [True, True, True]
                             if hdd_led_color[0] >= 0 and hdd_led_color[0] <= 255:
-                                default_cpu_led_bool[0] = False
+                                default_hdd_led_bool[0] = False
                             else:
-                                default_cpu_led_bool[0] = True
+                                default_hdd_led_bool[0] = True
                             if hdd_led_color[1] >= 0 and hdd_led_color[1] <= 255:
-                                default_cpu_led_bool[1] = False
+                                default_hdd_led_bool[1] = False
                             else:
-                                default_cpu_led_bool[1] = True
+                                default_hdd_led_bool[1] = True
                             if hdd_led_color[2] >= 0 and hdd_led_color[2] <= 255:
-                                default_cpu_led_bool[2] = False
+                                default_hdd_led_bool[2] = False
                             else:
-                                default_cpu_led_bool[2] = True
-                            if True not in default_cpu_led_bool:
+                                default_hdd_led_bool[2] = True
+                            if True not in default_hdd_led_bool:
                                 # print('hdd_led_color: passed sanitization checks. using custom color')
                                 i = 0
                                 hdd_led_item = []
@@ -471,7 +497,7 @@ class ReadConfigurationClass(QThread):
                                     hdd_led_item.append(itm)
                                     i += 1
                                 # print(hdd_led_item)
-                            elif True in default_cpu_led_bool:
+                            elif True in default_hdd_led_bool:
                                 # print('hdd_led_color: failed sanitization checks. using default color')
                                 hdd_led_color = [255, 255, 255]
                 if line.startswith('hdd_led_color_off: '):
@@ -485,20 +511,20 @@ class ReadConfigurationClass(QThread):
                             hdd_led_color_off[0] = int(hdd_led_color_off[0])
                             hdd_led_color_off[1] = int(hdd_led_color_off[1])
                             hdd_led_color_off[2] = int(hdd_led_color_off[2])
-                            default_cpu_led_bool = [True, True, True]
+                            default_hdd_led_bool = [True, True, True]
                             if hdd_led_color_off[0] >= 0 and hdd_led_color_off[0] <= 255:
-                                default_cpu_led_bool[0] = False
+                                default_hdd_led_bool[0] = False
                             else:
-                                default_cpu_led_bool[0] = True
+                                default_hdd_led_bool[0] = True
                             if hdd_led_color_off[1] >= 0 and hdd_led_color_off[1] <= 255:
-                                default_cpu_led_bool[1] = False
+                                default_hdd_led_bool[1] = False
                             else:
-                                default_cpu_led_bool[1] = True
+                                default_hdd_led_bool[1] = True
                             if hdd_led_color_off[2] >= 0 and hdd_led_color_off[2] <= 255:
-                                default_cpu_led_bool[2] = False
+                                default_hdd_led_bool[2] = False
                             else:
-                                default_cpu_led_bool[2] = True
-                            if True not in default_cpu_led_bool:
+                                default_hdd_led_bool[2] = True
+                            if True not in default_hdd_led_bool:
                                 # print('hdd_led_color_off: passed sanitization checks. using custom color')
                                 i = 0
                                 hdd_led_off_item = []
@@ -507,7 +533,7 @@ class ReadConfigurationClass(QThread):
                                     hdd_led_off_item.append(itm)
                                     i += 1
                                 # print(hdd_led_item)
-                            elif True in default_cpu_led_bool:
+                            elif True in default_hdd_led_bool:
                                 # print('hdd_led_color_off: failed sanitization checks. using default color')
                                 hdd_led_color_off = [0, 0, 0]
                 if line.startswith('hdd_led_time_on: '):
@@ -622,7 +648,7 @@ class ReadConfigurationClass(QThread):
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_sanitize [EXCEPTION]:', e)
 
     def vram_sanitize(self):
-        global vram_led_color, vram_led_time_on, vram_led_item, gpu_num
+        global vram_led_color, vram_led_time_on, gpu_num, vram_led_item
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
@@ -687,17 +713,23 @@ class ReadConfigurationClass(QThread):
                         gpu_num = 0
 
     def run(self):
-        global exclusiv_access_bool
-        while True:
-            try:
-                self.exclusiv_access()
+        global allow_configuration_read_bool, allow_mon_threads_bool
+        try:
+            print('allow_configuration_read_bool', allow_configuration_read_bool)
+            if allow_configuration_read_bool is True:
+                self.exclusive_access()
                 self.hdd_sanitize()
                 self.cpu_sanitize()
                 self.dram_sanitize()
                 self.vram_sanitize()
-            except Exception as e:
-                print('[NAME]: ReadConfigurationClass [FUNCTION]: run [EXCEPTION]:', e)
-            time.sleep(3)
+                allow_configuration_read_bool = False
+                allow_mon_threads_bool = True
+        except Exception as e:
+            print('[NAME]: ReadConfigurationClass [FUNCTION]: run [EXCEPTION]:', e)
+
+    def stop(self):
+        print('-- stopping: ReadConfigurationClass')
+        self.terminate()
 
 
 class HddMonClass(QThread):
@@ -706,66 +738,63 @@ class HddMonClass(QThread):
 
     def run(self):
         pythoncom.CoInitialize()
-        global allow_hdd_mon_thread_bool, sdk, k95_rgb_platinum
+        global k95_rgb_platinum, allow_mon_threads_bool
         print('-- thread started: HddMonClass(QThread).run(self)')
-
         while True:
-            if allow_hdd_mon_thread_bool is True:
-                if len(k95_rgb_platinum) >= 1:
-                    self.send_instruction()
+            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+                self.send_instruction()
             else:
-                time.sleep(3)
+                time.sleep(1)
 
     def send_instruction(self):
-        global hdd_initiation, hdd_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
-        global hdd_led_item, alpha_led
+        global hdd_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
+        global hdd_led_item
         self.get_stat()
-
         hdd_i = 0
         for _ in hdd_display_key_bool:
             if hdd_display_key_bool[hdd_i] is True:
-                # print('setting hdd_led_item:', hdd_led_item[hdd_i])
-                kb_on_dict_0 = hdd_led_item[hdd_i]
-
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_item[hdd_i])
             elif hdd_display_key_bool[hdd_i] is False:
-                kb_on_dict_0 = hdd_led_off_item[hdd_i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_off_item[hdd_i])
             hdd_i += 1
         sdk.set_led_colors_flush_buffer()
         time.sleep(hdd_led_time_on)
 
     def get_stat(self):
         print()
-        global hdd_stat, hdd_display_key_bool, alpha_str, hdd_display_key_bool
+        global hdd_display_key_bool, alpha_str, hdd_display_key_bool
         try:
             hdd_display_key_bool = []
             for _ in alpha_led:
                 hdd_display_key_bool.append(False)
-            strComputer = "."
-            objWMIService = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-            objSWbemServices = objWMIService.ConnectServer(strComputer, "root\\cimv2")
-            colItems = objSWbemServices.ExecQuery("SELECT * FROM Win32_PerfFormattedData_PerfDisk_PhysicalDisk")
-            for objItem in colItems:
+            str_computer = "."
+            obj_wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+            obj_swbem_services = obj_wmi_service.ConnectServer(str_computer, "root\\cimv2")
+            col_items = obj_swbem_services.ExecQuery("SELECT * FROM Win32_PerfFormattedData_PerfDisk_PhysicalDisk")
+            for objItem in col_items:
                 if objItem.DiskBytesPersec != None:
                     if '_Total' not in objItem.Name:
                         var = objItem.Name.split()
                         try:
-                            disk_letter = var[1]
-                            disk_letter = disk_letter.replace(':', '')
-                            if len(disk_letter) == 1:
-                                if int(objItem.DiskBytesPersec) > 0:
-                                    i = 0
-                                    for _ in alpha_str:
-                                        if canonical_caseless(disk_letter) == canonical_caseless(alpha_str[i]):
-                                            # print('pairing disk letter:', disk_letter, 'to', 'hdd_display_key_bool:', i)
-                                            hdd_display_key_bool[i] = True
-                                        i += 1
-                        except:
-                            pass
+                            if len(var) >= 2:
+                                disk_letter = var[1]
+                                disk_letter = disk_letter.replace(':', '')
+                                if len(disk_letter) == 1:
+                                    if int(objItem.DiskBytesPersec) > 0:
+                                        i = 0
+                                        for _ in alpha_str:
+                                            if canonical_caseless(disk_letter) == canonical_caseless(alpha_str[i]):
+                                                hdd_display_key_bool[i] = True
+                                            i += 1
+                        except Exception as e:
+                            print('[NAME]: HddMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
         except Exception as e:
             print('[NAME]: HddMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
+
+    def stop(self):
+        print('-- stopping: HddMonClass')
+        self.terminate()
 
 
 class CpuMonClass(QThread):
@@ -773,35 +802,27 @@ class CpuMonClass(QThread):
         QThread.__init__(self)
 
     def run(self):
-        global allow_cpu_mon_thread_bool, sdk, k95_rgb_platinum
+        global k95_rgb_platinum
         print('-- thread started: CpuMonClass(QThread).run(self)')
-
         while True:
-            if allow_cpu_mon_thread_bool is True:
-                if len(k95_rgb_platinum) >= 1:
-                    self.send_instruction()
+            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+                self.send_instruction()
             else:
-                time.sleep(3)
+                time.sleep(1)
 
     def send_instruction(self):
         global cpu_initiation, cpu_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
         if cpu_initiation is False:
             for _ in cpu_led_off_item:
-                kb_on_dict_0 = _
-                try:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
-                except Exception as e:
-                    print('[NAME]: CpuMonClass [FUNCTION]: send_instruction [EXCEPTION]:', e)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
             cpu_initiation = True
         i = 0
         for _ in cpu_led_item:
             if cpu_display_key_bool[i] is True:
-                kb_on_dict_0 = cpu_led_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_item[i])
             elif cpu_display_key_bool[i] is False:
-                kb_on_dict_0 = cpu_led_off_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
         time.sleep(cpu_led_time_on)
@@ -834,41 +855,40 @@ class CpuMonClass(QThread):
             print('[NAME]: CpuMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
 
+    def stop(self):
+        print('-- stopping: CpuMonClass')
+        self.terminate()
+
 
 class DramMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
 
     def run(self):
-        global allow_dram_mon_thread_bool, sdk, k95_rgb_platinum
+        global k95_rgb_platinum
         print('-- thread started: DramMonClass(QThread).run(self)')
-
         while True:
-            if allow_dram_mon_thread_bool is True:
-                if len(k95_rgb_platinum) >= 1:
-                    self.send_instruction()
+            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+                self.send_instruction()
             else:
-                time.sleep(3)
+                time.sleep(1)
 
     def send_instruction(self):
         global dram_initiation, dram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
         if dram_initiation is False:
             for _ in dram_led_off_item:
-                kb_on_dict_0 = _
                 try:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
                 except Exception as e:
                     print('[NAME]: DramMonClass [FUNCTION]: send_instruction [EXCEPTION]:', e)
             dram_initiation = True
         i = 0
         for _ in dram_led_item:
             if dram_display_key_bool[i] is True:
-                kb_on_dict_0 = dram_led_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_item[i])
             elif dram_display_key_bool[i] is False:
-                kb_on_dict_0 = dram_led_off_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
         time.sleep(dram_led_time_on)
@@ -877,7 +897,6 @@ class DramMonClass(QThread):
         global dram_stat, dram_display_key_bool
         try:
             dram_stat = psutil.virtual_memory().percent
-
             if dram_stat < 25:
                 dram_display_key_bool[0] = True
                 dram_display_key_bool[1] = False
@@ -902,41 +921,40 @@ class DramMonClass(QThread):
             print('[NAME]: DramMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
 
+    def stop(self):
+        print('-- stopping: DramMonClass')
+        self.terminate()
+
 
 class VramMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
 
     def run(self):
-        global allow_vram_mon_thread_bool, sdk, k95_rgb_platinum
+        global k95_rgb_platinum
         print('-- thread started: VramMonClass(QThread).run(self)')
-
         while True:
-            if allow_vram_mon_thread_bool is True:
-                if len(k95_rgb_platinum) >= 1:
-                    self.send_instruction()
+            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+                self.send_instruction()
             else:
-                time.sleep(3)
+                time.sleep(1)
 
     def send_instruction(self):
         global vram_initiation, vram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
         if vram_initiation is False:
             for _ in vram_led_off_item:
-                kb_on_dict_0 = _
                 try:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], _)
                 except Exception as e:
                     print('[NAME]: VramMonClass [FUNCTION]: send_instruction [EXCEPTION]:', e)
             vram_initiation = True
         i = 0
         for _ in vram_led_item:
             if vram_display_key_bool[i] is True:
-                kb_on_dict_0 = vram_led_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_item[i])
             elif vram_display_key_bool[i] is False:
-                kb_on_dict_0 = vram_led_off_item[i]
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], kb_on_dict_0)
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
         time.sleep(vram_led_time_on)
@@ -946,7 +964,7 @@ class VramMonClass(QThread):
         try:
             gpus = GPUtil.getGPUs()
             if len(gpus) >= 0:
-                vram_stat = float(f"{gpus[0].load * 100}")
+                vram_stat = float(f"{gpus[gpu_num].load * 100}")
             vram_stat = int(vram_stat)
             if vram_stat < 25:
                 vram_display_key_bool[0] = True
@@ -972,50 +990,9 @@ class VramMonClass(QThread):
             print('[NAME]: VramMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
 
-
-class ScalingClass(QThread):
-    def __init__(self, setGeometry, width, height, pos, frameGeometry, setFixedSize):
-        QThread.__init__(self)
-        self.setGeometry = setGeometry
-        self.width = width
-        self.height = height
-        self.pos = pos
-        self.frameGeometry = frameGeometry
-        self.setFixedSize = setFixedSize
-        self.pos_x = ()
-        self.pos_y = ()
-
-    def run(self):
-        print('-- thread started: ScalingClass(QThread).run(self)')
-
-        # Store Work Area Geometry For Comparison
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        scr_geo0 = work_area[3]
-
-        while True:
-
-            # Get Work Area Geometry Each Loop
-            try:
-                monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-                work_area = monitor_info.get("Work")
-                scr_geo1 = work_area[3]
-            except Exception as e:
-                print('-- ScalingClass(QThread).run(self):', e)
-
-            # Compare Current Work Area Geometry To Stored Work Area Geometry
-            if scr_geo0 != scr_geo1:
-
-                try:
-                    print('-- ScalingClass(QThread).run(self) ~ refreshing geometry')
-                    time.sleep(0.5)
-                    self.setGeometry(0, 0, self.width, self.height)
-                    time.sleep(3)
-                except Exception as e:
-                    print('-- ScalingClass(QThread).run(self):', e)
-                    time.sleep(3)
-
-            time.sleep(0.1)
+    def stop(self):
+        print('-- stopping: VramMonClass')
+        self.terminate()
 
 
 if __name__ == '__main__':
