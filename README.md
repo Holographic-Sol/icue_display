@@ -15,4 +15,4 @@ Recommended Polling Rate:
 CPU 1.0 Seconds
 DRAM 1.0 Seconds
 VRAM 1.0 Seconds
-HDD 0.1 Seconds (Catch Writes with other values at one second is nice & efficient in profiling tests).
+HDD 0.1 Seconds
