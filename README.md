@@ -12,7 +12,7 @@ Get on with your day.
 Less is more.
 
 
-Recommended Polling Rate (Eficiency is key. Lowest possible resource consumption while remaining useful):
+Recommended Polling Rate (Eficiency is key. Best tactical polling rate while being efficient):
 CPU 1.0 Seconds
 DRAM 1.0 Seconds
 VRAM 1.0 Seconds
