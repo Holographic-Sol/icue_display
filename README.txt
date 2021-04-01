@@ -15,4 +15,4 @@ Preferred over Knight Rider C# project becuase:
 	* Uses less resources.
 	* Self contained control of icue running from threads instead of of running subprograms which could become orphaned.
 
-Frontend is a personal template of mine and currently provides no control to the backend.
+Frontend is a personal template of mine and currently provides only some control to the backend.
