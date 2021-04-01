@@ -18,3 +18,5 @@ Preferred over Knight Rider C# project becuase:
 Frontend is a personal template of mine and currently provides only some control to the backend.
 
 Values are saved to config.dat for memory accross reboots.
+
+Careful not to spam writes to config until readonly boolean's are set while writing, or values spammed will not be written.
