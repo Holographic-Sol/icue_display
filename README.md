@@ -9,3 +9,4 @@ and or resource consuming.
 Set the values and run at startup. Then leave it alone. Now the leds do something useful.
 
 Get on with your day.
+Less is more.
