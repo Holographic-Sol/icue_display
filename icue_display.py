@@ -29,7 +29,7 @@ def canonical_caseless(text):
     return NFD(NFD(text).casefold())
 
 
-print('initializing:')
+print('-- initializing:')
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     print('-- AA_EnableHighDpiScaling: True')
@@ -321,7 +321,7 @@ class App(QMainWindow):
         mon_threads.append(dram_mon_thread)
         vram_mon_thread = VramMonClass()
         mon_threads.append(vram_mon_thread)
-        print('\ndisplaying application:')
+        print('\n-- displaying application:')
         self.show()
 
     def mousePressEvent(self, event):
@@ -390,7 +390,7 @@ class CompileDevicesClass(QThread):
                     connected_bool = True
                     allow_configuration_read_bool = True
             if connected_bool is False and connected_bool != connected_bool_prev:
-                print('stopping threads:', )
+                print('-- stopping threads:', )
                 conf_thread[0].stop()
                 mon_threads[0].stop()
                 mon_threads[1].stop()
@@ -399,7 +399,7 @@ class CompileDevicesClass(QThread):
                 connected_bool_prev = False
                 exclusive_access_bool_prev = None
             elif connected_bool is True and connected_bool != connected_bool_prev:
-                print('starting threads:', )
+                print('-- starting threads:', )
                 itm = {1: (255, 0, 0)}
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
                 conf_thread[0].start()
@@ -427,13 +427,13 @@ class ReadConfigurationClass(QThread):
                     elif line == 'exclusive_access: false':
                         exclusive_access_bool = False
         if exclusive_access_bool is True and exclusive_access_bool != exclusive_access_bool_prev:
-            print('exclusive access request changed: requesting control')
+            print('-- exclusive access request changed: requesting control')
             sdk.request_control()
             itm = {1: (255, 0, 0)}
             sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], itm)
             exclusive_access_bool_prev = True
         elif exclusive_access_bool is False and exclusive_access_bool != exclusive_access_bool_prev:
-            print('exclusive access request changed: releasing control')
+            print('-- exclusive access request changed: releasing control')
             sdk.release_control()
             exclusive_access_bool_prev = False
 
@@ -643,7 +643,7 @@ class ReadConfigurationClass(QThread):
                         if len(gpus) >= line:
                             gpu_num = line
                         else:
-                            print('gpu_num: may exceed gpus currently active on the system. using default value')
+                            print('-- gpu_num: may exceed gpus currently active on the system. using default value')
                             gpu_num = 0
                     else:
                         gpu_num = 0
@@ -652,7 +652,7 @@ class ReadConfigurationClass(QThread):
         print('-- thread started: ReadConfigurationClass(QThread).run(self)')
         global allow_configuration_read_bool, allow_mon_threads_bool
         try:
-            print('allow_configuration_read_bool', allow_configuration_read_bool)
+            print('-- allow_configuration_read_bool: ', allow_configuration_read_bool)
             if allow_configuration_read_bool is True:
                 self.exclusive_access()
                 self.hdd_sanitize()
