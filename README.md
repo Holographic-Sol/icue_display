@@ -12,7 +12,7 @@ Get on with your day.
 Less is more.
 
 
-Recommended Polling Rate (Eficiency is key. Lowest possible resource consumption):
+Recommended Polling Rate (Eficiency is key. Lowest possible resource consumption while remaining useful):
 CPU 1.0 Seconds
 DRAM 1.0 Seconds
 VRAM 1.0 Seconds
