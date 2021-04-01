@@ -743,6 +743,7 @@ class HddMonClass(QThread):
         while True:
             if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
+                time.sleep(hdd_led_time_on)
             else:
                 time.sleep(1)
 
@@ -758,7 +759,6 @@ class HddMonClass(QThread):
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_off_item[hdd_i])
             hdd_i += 1
         sdk.set_led_colors_flush_buffer()
-        time.sleep(hdd_led_time_on)
 
     def get_stat(self):
         print()
@@ -767,9 +767,8 @@ class HddMonClass(QThread):
             hdd_display_key_bool = []
             for _ in alpha_led:
                 hdd_display_key_bool.append(False)
-            str_computer = "."
             obj_wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-            obj_swbem_services = obj_wmi_service.ConnectServer(str_computer, "root\\cimv2")
+            obj_swbem_services = obj_wmi_service.ConnectServer(".", "root\\cimv2")
             col_items = obj_swbem_services.ExecQuery("SELECT * FROM Win32_PerfFormattedData_PerfDisk_PhysicalDisk")
             for objItem in col_items:
                 if objItem.DiskBytesPersec != None:
@@ -800,13 +799,19 @@ class HddMonClass(QThread):
 class CpuMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.cpu_display_key_bool_tmp_0 = [True, False, False, False]
+        self.cpu_display_key_bool_tmp_1 = [True, True, False, False]
+        self.cpu_display_key_bool_tmp_2 = [True, True, True, False]
+        self.cpu_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
         global k95_rgb_platinum
         print('-- thread started: CpuMonClass(QThread).run(self)')
+
         while True:
             if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
+                time.sleep(cpu_led_time_on)
             else:
                 time.sleep(1)
 
@@ -821,32 +826,19 @@ class CpuMonClass(QThread):
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
-        time.sleep(cpu_led_time_on)
 
     def get_stat(self):
         global cpu_stat, cpu_display_key_bool
         try:
             cpu_stat = psutil.cpu_percent(0.1)
             if cpu_stat < 25:
-                cpu_display_key_bool[0] = True
-                cpu_display_key_bool[1] = False
-                cpu_display_key_bool[2] = False
-                cpu_display_key_bool[3] = False
+                cpu_display_key_bool = self.cpu_display_key_bool_tmp_0
             elif cpu_stat >= 25 and cpu_stat < 50:
-                cpu_display_key_bool[0] = True
-                cpu_display_key_bool[1] = True
-                cpu_display_key_bool[2] = False
-                cpu_display_key_bool[3] = False
+                cpu_display_key_bool = self.cpu_display_key_bool_tmp_1
             elif cpu_stat >= 50 and cpu_stat < 75:
-                cpu_display_key_bool[0] = True
-                cpu_display_key_bool[1] = True
-                cpu_display_key_bool[2] = True
-                cpu_display_key_bool[3] = False
+                cpu_display_key_bool = self.cpu_display_key_bool_tmp_2
             elif cpu_stat >= 75:
-                cpu_display_key_bool[0] = True
-                cpu_display_key_bool[1] = True
-                cpu_display_key_bool[2] = True
-                cpu_display_key_bool[3] = True
+                cpu_display_key_bool = self.cpu_display_key_bool_tmp_3
         except Exception as e:
             print('[NAME]: CpuMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
@@ -859,6 +851,10 @@ class CpuMonClass(QThread):
 class DramMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.dram_display_key_bool_tmp_0 = [True, False, False, False]
+        self.dram_display_key_bool_tmp_1 = [True, True, False, False]
+        self.dram_display_key_bool_tmp_2 = [True, True, True, False]
+        self.dram_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
         global k95_rgb_platinum
@@ -866,6 +862,7 @@ class DramMonClass(QThread):
         while True:
             if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
+                time.sleep(dram_led_time_on)
             else:
                 time.sleep(1)
 
@@ -880,32 +877,19 @@ class DramMonClass(QThread):
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
-        time.sleep(dram_led_time_on)
 
     def get_stat(self):
         global dram_stat, dram_display_key_bool
         try:
             dram_stat = psutil.virtual_memory().percent
             if dram_stat < 25:
-                dram_display_key_bool[0] = True
-                dram_display_key_bool[1] = False
-                dram_display_key_bool[2] = False
-                dram_display_key_bool[3] = False
+                dram_display_key_bool = self.dram_display_key_bool_tmp_0
             elif dram_stat >= 25 and dram_stat < 50:
-                dram_display_key_bool[0] = True
-                dram_display_key_bool[1] = True
-                dram_display_key_bool[2] = False
-                dram_display_key_bool[3] = False
+                dram_display_key_bool = self.dram_display_key_bool_tmp_1
             elif dram_stat >= 50 and dram_stat < 75:
-                dram_display_key_bool[0] = True
-                dram_display_key_bool[1] = True
-                dram_display_key_bool[2] = True
-                dram_display_key_bool[3] = False
+                dram_display_key_bool = self.dram_display_key_bool_tmp_2
             elif dram_stat >= 75:
-                dram_display_key_bool[0] = True
-                dram_display_key_bool[1] = True
-                dram_display_key_bool[2] = True
-                dram_display_key_bool[3] = True
+                dram_display_key_bool = self.dram_display_key_bool_tmp_3
         except Exception as e:
             print('[NAME]: DramMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
@@ -918,6 +902,10 @@ class DramMonClass(QThread):
 class VramMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.vram_display_key_bool_tmp_0 = [True, False, False, False]
+        self.vram_display_key_bool_tmp_1 = [True, True, False, False]
+        self.vram_display_key_bool_tmp_2 = [True, True, True, False]
+        self.vram_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
         global k95_rgb_platinum
@@ -925,6 +913,7 @@ class VramMonClass(QThread):
         while True:
             if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
+                time.sleep(vram_led_time_on)
             else:
                 time.sleep(1)
 
@@ -939,7 +928,6 @@ class VramMonClass(QThread):
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[i])
             i += 1
         sdk.set_led_colors_flush_buffer()
-        time.sleep(vram_led_time_on)
 
     def get_stat(self):
         global vram_stat, vram_display_key_bool, gpu_num
@@ -949,25 +937,13 @@ class VramMonClass(QThread):
                 vram_stat = float(f"{gpus[gpu_num].load * 100}")
             vram_stat = int(vram_stat)
             if vram_stat < 25:
-                vram_display_key_bool[0] = True
-                vram_display_key_bool[1] = False
-                vram_display_key_bool[2] = False
-                vram_display_key_bool[3] = False
+                vram_display_key_bool = self.vram_display_key_bool_tmp_0
             elif vram_stat >= 25 and vram_stat < 50:
-                vram_display_key_bool[0] = True
-                vram_display_key_bool[1] = True
-                vram_display_key_bool[2] = False
-                vram_display_key_bool[3] = False
+                vram_display_key_bool = self.vram_display_key_bool_tmp_1
             elif vram_stat >= 50 and vram_stat < 75:
-                vram_display_key_bool[0] = True
-                vram_display_key_bool[1] = True
-                vram_display_key_bool[2] = True
-                vram_display_key_bool[3] = False
+                vram_display_key_bool = self.vram_display_key_bool_tmp_2
             elif vram_stat >= 75:
-                vram_display_key_bool[0] = True
-                vram_display_key_bool[1] = True
-                vram_display_key_bool[2] = True
-                vram_display_key_bool[3] = True
+                vram_display_key_bool = self.vram_display_key_bool_tmp_3
         except Exception as e:
             print('[NAME]: VramMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
