@@ -255,7 +255,7 @@ class App(QMainWindow):
         self.lbl_title.move((self.width / 2) - (50), 15)
         self.lbl_title.resize(100, 30)
         self.lbl_title.setFont(self.font_s9b)
-        self.lbl_title.setText('ICUE-DISPLAY')
+        self.lbl_title.setText('iCUE-DISPLAY')
         self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
