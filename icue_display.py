@@ -52,7 +52,6 @@ win32process.SetPriorityClass(handle, priority_classes[4])
 print('-- win32process priority class:', priority_classes[4])
 
 out_of_bounds = False
-glo_obj = []
 prev_obj_eve = []
 
 mon_threads = []
@@ -167,54 +166,11 @@ vram_initiation = False
 vram_display_key_bool = [False, False, False, False]
 
 
-class ObjEveFilter(QObject):
-    def eventFilter(self, obj, event):
-        global glo_obj, prev_obj_eve, out_of_bounds
-        obj_eve = obj, event
-
-        # Uncomment This Line To See All Object Events
-        # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
-
-        if out_of_bounds is False:
-            if str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] == glo_obj[1]:
-                self.unhighlightObject()
-            elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] == glo_obj[2]:
-                self.unhighlightObject()
-            elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] == glo_obj[3]:
-                self.unhighlightObject()
-                glo_obj[3].setStyleSheet(
-                        """QPushButton{background-color: rgb(255, 0, 0);
-                           border:0px solid rgb(0, 0, 0);}"""
-                )
-            elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] == glo_obj[4]:
-                self.unhighlightObject()
-                glo_obj[4].setStyleSheet(
-                    """QPushButton{background-color: rgb(37, 37, 37);
-                       border:0px solid rgb(0, 0, 0);}"""
-                )
-        return False
-
-    def unhighlightObject(self):
-        glo_obj[2].setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           border:0px solid rgb(35, 35, 35);}"""
-        )
-        glo_obj[3].setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               border:0px solid rgb(0, 0, 0);}"""
-        )
-        glo_obj[4].setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               border:0px solid rgb(0, 0, 0);}"""
-        )
-
-
 class App(QMainWindow):
     cursorMove = QtCore.pyqtSignal(object)
 
     def __init__(self):
         super(App, self).__init__()
-        global glo_obj
 
         self.cursorMove.connect(self.handleCursorMove)
         self.timer = QTimer(self)
@@ -222,7 +178,6 @@ class App(QMainWindow):
         self.timer.timeout.connect(self.pollCursor)
         self.timer.start()
         self.cursor = None
-        self.filter = ObjEveFilter()
 
         self.setWindowIcon(QIcon('./icon.png'))
         self.title = '{dev gui}'
@@ -246,8 +201,9 @@ class App(QMainWindow):
         self.setPalette(p)
 
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
+        self.font_s9b = QFont("Segoe UI", 10, QFont.Bold)
 
-        self.lbl_data_style = """QLabel {background-color: rgb(0, 0, 0);
+        self.lbl_data_style = """QLabel {background-color: rgb(35, 35, 35);
            color: rgb(200, 200, 200);
            border:0px solid rgb(35, 35, 35);}"""
 
@@ -257,7 +213,7 @@ class App(QMainWindow):
 
         self.btn_disabled_style = """QPushButton{background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
-                           border:1px solid rgb(35, 35, 35);}"""
+                           border:2px solid rgb(35, 35, 35);}"""
 
         self.qle_selected = """QLineEdit{background-color: rgb(0, 0, 0);
                color: rgb(200, 200, 200);
@@ -265,7 +221,7 @@ class App(QMainWindow):
 
         self.qle_unselected = """QLineEdit{background-color: rgb(0, 0, 0);
                        color: rgb(200, 200, 200);
-                       border:1px solid rgb(35, 35, 35);}"""
+                       border:2px solid rgb(35, 35, 35);}"""
 
         self.title_bar_h = 20
         self.title_bar_btn_w = (self.title_bar_h * 1.5)
@@ -284,9 +240,7 @@ class App(QMainWindow):
                border:0px solid rgb(0, 0, 0);}"""
         )
         self.btn_title_logo.setEnabled(False)
-        self.btn_title_logo.installEventFilter(self.filter)
         print('-- created:', self.btn_title_logo)
-        glo_obj.append(self.btn_title_logo)
 
         self.lbl_title_bg = QLabel(self)
         self.lbl_title_bg.move(self.title_bar_btn_w, 0)
@@ -295,20 +249,17 @@ class App(QMainWindow):
             """QLabel {background-color: rgb(0, 0, 0);
            border:0px solid rgb(35, 35, 35);}"""
         )
-        self.lbl_title_bg.installEventFilter(self.filter)
         print('-- created:', self.lbl_title_bg)
-        glo_obj.append(self.lbl_title_bg)
 
-        self.lbl_main_bg = QLabel(self)
-        self.lbl_main_bg.move(0, self.title_bar_h)
-        self.lbl_main_bg.resize(self.width, (self.height - self.title_bar_h))
-        self.lbl_main_bg.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           border:0px solid rgb(35, 35, 35);}"""
-        )
-        self.lbl_main_bg.installEventFilter(self.filter)
-        print('-- created:', self.lbl_main_bg)
-        glo_obj.append(self.lbl_main_bg)
+        self.lbl_title = QLabel(self)
+        self.lbl_title.move((self.width / 2) - (50), 15)
+        self.lbl_title.resize(100, 30)
+        self.lbl_title.setFont(self.font_s9b)
+        self.lbl_title.setText('ICUE-DISPLAY')
+        self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
+                           color: rgb(200, 200, 200);
+                           border:0px solid rgb(35, 35, 35);}""")
+        print('-- created:', self.lbl_title)
 
         self.btn_quit = QPushButton(self)
         self.btn_quit.move((self.width - 20), 0)
@@ -320,9 +271,7 @@ class App(QMainWindow):
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
-        self.btn_quit.installEventFilter(self.filter)
         print('-- created:', self.btn_quit)
-        glo_obj.append(self.btn_quit)
 
         self.btn_minimize = QPushButton(self)
         self.btn_minimize.move((self.width - 40), 0)
@@ -334,19 +283,15 @@ class App(QMainWindow):
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
-        self.btn_minimize.installEventFilter(self.filter)
         print('-- created self.btn_minimize', self.btn_minimize)
-        glo_obj.append(self.btn_minimize)
 
         self.lbl_cpu_mon = QLabel(self)
         self.lbl_cpu_mon.move(2, (self.monitor_btn_pos_h * 2))
         self.lbl_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_cpu_mon.setFont(self.font_s8b)
-        self.lbl_cpu_mon.setText('CPU')
+        self.lbl_cpu_mon.setText(' CPU')
         self.lbl_cpu_mon.setStyleSheet(self.lbl_data_style)
-        self.lbl_cpu_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_cpu_mon)
-        glo_obj.append(self.lbl_cpu_mon)
 
         self.btn_cpu_mon = QPushButton(self)
         self.btn_cpu_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 2))
@@ -355,9 +300,7 @@ class App(QMainWindow):
         self.btn_cpu_mon.setFont(self.font_s8b)
         self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_cpu_mon.clicked.connect(self.btn_cpu_mon_function)
-        self.btn_cpu_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_cpu_mon)
-        glo_obj.append(self.btn_cpu_mon)
 
         self.btn_cpu_mon_rgb_on = QLineEdit(self)
         self.btn_cpu_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -384,11 +327,9 @@ class App(QMainWindow):
         self.lbl_dram_mon.move(2, (self.monitor_btn_pos_h * 3))
         self.lbl_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_dram_mon.setFont(self.font_s8b)
-        self.lbl_dram_mon.setText('DRAM')
+        self.lbl_dram_mon.setText(' DRAM')
         self.lbl_dram_mon.setStyleSheet(self.lbl_data_style)
-        self.lbl_dram_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_dram_mon)
-        glo_obj.append(self.lbl_dram_mon)
 
         self.btn_dram_mon = QPushButton(self)
         self.btn_dram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 3))
@@ -396,9 +337,7 @@ class App(QMainWindow):
         self.btn_dram_mon.setFont(self.font_s8b)
         self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_dram_mon.clicked.connect(self.btn_dram_mon_function)
-        self.btn_dram_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_dram_mon)
-        glo_obj.append(self.btn_dram_mon)
 
         self.btn_dram_mon_rgb_on = QLineEdit(self)
         self.btn_dram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -425,11 +364,9 @@ class App(QMainWindow):
         self.lbl_vram_mon.move(2, (self.monitor_btn_pos_h * 4))
         self.lbl_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_vram_mon.setFont(self.font_s8b)
-        self.lbl_vram_mon.setText('VRAM')
+        self.lbl_vram_mon.setText(' VRAM')
         self.lbl_vram_mon.setStyleSheet(self.lbl_data_style)
-        self.lbl_vram_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_vram_mon)
-        glo_obj.append(self.lbl_vram_mon)
 
         self.btn_vram_mon = QPushButton(self)
         self.btn_vram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 4))
@@ -437,9 +374,7 @@ class App(QMainWindow):
         self.btn_vram_mon.setFont(self.font_s8b)
         self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_vram_mon.clicked.connect(self.btn_vram_mon_function)
-        self.btn_vram_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_vram_mon)
-        glo_obj.append(self.btn_vram_mon)
 
         self.btn_vram_mon_rgb_on = QLineEdit(self)
         self.btn_vram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -466,11 +401,9 @@ class App(QMainWindow):
         self.lbl_hdd_mon.move(2, (self.monitor_btn_pos_h * 5))
         self.lbl_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_hdd_mon.setFont(self.font_s8b)
-        self.lbl_hdd_mon.setText('HDD')
+        self.lbl_hdd_mon.setText(' HDD')
         self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style)
-        self.lbl_hdd_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_hdd_mon)
-        glo_obj.append(self.lbl_hdd_mon)
 
         self.btn_hdd_mon = QPushButton(self)
         self.btn_hdd_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 5))
@@ -478,9 +411,7 @@ class App(QMainWindow):
         self.btn_hdd_mon.setFont(self.font_s8b)
         self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_hdd_mon.clicked.connect(self.btn_hdd_mon_function)
-        self.btn_hdd_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_hdd_mon)
-        glo_obj.append(self.btn_hdd_mon)
 
         self.btn_hdd_mon_rgb_on = QLineEdit(self)
         self.btn_hdd_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -507,11 +438,9 @@ class App(QMainWindow):
         self.lbl_exclusive_con.move(2, (self.monitor_btn_pos_h * 6))
         self.lbl_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_exclusive_con.setFont(self.font_s8b)
-        self.lbl_exclusive_con.setText('EX_CON')
+        self.lbl_exclusive_con.setText(' EX_CON')
         self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
-        self.lbl_exclusive_con.installEventFilter(self.filter)
         print('-- created:', self.lbl_exclusive_con)
-        glo_obj.append(self.lbl_exclusive_con)
 
         self.btn_exclusive_con = QPushButton(self)
         self.btn_exclusive_con.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 6))
@@ -519,9 +448,7 @@ class App(QMainWindow):
         self.btn_exclusive_con.setFont(self.font_s8b)
         self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
         self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
-        self.btn_exclusive_con.installEventFilter(self.filter)
         print('-- created:', self.btn_exclusive_con)
-        glo_obj.append(self.btn_exclusive_con)
 
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
@@ -1175,19 +1102,6 @@ class App(QMainWindow):
                     if pos.y() > self.y():
                         if self.isMinimized() is False:
                             out_of_bounds = False
-        if out_of_bounds is True:
-            glo_obj[2].setStyleSheet(
-                """QLabel {background-color: rgb(15, 15, 15);
-               border:0px solid rgb(35, 35, 35);}"""
-            )
-            glo_obj[3].setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   border:0px solid rgb(0, 0, 0);}"""
-            )
-            glo_obj[4].setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   border:0px solid rgb(0, 0, 0);}"""
-            )
 
 
 class CompileDevicesClass(QThread):
@@ -1783,15 +1697,16 @@ class VramMonClass(QThread):
             gpus = GPUtil.getGPUs()
             if len(gpus) >= 0:
                 vram_stat = float(f"{gpus[gpu_num].load * 100}")
-            vram_stat = int(vram_stat)
-            if vram_stat < 25:
-                vram_display_key_bool = self.vram_display_key_bool_tmp_0
-            elif vram_stat >= 25 and vram_stat < 50:
-                vram_display_key_bool = self.vram_display_key_bool_tmp_1
-            elif vram_stat >= 50 and vram_stat < 75:
-                vram_display_key_bool = self.vram_display_key_bool_tmp_2
-            elif vram_stat >= 75:
-                vram_display_key_bool = self.vram_display_key_bool_tmp_3
+                vram_stat = float(float(vram_stat))
+                vram_stat = int(vram_stat)
+                if vram_stat < 25:
+                    vram_display_key_bool = self.vram_display_key_bool_tmp_0
+                elif vram_stat >= 25 and vram_stat < 50:
+                    vram_display_key_bool = self.vram_display_key_bool_tmp_1
+                elif vram_stat >= 50 and vram_stat < 75:
+                    vram_display_key_bool = self.vram_display_key_bool_tmp_2
+                elif vram_stat >= 75:
+                    vram_display_key_bool = self.vram_display_key_bool_tmp_3
         except Exception as e:
             print('[NAME]: VramMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
