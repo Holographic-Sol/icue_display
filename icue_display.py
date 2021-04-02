@@ -370,7 +370,7 @@ class App(QMainWindow):
 
         self.btn_cpu_led_time_on = QLineEdit(self)
         self.btn_cpu_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_cpu_led_time_on.move((self.monitor_btn_w * 4) + 8, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 2))
         self.btn_cpu_led_time_on.setFont(self.font_s8b)
         self.btn_cpu_led_time_on.returnPressed.connect(self.btn_cpu_led_time_on_function)
         self.btn_cpu_led_time_on.setStyleSheet(
@@ -431,7 +431,7 @@ class App(QMainWindow):
 
         self.btn_dram_led_time_on = QLineEdit(self)
         self.btn_dram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_dram_led_time_on.move((self.monitor_btn_w * 4) + 8, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 3))
         self.btn_dram_led_time_on.setFont(self.font_s8b)
         self.btn_dram_led_time_on.returnPressed.connect(self.btn_dram_led_time_on_function)
         self.btn_dram_led_time_on.setStyleSheet(
@@ -492,7 +492,7 @@ class App(QMainWindow):
 
         self.btn_vram_led_time_on = QLineEdit(self)
         self.btn_vram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_vram_led_time_on.move((self.monitor_btn_w * 4) + 8, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 4))
         self.btn_vram_led_time_on.setFont(self.font_s8b)
         self.btn_vram_led_time_on.returnPressed.connect(self.btn_vram_led_time_on_function)
         self.btn_vram_led_time_on.setStyleSheet(
@@ -553,7 +553,7 @@ class App(QMainWindow):
 
         self.btn_hdd_led_time_on = QLineEdit(self)
         self.btn_hdd_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_hdd_led_time_on.move((self.monitor_btn_w * 4) + 8, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 5))
         self.btn_hdd_led_time_on.setFont(self.font_s8b)
         self.btn_hdd_led_time_on.returnPressed.connect(self.btn_hdd_led_time_on_function)
         self.btn_hdd_led_time_on.setStyleSheet(
@@ -687,7 +687,40 @@ class App(QMainWindow):
         except Exception as e:
             print('sanitize_interval:', e)
 
+    def read_only_true(self):
+        self.btn_cpu_mon_rgb_on.setReadOnly(True)
+        self.btn_dram_mon_rgb_on.setReadOnly(True)
+        self.btn_vram_mon_rgb_on.setReadOnly(True)
+        self.btn_hdd_mon_rgb_on.setReadOnly(True)
+
+        self.btn_cpu_mon_rgb_off.setReadOnly(True)
+        self.btn_dram_mon_rgb_off.setReadOnly(True)
+        self.btn_vram_mon_rgb_off.setReadOnly(True)
+        self.btn_hdd_mon_rgb_off.setReadOnly(True)
+
+        self.btn_cpu_led_time_on.setReadOnly(True)
+        self.btn_dram_led_time_on.setReadOnly(True)
+        self.btn_vram_led_time_on.setReadOnly(True)
+        self.btn_hdd_led_time_on.setReadOnly(True)
+
+    def read_only_false(self):
+        self.btn_cpu_mon_rgb_on.setReadOnly(False)
+        self.btn_dram_mon_rgb_on.setReadOnly(False)
+        self.btn_vram_mon_rgb_on.setReadOnly(False)
+        self.btn_hdd_mon_rgb_on.setReadOnly(False)
+
+        self.btn_cpu_mon_rgb_off.setReadOnly(False)
+        self.btn_dram_mon_rgb_off.setReadOnly(False)
+        self.btn_vram_mon_rgb_off.setReadOnly(False)
+        self.btn_hdd_mon_rgb_off.setReadOnly(False)
+
+        self.btn_cpu_led_time_on.setReadOnly(False)
+        self.btn_dram_led_time_on.setReadOnly(False)
+        self.btn_vram_led_time_on.setReadOnly(False)
+        self.btn_hdd_led_time_on.setReadOnly(False)
+
     def write_changes(self):
+        self.read_only_true()
 
         write_var_split = self.write_var.split()
         write_var_split_key = write_var_split[0]
@@ -717,6 +750,8 @@ class App(QMainWindow):
                 i += 1
         fo.close()
 
+        self.read_only_false()
+
     def btn_cpu_led_time_on_function(self):
         global conf_thread
         self.write_var_key = 0
@@ -725,11 +760,14 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_cpu_led_time_on.text())
             self.write_changes()
+            self.cpu_led_time_on_str = self.btn_cpu_led_time_on.text().replace(' ', '')
+            self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_cpu_led_time_on.text())
-        self.led_time_on_str = self.btn_cpu_led_time_on.text().replace(' ', '')
-        self.btn_cpu_led_time_on.setText(self.led_time_on_str)
-        conf_thread[0].start()
+            self.cpu_led_time_on_str = str(cpu_led_time_on).replace(' ', '')
+            self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
+            conf_thread[0].start()
 
     def btn_dram_led_time_on_function(self):
         global conf_thread
@@ -739,11 +777,14 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_dram_led_time_on.text())
             self.write_changes()
+            self.dram_led_time_on_str = self.btn_dram_led_time_on.text().replace(' ', '')
+            self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_dram_led_time_on.text())
-        self.led_time_on_str = self.btn_dram_led_time_on.text().replace(' ', '')
-        self.btn_dram_led_time_on.setText(self.led_time_on_str)
-        conf_thread[0].start()
+            self.dram_led_time_on_str = str(dram_led_time_on).replace(' ', '')
+            self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
+            conf_thread[0].start()
 
     def btn_vram_led_time_on_function(self):
         global conf_thread
@@ -753,11 +794,14 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_vram_led_time_on.text())
             self.write_changes()
+            self.vram_led_time_on_str = self.btn_vram_led_time_on.text().replace(' ', '')
+            self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_vram_led_time_on.text())
-        self.led_time_on_str = self.btn_vram_led_time_on.text().replace(' ', '')
-        self.btn_vram_led_time_on.setText(self.led_time_on_str)
-        conf_thread[0].start()
+            self.vram_led_time_on_str = str(vram_led_time_on).replace(' ', '')
+            self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
+            conf_thread[0].start()
 
     def btn_hdd_led_time_on_function(self):
         global conf_thread
@@ -767,11 +811,14 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_hdd_led_time_on.text())
             self.write_changes()
+            self.hdd_led_time_on_str = self.btn_hdd_led_time_on.text().replace(' ', '')
+            self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_hdd_led_time_on.text())
-        self.led_time_on_str = self.btn_hdd_led_time_on.text().replace(' ', '')
-        self.btn_hdd_led_time_on.setText(self.led_time_on_str)
-        conf_thread[0].start()
+            self.hdd_led_time_on_str = str(hdd_led_time_on).replace(' ', '')
+            self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
+            conf_thread[0].start()
 
     def btn_cpu_mon_rgb_off_function(self):
         global conf_thread
@@ -781,11 +828,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
             self.write_changes()
+            self.cpu_led_color_off_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
+            self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
-        self.cpu_led_color_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
-        self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_str)
-        conf_thread[0].start()
+            self.cpu_led_color_off_str = str(cpu_led_color_off).replace('[', '')
+            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(']', '')
+            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(' ', '')
+            self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
+            conf_thread[0].start()
 
     def btn_dram_mon_rgb_off_function(self):
         global conf_thread
@@ -795,11 +847,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_off.text())
             self.write_changes()
+            self.dram_led_color_off_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
+            self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_off.text())
-        self.dram_led_color_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
-        self.btn_dram_mon_rgb_off.setText(self.dram_led_color_str)
-        conf_thread[0].start()
+            self.dram_led_color_off_str = str(dram_led_color_off).replace('[', '')
+            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(']', '')
+            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(' ', '')
+            self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
+            conf_thread[0].start()
 
     def btn_vram_mon_rgb_off_function(self):
         global conf_thread
@@ -809,11 +866,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_off.text())
             self.write_changes()
+            self.vram_led_color_off_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
+            self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_off.text())
-        self.vram_led_color_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
-        self.btn_vram_mon_rgb_off.setText(self.vram_led_color_str)
-        conf_thread[0].start()
+            self.vram_led_color_off_str = str(vram_led_color_off).replace('[', '')
+            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(']', '')
+            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(' ', '')
+            self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
+            conf_thread[0].start()
 
     def btn_hdd_mon_rgb_off_function(self):
         global hdd_led_color, conf_thread
@@ -823,11 +885,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
             self.write_changes()
+            self.hdd_led_color_off_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
+            self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
-        self.hdd_led_color_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
-        self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_str)
-        conf_thread[0].start()
+            self.hdd_led_color_off_str = str(hdd_led_color_off).replace('[', '')
+            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
+            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(' ', '')
+            self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
+            conf_thread[0].start()
 
     def btn_cpu_mon_rgb_on_function(self):
         global cpu_led_color, conf_thread
@@ -837,11 +904,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
             self.write_changes()
+            self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
+            self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
-        self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
-        self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
-        conf_thread[0].start()
+            self.cpu_led_color_str = str(cpu_led_color).replace('[', '')
+            self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
+            self.cpu_led_color_str = self.cpu_led_color_str.replace(' ', '')
+            self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+            conf_thread[0].start()
 
     def btn_dram_mon_rgb_on_function(self):
         global conf_thread
@@ -851,11 +923,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_on.text())
             self.write_changes()
+            self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
+            self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_on.text())
-        self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
-        self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
-        conf_thread[0].start()
+            self.dram_led_color_str = str(dram_led_color).replace('[', '')
+            self.dram_led_color_str = self.dram_led_color_str.replace(']', '')
+            self.dram_led_color_str = self.dram_led_color_str.replace(' ', '')
+            self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+            conf_thread[0].start()
 
     def btn_vram_mon_rgb_on_function(self):
         global conf_thread
@@ -865,11 +942,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_on.text())
             self.write_changes()
+            self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
+            self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_on.text())
-        self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
-        self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
-        conf_thread[0].start()
+            self.vram_led_color_str = str(vram_led_color).replace('[', '')
+            self.vram_led_color_str = self.vram_led_color_str.replace(']', '')
+            self.vram_led_color_str = self.vram_led_color_str.replace(' ', '')
+            self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+            conf_thread[0].start()
 
     def btn_hdd_mon_rgb_on_function(self):
         global hdd_led_color, conf_thread
@@ -879,11 +961,16 @@ class App(QMainWindow):
         if self.write_var_bool is True:
             print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
             self.write_changes()
+            self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
+            self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+            conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
-        self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
-        self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
-        conf_thread[0].start()
+            self.hdd_led_color_str = str(hdd_led_color).replace('[', '')
+            self.hdd_led_color_str = self.hdd_led_color_str.replace(']', '')
+            self.hdd_led_color_str = self.hdd_led_color_str.replace(' ', '')
+            self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+            conf_thread[0].start()
 
     def btn_cpu_mon_function(self):
         print('-- clicked: btn_cpu_mon')
