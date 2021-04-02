@@ -101,7 +101,7 @@ alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n
              'u', 'v', 'w', 'x', 'y', 'z']
 hdd_led_color = [255, 255, 255]
 hdd_led_color_off = [0, 0, 0]
-hdd_led_time_on = 0.05
+hdd_led_time_on = 0.5
 hdd_initiation = False
 hdd_led_item = []
 hdd_led_off_item = []
@@ -122,7 +122,7 @@ for _ in alpha_led:
 cpu_stat = ()
 cpu_led_color = [255, 255, 255]
 cpu_led_color_off = [0, 0, 0]
-cpu_led_time_on = 0.05
+cpu_led_time_on = 1.0
 cpu_led_item = [({116: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 2
     ({113: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 5
     ({109: (cpu_led_color[0], cpu_led_color[1], cpu_led_color[2])}),  # 8
@@ -137,7 +137,7 @@ cpu_led_off_item = [({116: (0, 0, 0)}),
 dram_stat = ()
 dram_led_color = [255, 255, 255]
 dram_led_color_off = [0, 0, 0]
-dram_led_time_on = 0.05
+dram_led_time_on = 1.0
 dram_led_item = [({117: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 2
     ({114: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 5
     ({110: (dram_led_color[0], dram_led_color[1], dram_led_color[2])}),  # 8
@@ -153,7 +153,7 @@ gpu_num = ()
 vram_stat = ()
 vram_led_color = [255, 255, 255]
 vram_led_color_off = [0, 0, 0]
-vram_led_time_on = 0.05
+vram_led_time_on = 1.0
 vram_led_item = [({118: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 3
     ({115: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 6
     ({111: (vram_led_color[0], vram_led_color[1], vram_led_color[2])}),  # 9
@@ -1352,10 +1352,12 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('hdd_led_time_on: '):
                     line = line.replace('hdd_led_time_on: ', '')
                     try:
-                        hdd_led_time_on = float(line)
+                        line = float(float(line))
+                        if line >= 0.1 and line <= 5:
+                            hdd_led_time_on = line
                     except Exception as e:
                         hdd_led_time_on = 0.5
-                        print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
+                        print('[NAME]: ReadConfigurationClass [FUNCTION]: hdd_led_time_on [EXCEPTION]:', e)
 
     def cpu_sanitize(self):
         global cpu_led_color, cpu_led_time_on, cpu_led_item, cpu_startup_bool
@@ -1408,7 +1410,9 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('cpu_led_time_on: '):
                     line = line.replace('cpu_led_time_on: ', '')
                     try:
-                        cpu_led_time_on = float(line)
+                        line = float(float(line))
+                        if line >= 0.1 and line <= 5:
+                            cpu_led_time_on = line
                     except Exception as e:
                         cpu_led_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: cpu_sanitize [EXCEPTION]:', e)
@@ -1464,10 +1468,12 @@ class ReadConfigurationClass(QThread):
                 if line.startswith('dram_led_time_on: '):
                     line = line.replace('dram_led_time_on: ', '')
                     try:
-                        dram_led_time_on = float(line)
+                        line = float(float(line))
+                        if line >= 0.1 and line <= 5:
+                            dram_led_time_on = line
                     except Exception as e:
                         dram_led_time_on = 0.5
-                        print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_sanitize [EXCEPTION]:', e)
+                        print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_led_time_on [EXCEPTION]:', e)
 
     def vram_sanitize(self):
         global vram_led_color, vram_led_time_on, gpu_num, vram_led_item, vram_startup_bool, vram_led_off_item, vram_led_color_off
@@ -1517,20 +1523,23 @@ class ReadConfigurationClass(QThread):
                     elif self.sanitize_passed is False:
                         vram_led_color_off = [0, 0, 0]
 
-                if line.startswith('vram_led_time_on: '):
-                    line = line.replace('vram_led_time_on: ', '')
+                elif line.startswith('vram_led_time_on: '):
+                    vram_led_time_on_tmp = line.replace('vram_led_time_on: ', '')
                     try:
-                        vram_led_time_on = float(line)
+                        vram_led_time_on_tmp = float(float(line))
+                        if vram_led_time_on_tmp >= 0.1 and vram_led_time_on_tmp <= 5:
+                            vram_led_time_on = vram_led_time_on_tmp
                     except Exception as e:
                         vram_led_time_on = 0.5
-                        print('[NAME]: ReadConfigurationClass [FUNCTION]: vram_sanitize [EXCEPTION]:', e)
+                        print('[NAME]: ReadConfigurationClass [FUNCTION]: dram_led_time_on [EXCEPTION]:', e)
+
                 if line.startswith('gpu_num: '):
-                    line = line.replace('gpu_num: ', '')
-                    if line.isdigit():
-                        line = int(line)
+                    gpu_num_tmp = line.replace('gpu_num: ', '')
+                    if gpu_num_tmp.isdigit():
+                        gpu_num_tmp = int(gpu_num_tmp)
                         gpus = GPUtil.getGPUs()
-                        if len(gpus) >= line:
-                            gpu_num = line
+                        if len(gpus) >= gpu_num_tmp:
+                            gpu_num = gpu_num_tmp
                         else:
                             print('-- gpu_num: may exceed gpus currently active on the system. using default value')
                             gpu_num = 0
