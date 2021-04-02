@@ -8,7 +8,7 @@ import win32com.client
 import win32api
 import win32process
 import win32con
-from PyQt5.QtCore import Qt, QThread, QSize, QPoint, QCoreApplication, QObject, QTimer
+from PyQt5.QtCore import Qt, QThread, QSize, QPoint, QCoreApplication, QObject, QTimer, QEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QDesktopWidget, QLineEdit
 from PyQt5.QtGui import QIcon, QCursor, QFont
 from PyQt5 import QtCore
@@ -263,6 +263,7 @@ class App(QMainWindow):
             """QPushButton{background-color: rgb(0, 0, 0);
                border:0px solid rgb(0, 0, 0);}"""
         )
+        self.btn_title_logo.setEnabled(False)
         self.btn_title_logo.installEventFilter(self.filter)
         print('-- created:', self.btn_title_logo)
         glo_obj.append(self.btn_title_logo)
@@ -605,6 +606,8 @@ class App(QMainWindow):
         self.vram_led_time_on_str = ""
         self.hdd_led_time_on_str = ""
 
+        self.highlight_obj = []
+
         self.write_var = ''
         self.write_var_bool = False
         self.write_var_key = -1
@@ -721,7 +724,6 @@ class App(QMainWindow):
 
     def write_changes(self):
         self.read_only_true()
-
         write_var_split = self.write_var.split()
         write_var_split_key = write_var_split[0]
         self.write_var = self.write_var.strip()
@@ -754,6 +756,7 @@ class App(QMainWindow):
 
     def btn_cpu_led_time_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 0
         self.write_var = self.btn_cpu_led_time_on.text()
         self.sanitize_interval()
@@ -771,6 +774,7 @@ class App(QMainWindow):
 
     def btn_dram_led_time_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 1
         self.write_var = self.btn_dram_led_time_on.text()
         self.sanitize_interval()
@@ -788,6 +792,7 @@ class App(QMainWindow):
 
     def btn_vram_led_time_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 2
         self.write_var = self.btn_vram_led_time_on.text()
         self.sanitize_interval()
@@ -805,6 +810,7 @@ class App(QMainWindow):
 
     def btn_hdd_led_time_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 3
         self.write_var = self.btn_hdd_led_time_on.text()
         self.sanitize_interval()
@@ -822,6 +828,7 @@ class App(QMainWindow):
 
     def btn_cpu_mon_rgb_off_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 4
         self.write_var = self.btn_cpu_mon_rgb_off.text()
         self.sanitize_rgb_values()
@@ -841,6 +848,7 @@ class App(QMainWindow):
 
     def btn_dram_mon_rgb_off_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 5
         self.write_var = self.btn_dram_mon_rgb_off.text()
         self.sanitize_rgb_values()
@@ -860,6 +868,7 @@ class App(QMainWindow):
 
     def btn_vram_mon_rgb_off_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 6
         self.write_var = self.btn_vram_mon_rgb_off.text()
         self.sanitize_rgb_values()
@@ -879,6 +888,7 @@ class App(QMainWindow):
 
     def btn_hdd_mon_rgb_off_function(self):
         global hdd_led_color, conf_thread
+        self.setFocus()
         self.write_var_key = 7
         self.write_var = self.btn_hdd_mon_rgb_off.text()
         self.sanitize_rgb_values()
@@ -898,6 +908,7 @@ class App(QMainWindow):
 
     def btn_cpu_mon_rgb_on_function(self):
         global cpu_led_color, conf_thread
+        self.setFocus()
         self.write_var_key = 0
         self.write_var = self.btn_cpu_mon_rgb_on.text()
         self.sanitize_rgb_values()
@@ -917,6 +928,7 @@ class App(QMainWindow):
 
     def btn_dram_mon_rgb_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 1
         self.write_var = self.btn_dram_mon_rgb_on.text()
         self.sanitize_rgb_values()
@@ -936,6 +948,7 @@ class App(QMainWindow):
 
     def btn_vram_mon_rgb_on_function(self):
         global conf_thread
+        self.setFocus()
         self.write_var_key = 2
         self.write_var = self.btn_vram_mon_rgb_on.text()
         self.sanitize_rgb_values()
@@ -955,6 +968,7 @@ class App(QMainWindow):
 
     def btn_hdd_mon_rgb_on_function(self):
         global hdd_led_color, conf_thread
+        self.setFocus()
         self.write_var_key = 3
         self.write_var = self.btn_hdd_mon_rgb_on.text()
         self.sanitize_rgb_values()
@@ -974,15 +988,26 @@ class App(QMainWindow):
 
     def btn_cpu_mon_function(self):
         print('-- clicked: btn_cpu_mon')
+        self.setFocus()
         global cpu_startup_bool, mon_threads
         if cpu_startup_bool is True:
             print('-- stopping: cpu monitor')
+            self.btn_cpu_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'cpu_startup: false'
             mon_threads[1].stop()
             cpu_startup_bool = False
             self.btn_cpu_mon.setText('DISABLED')
         elif cpu_startup_bool is False:
             print('-- starting: cpu monitor')
+            self.btn_cpu_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'cpu_startup: true'
             mon_threads[1].start()
             cpu_startup_bool = True
@@ -991,15 +1016,26 @@ class App(QMainWindow):
 
     def btn_dram_mon_function(self):
         print('-- clicked: btn_dram_mon')
+        self.setFocus()
         global dram_startup_bool
         if dram_startup_bool is True:
             print('-- stopping: dram monitor')
+            self.btn_dram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'dram_startup: false'
             mon_threads[2].stop()
             dram_startup_bool = False
             self.btn_dram_mon.setText('DISABLED')
         elif dram_startup_bool is False:
             print('-- starting: dram monitor')
+            self.btn_dram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'dram_startup: true'
             mon_threads[2].start()
             dram_startup_bool = True
@@ -1008,15 +1044,26 @@ class App(QMainWindow):
 
     def btn_vram_mon_function(self):
         print('-- clicked: btn_vram_mon')
+        self.setFocus()
         global vram_startup_bool
         if vram_startup_bool is True:
             print('-- stopping: vram monitor')
+            self.btn_vram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'vram_startup: false'
             mon_threads[3].stop()
             vram_startup_bool = False
             self.btn_vram_mon.setText('DISABLED')
         elif vram_startup_bool is False:
             print('-- starting: vram monitor')
+            self.btn_vram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'vram_startup: true'
             mon_threads[3].start()
             vram_startup_bool = True
@@ -1025,15 +1072,26 @@ class App(QMainWindow):
 
     def btn_hdd_mon_function(self):
         print('-- clicked: btn_hdd_mon')
+        self.setFocus()
         global hdd_startup_bool
         if hdd_startup_bool is True:
             print('-- stopping: hdd monitor')
+            self.btn_hdd_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'hdd_startup: false'
             mon_threads[0].stop()
             hdd_startup_bool = False
             self.btn_hdd_mon.setText('DISABLED')
         elif hdd_startup_bool is False:
             print('-- starting: hdd monitor')
+            self.btn_hdd_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.write_var = 'hdd_startup: true'
             mon_threads[0].start()
             hdd_startup_bool = True
@@ -1042,12 +1100,18 @@ class App(QMainWindow):
 
     def btn_exclusive_con_function(self):
         print('clicked: btn_exclusive_con_function')
+        self.setFocus()
         global exclusive_access_bool
         if exclusive_access_bool is True:
             print('-- exclusive access request changed: requesting control')
             self.write_var = 'exclusive_access: true'
             sdk.request_control()
             exclusive_access_bool = False
+            self.btn_exclusive_con.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.btn_exclusive_con.setText('ENABLED')
 
         elif exclusive_access_bool is False:
@@ -1055,6 +1119,11 @@ class App(QMainWindow):
             self.write_var = 'exclusive_access: false'
             sdk.release_control()
             exclusive_access_bool = True
+            self.btn_exclusive_con.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
             self.btn_exclusive_con.setText('DISABLED')
         self.write_changes()
 
@@ -1081,28 +1150,76 @@ class App(QMainWindow):
             time.sleep(1)
         if cpu_startup_bool is True:
             self.btn_cpu_mon.setText('ENABLED')
+            self.btn_cpu_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         elif cpu_startup_bool is False:
             self.btn_cpu_mon.setText('DISABLED')
+            self.btn_cpu_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         if dram_startup_bool is True:
             self.btn_dram_mon.setText('ENABLED')
+            self.btn_dram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         elif dram_startup_bool is False:
             self.btn_dram_mon.setText('DISABLED')
+            self.btn_dram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         if vram_startup_bool is True:
             self.btn_vram_mon.setText('ENABLED')
+            self.btn_vram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         elif vram_startup_bool is False:
             self.btn_vram_mon.setText('DISABLED')
+            self.btn_vram_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         if hdd_startup_bool is True:
             self.btn_hdd_mon.setText('ENABLED')
+            self.btn_hdd_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         elif hdd_startup_bool is False:
             self.btn_hdd_mon.setText('DISABLED')
-
+            self.btn_hdd_mon.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         if exclusive_access_bool is True:
             self.btn_exclusive_con.setText('ENABLED')
             exclusive_access_bool = True
-
+            self.btn_exclusive_con.setStyleSheet(
+                """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
         elif exclusive_access_bool is False:
             self.btn_exclusive_con.setText('DISABLED')
             exclusive_access_bool = False
+            self.btn_exclusive_con.setStyleSheet(
+                """QPushButton{background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+            )
 
         self.cpu_led_color_str = str(cpu_led_color).strip()
         self.cpu_led_color_str = self.cpu_led_color_str.replace('[', '')
@@ -1155,11 +1272,20 @@ class App(QMainWindow):
 
         self.hdd_led_time_on_str = str(hdd_led_time_on).strip()
         self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
-
         self.show()
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.WindowStateChange:
+            if self.windowState() & Qt.WindowMinimized:
+                print('MINIMIZED')
+                self.setFocus()
+            else:
+                print('DISPLAYED')
+                self.setFocus()
 
     def mousePressEvent(self, event):
         self.prev_pos = event.globalPos()
+        self.setFocus()
 
     def mouseMoveEvent(self, event):
         delta = QPoint(event.globalPos() - self.prev_pos)
@@ -1397,6 +1523,7 @@ class ReadConfigurationClass(QThread):
                     self.sanitize_str = cpu_led_color_off
                     self.sanitize_rgb_values()
                     if self.sanitize_passed is True:
+                        print('cpu_led_color_off: passed sanitization')
                         cpu_led_color_off[0] = int(cpu_led_color_off[0])
                         cpu_led_color_off[1] = int(cpu_led_color_off[1])
                         cpu_led_color_off[2] = int(cpu_led_color_off[2])
@@ -1406,7 +1533,9 @@ class ReadConfigurationClass(QThread):
                             ({109: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])}),  # 7
                             ({103: (cpu_led_color_off[0], cpu_led_color_off[1], cpu_led_color_off[2])})]  # num
                     elif self.sanitize_passed is False:
+                        print('cpu_led_color_off: failed sanitization')
                         cpu_led_color_off = [0, 0, 0]
+
                 if line.startswith('cpu_led_time_on: '):
                     line = line.replace('cpu_led_time_on: ', '')
                     try:
@@ -1657,13 +1786,13 @@ class CpuMonClass(QThread):
         global cpu_initiation, cpu_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         global cpu_led_item, cpu_led_off_item
         self.get_stat()
-        i = 0
+        cpu_i = 0
         for _ in cpu_led_item:
-            if cpu_display_key_bool[i] is True:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_item[i])
-            elif cpu_display_key_bool[i] is False:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[i])
-            i += 1
+            if cpu_display_key_bool[cpu_i] is True:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_item[cpu_i])
+            elif cpu_display_key_bool[cpu_i] is False:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[cpu_i])
+            cpu_i += 1
         sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
@@ -1685,10 +1814,10 @@ class CpuMonClass(QThread):
     def stop(self):
         print('-- stopping: CpuMonClass')
         global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, cpu_led_off_item
-        hdd_i = 0
+        cpu_i = 0
         for _ in cpu_led_off_item:
-            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[hdd_i])
-            hdd_i += 1
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[cpu_i])
+            cpu_i += 1
         sdk.set_led_colors_flush_buffer()
         self.terminate()
 
@@ -1714,13 +1843,13 @@ class DramMonClass(QThread):
     def send_instruction(self):
         global dram_initiation, dram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
-        i = 0
+        dram_i = 0
         for _ in dram_led_item:
-            if dram_display_key_bool[i] is True:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_item[i])
-            elif dram_display_key_bool[i] is False:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[i])
-            i += 1
+            if dram_display_key_bool[dram_i] is True:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_item[dram_i])
+            elif dram_display_key_bool[dram_i] is False:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[dram_i])
+            dram_i += 1
         sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
@@ -1742,10 +1871,10 @@ class DramMonClass(QThread):
     def stop(self):
         print('-- stopping: DramMonClass')
         global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, dram_led_off_item
-        hdd_i = 0
+        dram_i = 0
         for _ in dram_led_off_item:
-            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[hdd_i])
-            hdd_i += 1
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[dram_i])
+            dram_i += 1
         sdk.set_led_colors_flush_buffer()
         self.terminate()
 
@@ -1771,13 +1900,13 @@ class VramMonClass(QThread):
     def send_instruction(self):
         global vram_initiation, vram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
         self.get_stat()
-        i = 0
+        vram_i = 0
         for _ in vram_led_item:
-            if vram_display_key_bool[i] is True:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_item[i])
-            elif vram_display_key_bool[i] is False:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[i])
-            i += 1
+            if vram_display_key_bool[vram_i] is True:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_item[vram_i])
+            elif vram_display_key_bool[vram_i] is False:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[vram_i])
+            vram_i += 1
         sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
@@ -1802,10 +1931,10 @@ class VramMonClass(QThread):
     def stop(self):
         print('-- stopping: VramMonClass')
         global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, vram_led_off_item
-        hdd_i = 0
+        vram_i = 0
         for _ in vram_led_off_item:
-            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[hdd_i])
-            hdd_i += 1
+            sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[vram_i])
+            vram_i += 1
         sdk.set_led_colors_flush_buffer()
         self.terminate()
 
