@@ -11,10 +11,6 @@ Keyboard HUD Displays:
 	* DRAM Utilization Monitor
 	* VRAM Utilization Monitor
 
-Preferred over Knight Rider C# project becuase:
-	* Uses less resources.
-	* Self contained control of icue running from threads instead of of running subprograms which could become orphaned.
-
 Frontend is a personal template of mine and has been populated to plug into the backend. GUI is designed to be purely
 logical & non-resource heavy to be used as a tool.
 
