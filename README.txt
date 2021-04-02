@@ -18,3 +18,5 @@ This program is not a 'light display effect'. It is designed to convert the icue
 efficient and non-resource heavy HUD.
 
 Values are saved to config.dat for memory accross reboots.
+
+Still in development. Plugging the backend into the GUI.
