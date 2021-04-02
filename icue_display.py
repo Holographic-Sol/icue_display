@@ -1526,7 +1526,7 @@ class ReadConfigurationClass(QThread):
                 elif line.startswith('vram_led_time_on: '):
                     vram_led_time_on_tmp = line.replace('vram_led_time_on: ', '')
                     try:
-                        vram_led_time_on_tmp = float(float(line))
+                        vram_led_time_on_tmp = float(float(vram_led_time_on_tmp))
                         if vram_led_time_on_tmp >= 0.1 and vram_led_time_on_tmp <= 5:
                             vram_led_time_on = vram_led_time_on_tmp
                     except Exception as e:
