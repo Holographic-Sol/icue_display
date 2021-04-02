@@ -229,7 +229,7 @@ class App(QMainWindow):
         print('-- setting self.title as:', self.title)
         self.setWindowTitle(self.title)
 
-        self.width = 371
+        self.width = 372
         self.height = 175
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
@@ -247,10 +247,30 @@ class App(QMainWindow):
 
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
 
+        self.lbl_data_style = """QLabel {background-color: rgb(0, 0, 0);
+           color: rgb(200, 200, 200);
+           border:0px solid rgb(35, 35, 35);}"""
+
+        self.btn_enabled_style = """QPushButton{background-color: rgb(50, 50, 50);
+                   color: rgb(200, 200, 200);
+                   border:1px solid rgb(35, 35, 35);}"""
+
+        self.btn_disabled_style = """QPushButton{background-color: rgb(0, 0, 0);
+                           color: rgb(200, 200, 200);
+                           border:1px solid rgb(35, 35, 35);}"""
+
+        self.qle_selected = """QLineEdit{background-color: rgb(0, 0, 0);
+               color: rgb(200, 200, 200);
+               border:1px solid rgb(35, 35, 35);}"""
+
+        self.qle_unselected = """QLineEdit{background-color: rgb(0, 0, 0);
+                       color: rgb(200, 200, 200);
+                       border:1px solid rgb(35, 35, 35);}"""
+
         self.title_bar_h = 20
         self.title_bar_btn_w = (self.title_bar_h * 1.5)
         self.monitor_btn_h = 20
-        self.monitor_btn_w = 68
+        self.monitor_btn_w = 72
         self.monitor_btn_pos_w = 2
         self.monitor_btn_pos_h = 25
 
@@ -323,11 +343,7 @@ class App(QMainWindow):
         self.lbl_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_cpu_mon.setFont(self.font_s8b)
         self.lbl_cpu_mon.setText('CPU')
-        self.lbl_cpu_mon.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           color: rgb(200, 200, 200);
-           border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.lbl_cpu_mon.setStyleSheet(self.lbl_data_style)
         self.lbl_cpu_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_cpu_mon)
         glo_obj.append(self.lbl_cpu_mon)
@@ -337,11 +353,7 @@ class App(QMainWindow):
         self.btn_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_cpu_mon.setFont(self.font_s8b)
         self.btn_cpu_mon.setFont(self.font_s8b)
-        self.btn_cpu_mon.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_cpu_mon.clicked.connect(self.btn_cpu_mon_function)
         self.btn_cpu_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_cpu_mon)
@@ -352,44 +364,28 @@ class App(QMainWindow):
         self.btn_cpu_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 2))
         self.btn_cpu_mon_rgb_on.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_on.returnPressed.connect(self.btn_cpu_mon_rgb_on_function)
-        self.btn_cpu_mon_rgb_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_cpu_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_cpu_mon_rgb_off = QLineEdit(self)
         self.btn_cpu_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_cpu_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 2))
         self.btn_cpu_mon_rgb_off.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_off.returnPressed.connect(self.btn_cpu_mon_rgb_off_function)
-        self.btn_cpu_mon_rgb_off.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_cpu_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_cpu_led_time_on = QLineEdit(self)
         self.btn_cpu_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_cpu_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 2))
         self.btn_cpu_led_time_on.setFont(self.font_s8b)
         self.btn_cpu_led_time_on.returnPressed.connect(self.btn_cpu_led_time_on_function)
-        self.btn_cpu_led_time_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_cpu_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_dram_mon = QLabel(self)
         self.lbl_dram_mon.move(2, (self.monitor_btn_pos_h * 3))
         self.lbl_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_dram_mon.setFont(self.font_s8b)
         self.lbl_dram_mon.setText('DRAM')
-        self.lbl_dram_mon.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           color: rgb(200, 200, 200);
-           border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.lbl_dram_mon.setStyleSheet(self.lbl_data_style)
         self.lbl_dram_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_dram_mon)
         glo_obj.append(self.lbl_dram_mon)
@@ -398,11 +394,7 @@ class App(QMainWindow):
         self.btn_dram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 3))
         self.btn_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_dram_mon.setFont(self.font_s8b)
-        self.btn_dram_mon.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_dram_mon.clicked.connect(self.btn_dram_mon_function)
         self.btn_dram_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_dram_mon)
@@ -413,44 +405,28 @@ class App(QMainWindow):
         self.btn_dram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 3))
         self.btn_dram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_on.returnPressed.connect(self.btn_dram_mon_rgb_on_function)
-        self.btn_dram_mon_rgb_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_dram_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_dram_mon_rgb_off = QLineEdit(self)
         self.btn_dram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_dram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 3))
         self.btn_dram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_off.returnPressed.connect(self.btn_dram_mon_rgb_off_function)
-        self.btn_dram_mon_rgb_off.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_dram_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_dram_led_time_on = QLineEdit(self)
         self.btn_dram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_dram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 3))
         self.btn_dram_led_time_on.setFont(self.font_s8b)
         self.btn_dram_led_time_on.returnPressed.connect(self.btn_dram_led_time_on_function)
-        self.btn_dram_led_time_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_dram_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_vram_mon = QLabel(self)
         self.lbl_vram_mon.move(2, (self.monitor_btn_pos_h * 4))
         self.lbl_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_vram_mon.setFont(self.font_s8b)
         self.lbl_vram_mon.setText('VRAM')
-        self.lbl_vram_mon.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           color: rgb(200, 200, 200);
-           border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.lbl_vram_mon.setStyleSheet(self.lbl_data_style)
         self.lbl_vram_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_vram_mon)
         glo_obj.append(self.lbl_vram_mon)
@@ -459,11 +435,7 @@ class App(QMainWindow):
         self.btn_vram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 4))
         self.btn_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_vram_mon.setFont(self.font_s8b)
-        self.btn_vram_mon.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_vram_mon.clicked.connect(self.btn_vram_mon_function)
         self.btn_vram_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_vram_mon)
@@ -474,44 +446,28 @@ class App(QMainWindow):
         self.btn_vram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 4))
         self.btn_vram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_on.returnPressed.connect(self.btn_vram_mon_rgb_on_function)
-        self.btn_vram_mon_rgb_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_vram_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_vram_mon_rgb_off = QLineEdit(self)
         self.btn_vram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_vram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 4))
         self.btn_vram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_off.returnPressed.connect(self.btn_vram_mon_rgb_off_function)
-        self.btn_vram_mon_rgb_off.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_vram_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_vram_led_time_on = QLineEdit(self)
         self.btn_vram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_vram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 4))
         self.btn_vram_led_time_on.setFont(self.font_s8b)
         self.btn_vram_led_time_on.returnPressed.connect(self.btn_vram_led_time_on_function)
-        self.btn_vram_led_time_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_vram_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_hdd_mon = QLabel(self)
         self.lbl_hdd_mon.move(2, (self.monitor_btn_pos_h * 5))
         self.lbl_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_hdd_mon.setFont(self.font_s8b)
         self.lbl_hdd_mon.setText('HDD')
-        self.lbl_hdd_mon.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           color: rgb(200, 200, 200);
-           border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style)
         self.lbl_hdd_mon.installEventFilter(self.filter)
         print('-- created:', self.lbl_hdd_mon)
         glo_obj.append(self.lbl_hdd_mon)
@@ -520,11 +476,7 @@ class App(QMainWindow):
         self.btn_hdd_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 5))
         self.btn_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_hdd_mon.setFont(self.font_s8b)
-        self.btn_hdd_mon.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_hdd_mon.clicked.connect(self.btn_hdd_mon_function)
         self.btn_hdd_mon.installEventFilter(self.filter)
         print('-- created:', self.btn_hdd_mon)
@@ -535,44 +487,28 @@ class App(QMainWindow):
         self.btn_hdd_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 5))
         self.btn_hdd_mon_rgb_on.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_on.returnPressed.connect(self.btn_hdd_mon_rgb_on_function)
-        self.btn_hdd_mon_rgb_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_hdd_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_hdd_mon_rgb_off = QLineEdit(self)
         self.btn_hdd_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_hdd_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 5))
         self.btn_hdd_mon_rgb_off.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_off.returnPressed.connect(self.btn_hdd_mon_rgb_off_function)
-        self.btn_hdd_mon_rgb_off.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_hdd_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_hdd_led_time_on = QLineEdit(self)
         self.btn_hdd_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_hdd_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 5))
         self.btn_hdd_led_time_on.setFont(self.font_s8b)
         self.btn_hdd_led_time_on.returnPressed.connect(self.btn_hdd_led_time_on_function)
-        self.btn_hdd_led_time_on.setStyleSheet(
-            """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_hdd_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_exclusive_con = QLabel(self)
         self.lbl_exclusive_con.move(2, (self.monitor_btn_pos_h * 6))
         self.lbl_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_exclusive_con.setFont(self.font_s8b)
         self.lbl_exclusive_con.setText('EX_CON')
-        self.lbl_exclusive_con.setStyleSheet(
-            """QLabel {background-color: rgb(15, 15, 15);
-           color: rgb(200, 200, 200);
-           border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
         self.lbl_exclusive_con.installEventFilter(self.filter)
         print('-- created:', self.lbl_exclusive_con)
         glo_obj.append(self.lbl_exclusive_con)
@@ -581,11 +517,7 @@ class App(QMainWindow):
         self.btn_exclusive_con.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 6))
         self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_exclusive_con.setFont(self.font_s8b)
-        self.btn_exclusive_con.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border:1px solid rgb(35, 35, 35);}"""
-        )
+        self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
         self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
         self.btn_exclusive_con.installEventFilter(self.filter)
         print('-- created:', self.btn_exclusive_con)
@@ -836,6 +768,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
             self.write_changes()
             self.cpu_led_color_off_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
+            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
             conf_thread[0].start()
         else:
@@ -843,6 +776,7 @@ class App(QMainWindow):
             self.cpu_led_color_off_str = str(cpu_led_color_off).replace('[', '')
             self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(']', '')
             self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(' ', '')
+            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
             conf_thread[0].start()
 
@@ -856,6 +790,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_off.text())
             self.write_changes()
             self.dram_led_color_off_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
+            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
             self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
             conf_thread[0].start()
         else:
@@ -863,6 +798,7 @@ class App(QMainWindow):
             self.dram_led_color_off_str = str(dram_led_color_off).replace('[', '')
             self.dram_led_color_off_str = self.dram_led_color_off_str.replace(']', '')
             self.dram_led_color_off_str = self.dram_led_color_off_str.replace(' ', '')
+            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
             self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
             conf_thread[0].start()
 
@@ -876,6 +812,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_off.text())
             self.write_changes()
             self.vram_led_color_off_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
+            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
             self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
             conf_thread[0].start()
         else:
@@ -883,6 +820,7 @@ class App(QMainWindow):
             self.vram_led_color_off_str = str(vram_led_color_off).replace('[', '')
             self.vram_led_color_off_str = self.vram_led_color_off_str.replace(']', '')
             self.vram_led_color_off_str = self.vram_led_color_off_str.replace(' ', '')
+            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
             self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
             conf_thread[0].start()
 
@@ -896,6 +834,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
             self.write_changes()
             self.hdd_led_color_off_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
+            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
             conf_thread[0].start()
         else:
@@ -903,6 +842,7 @@ class App(QMainWindow):
             self.hdd_led_color_off_str = str(hdd_led_color_off).replace('[', '')
             self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
             self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(' ', '')
+            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
             conf_thread[0].start()
 
@@ -916,6 +856,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
             self.write_changes()
             self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
+            self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
             conf_thread[0].start()
         else:
@@ -923,6 +864,7 @@ class App(QMainWindow):
             self.cpu_led_color_str = str(cpu_led_color).replace('[', '')
             self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
             self.cpu_led_color_str = self.cpu_led_color_str.replace(' ', '')
+            self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
             conf_thread[0].start()
 
@@ -936,13 +878,15 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_on.text())
             self.write_changes()
             self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
+            self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
             self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
             conf_thread[0].start()
         else:
             print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_on.text())
             self.dram_led_color_str = str(dram_led_color).replace('[', '')
             self.dram_led_color_str = self.dram_led_color_str.replace(']', '')
-            self.dram_led_color_str = self.dram_led_color_str.replace(' ', '')
+            self.dram_led_color_str = self.dram_led_color_str.text().replace(' ', '')
+            self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
             self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
             conf_thread[0].start()
 
@@ -956,6 +900,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_on.text())
             self.write_changes()
             self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
+            self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
             self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
             conf_thread[0].start()
         else:
@@ -963,6 +908,7 @@ class App(QMainWindow):
             self.vram_led_color_str = str(vram_led_color).replace('[', '')
             self.vram_led_color_str = self.vram_led_color_str.replace(']', '')
             self.vram_led_color_str = self.vram_led_color_str.replace(' ', '')
+            self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
             self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
             conf_thread[0].start()
 
@@ -976,6 +922,7 @@ class App(QMainWindow):
             print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
             self.write_changes()
             self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
+            self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
             conf_thread[0].start()
         else:
@@ -983,6 +930,7 @@ class App(QMainWindow):
             self.hdd_led_color_str = str(hdd_led_color).replace('[', '')
             self.hdd_led_color_str = self.hdd_led_color_str.replace(']', '')
             self.hdd_led_color_str = self.hdd_led_color_str.replace(' ', '')
+            self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
             conf_thread[0].start()
 
@@ -992,22 +940,14 @@ class App(QMainWindow):
         global cpu_startup_bool, mon_threads
         if cpu_startup_bool is True:
             print('-- stopping: cpu monitor')
-            self.btn_cpu_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
             self.write_var = 'cpu_startup: false'
             mon_threads[1].stop()
             cpu_startup_bool = False
             self.btn_cpu_mon.setText('DISABLED')
         elif cpu_startup_bool is False:
             print('-- starting: cpu monitor')
-            self.btn_cpu_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_cpu_mon.setStyleSheet(self.btn_enabled_style)
             self.write_var = 'cpu_startup: true'
             mon_threads[1].start()
             cpu_startup_bool = True
@@ -1020,22 +960,14 @@ class App(QMainWindow):
         global dram_startup_bool
         if dram_startup_bool is True:
             print('-- stopping: dram monitor')
-            self.btn_dram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
             self.write_var = 'dram_startup: false'
             mon_threads[2].stop()
             dram_startup_bool = False
             self.btn_dram_mon.setText('DISABLED')
         elif dram_startup_bool is False:
             print('-- starting: dram monitor')
-            self.btn_dram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_dram_mon.setStyleSheet(self.btn_enabled_style)
             self.write_var = 'dram_startup: true'
             mon_threads[2].start()
             dram_startup_bool = True
@@ -1048,22 +980,14 @@ class App(QMainWindow):
         global vram_startup_bool
         if vram_startup_bool is True:
             print('-- stopping: vram monitor')
-            self.btn_vram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
             self.write_var = 'vram_startup: false'
             mon_threads[3].stop()
             vram_startup_bool = False
             self.btn_vram_mon.setText('DISABLED')
         elif vram_startup_bool is False:
             print('-- starting: vram monitor')
-            self.btn_vram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_vram_mon.setStyleSheet(self.btn_enabled_style)
             self.write_var = 'vram_startup: true'
             mon_threads[3].start()
             vram_startup_bool = True
@@ -1076,22 +1000,14 @@ class App(QMainWindow):
         global hdd_startup_bool
         if hdd_startup_bool is True:
             print('-- stopping: hdd monitor')
-            self.btn_hdd_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
             self.write_var = 'hdd_startup: false'
             mon_threads[0].stop()
             hdd_startup_bool = False
             self.btn_hdd_mon.setText('DISABLED')
         elif hdd_startup_bool is False:
             print('-- starting: hdd monitor')
-            self.btn_hdd_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_hdd_mon.setStyleSheet(self.btn_enabled_style)
             self.write_var = 'hdd_startup: true'
             mon_threads[0].start()
             hdd_startup_bool = True
@@ -1107,11 +1023,7 @@ class App(QMainWindow):
             self.write_var = 'exclusive_access: true'
             sdk.request_control()
             exclusive_access_bool = False
-            self.btn_exclusive_con.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
             self.btn_exclusive_con.setText('ENABLED')
 
         elif exclusive_access_bool is False:
@@ -1119,11 +1031,7 @@ class App(QMainWindow):
             self.write_var = 'exclusive_access: false'
             sdk.release_control()
             exclusive_access_bool = True
-            self.btn_exclusive_con.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
             self.btn_exclusive_con.setText('DISABLED')
         self.write_changes()
 
@@ -1150,76 +1058,36 @@ class App(QMainWindow):
             time.sleep(1)
         if cpu_startup_bool is True:
             self.btn_cpu_mon.setText('ENABLED')
-            self.btn_cpu_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_cpu_mon.setStyleSheet(self.btn_enabled_style)
         elif cpu_startup_bool is False:
             self.btn_cpu_mon.setText('DISABLED')
-            self.btn_cpu_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
         if dram_startup_bool is True:
             self.btn_dram_mon.setText('ENABLED')
-            self.btn_dram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_dram_mon.setStyleSheet(self.btn_enabled_style)
         elif dram_startup_bool is False:
             self.btn_dram_mon.setText('DISABLED')
-            self.btn_dram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
         if vram_startup_bool is True:
             self.btn_vram_mon.setText('ENABLED')
-            self.btn_vram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_vram_mon.setStyleSheet(self.btn_enabled_style)
         elif vram_startup_bool is False:
             self.btn_vram_mon.setText('DISABLED')
-            self.btn_vram_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
         if hdd_startup_bool is True:
             self.btn_hdd_mon.setText('ENABLED')
-            self.btn_hdd_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_hdd_mon.setStyleSheet(self.btn_enabled_style)
         elif hdd_startup_bool is False:
             self.btn_hdd_mon.setText('DISABLED')
-            self.btn_hdd_mon.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         if exclusive_access_bool is True:
             self.btn_exclusive_con.setText('ENABLED')
             exclusive_access_bool = True
-            self.btn_exclusive_con.setStyleSheet(
-                """QPushButton{background-color: rgb(50, 50, 50);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
         elif exclusive_access_bool is False:
             self.btn_exclusive_con.setText('DISABLED')
             exclusive_access_bool = False
-            self.btn_exclusive_con.setStyleSheet(
-                """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border:1px solid rgb(35, 35, 35);}"""
-            )
+            self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
 
         self.cpu_led_color_str = str(cpu_led_color).strip()
         self.cpu_led_color_str = self.cpu_led_color_str.replace('[', '')
