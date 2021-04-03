@@ -17,6 +17,7 @@ import GPUtil
 import psutil
 import pythoncom
 import unicodedata
+import shutil
 
 
 def NFD(text):
@@ -58,6 +59,9 @@ prev_obj_eve = []
 mon_threads = []
 conf_thread = []
 
+run_startup_bool = False
+start_minimized_bool = False
+configuration_read_complete = False
 allow_display_application = False
 hdd_startup_bool = False
 cpu_startup_bool = False
@@ -171,9 +175,9 @@ def create_new():
     global creat_new_startup_bool
     # create config if not exist
     # create .vbs .bat & shortcut if not exist
-    print('-- installing')
     print('-- running: create_new')
     if not os.path.exists('./config.dat'):
+        print('-- installing')
         print('-- creating new: configuration file')
         open('./config.dat', 'w').close()
         with open('./config.dat', 'a') as fo:
@@ -194,10 +198,13 @@ def create_new():
             fo.writelines('hdd_led_color_off: 0,0,0\n')
             fo.writelines('hdd_led_time_on: 0.1\n')
             fo.writelines('hdd_startup: true\n')
-            fo.writelines('exclusive_access: true')
+            fo.writelines('exclusive_access: true\n')
+            fo.writelines('start_minimized: false\n')
+            fo.writelines('run_startup: false')
         fo.close()
 
     if not os.path.exists('./iCUEDisplay.vbs') or not os.path.exists('./iCUEDisplay.bat'):
+        print('-- installing')
         cwd = os.getcwd()
         print(cwd)
 
@@ -228,6 +235,7 @@ def create_new():
             shell = win32com.client.Dispatch("WScript.Shell")
             shortcut = shell.CreateShortCut(path)
             shortcut.Targetpath = target
+            shortcut.WorkingDirectory = cwd
             shortcut.IconLocation = icon
             shortcut.save()
         except Exception as e:
@@ -264,12 +272,12 @@ class App(QMainWindow):
         self.cursor = None
 
         self.setWindowIcon(QIcon('./icon.ico'))
-        self.title = 'iCue Display'
+        self.title = 'iCUE Display'
         print('-- setting self.title as:', self.title)
         self.setWindowTitle(self.title)
 
         self.width = 372
-        self.height = 175
+        self.height = 200
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -336,14 +344,23 @@ class App(QMainWindow):
         print('-- created:', self.lbl_title_bg)
 
         self.lbl_title = QLabel(self)
-        self.lbl_title.move((self.width / 2) - (50), 15)
-        self.lbl_title.resize(100, 30)
+        self.lbl_title.move((self.width / 2) - 44, 15)
+        self.lbl_title.resize(86, 30)
         self.lbl_title.setFont(self.font_s9b)
         self.lbl_title.setText('iCUE-DISPLAY')
         self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
         print('-- created:', self.lbl_title)
+
+        self.lbl_con_stat = QLabel(self)
+        # self.lbl_con_stat.move(self.width - 10, 25)
+        self.lbl_con_stat.move(2, 2)
+        self.lbl_con_stat.resize(8, 8)
+        self.lbl_con_stat.setStyleSheet("""QLabel {background-color: rgb(255, 0, 0);
+                                   color: rgb(0, 0, 0);
+                                   border:2px solid rgb(35, 35, 35);}""")
+        print('-- created:', self.lbl_con_stat)
 
         self.btn_quit = QPushButton(self)
         self.btn_quit.move((self.width - 20), 0)
@@ -534,6 +551,38 @@ class App(QMainWindow):
         self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
         print('-- created:', self.btn_exclusive_con)
 
+        self.lbl_start_minimized = QLabel(self)
+        self.lbl_start_minimized.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 6))
+        self.lbl_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_start_minimized.setFont(self.font_s8b)
+        self.lbl_start_minimized.setText(' STRT_MIN')
+        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_start_minimized)
+
+        self.btn_start_minimized = QPushButton(self)
+        self.btn_start_minimized.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 6))
+        self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_start_minimized.setFont(self.font_s8b)
+        self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
+        self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
+        print('-- created:', self.btn_start_minimized)
+
+        self.lbl_run_startup = QLabel(self)
+        self.lbl_run_startup.move(2, (self.monitor_btn_pos_h * 7))
+        self.lbl_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_run_startup.setFont(self.font_s8b)
+        self.lbl_run_startup.setText(' RUN_STRT')
+        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_run_startup)
+
+        self.btn_run_startup = QPushButton(self)
+        self.btn_run_startup.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 7))
+        self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_run_startup.setFont(self.font_s8b)
+        self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+        self.btn_run_startup.clicked.connect(self.btn_run_startup_function)
+        print('-- created:', self.btn_run_startup)
+
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
         self.vram_led_color_str = ""
@@ -556,6 +605,75 @@ class App(QMainWindow):
         self.write_var_key = -1
 
         self.initUI()
+
+    def btn_run_startup_function(self):
+        global run_startup_bool
+        self.setFocus()
+        cwd = os.getcwd()
+        shortcut_in = os.path.join(cwd + '\\iCUEDisplay.vbs')
+        shortcut_out = os.path.join(os.path.expanduser('~') + '/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/iCUEDisplay.lnk')
+
+        # Remove shortcut
+        if run_startup_bool is True:
+            run_startup_bool = False
+            print('-- setting run_startup_bool:', run_startup_bool)
+            self.write_var = 'run_startup: false'
+            self.write_changes()
+            print('-- searching for:', shortcut_out)
+            if os.path.exists(shortcut_out):
+                print('-- removing:', shortcut_out)
+            self.btn_run_startup.setText('DISABLED')
+            self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+
+        # Create shortcut
+        elif run_startup_bool is False:
+            if os.path.exists(shortcut_in):
+                print('-- copying:', shortcut_in)
+                try:
+                    target = os.path.join(cwd + '\\iCUEDisplay.vbs')
+                    icon = cwd + './icon.ico'
+                    shell = win32com.client.Dispatch("WScript.Shell")
+                    shortcut = shell.CreateShortCut(shortcut_out)
+                    shortcut.Targetpath = target
+                    shortcut.WorkingDirectory = cwd
+                    shortcut.IconLocation = icon
+                    shortcut.save()
+                except Exception as e:
+                    print('-- Error creating new shortcut file:', e)
+
+            # Check new shortcut file exists
+            if os.path.exists(shortcut_out):
+                print('-- run at startup: file copied successfully')
+                self.btn_run_startup.setText('ENABLED')
+                self.btn_run_startup.setStyleSheet(self.btn_enabled_style)
+                run_startup_bool = True
+                print('-- setting run_startup_bool:', run_startup_bool)
+                self.write_var = 'run_startup: true'
+                self.write_changes()
+
+            elif not os.path.exists(shortcut_out):
+                print('-- run at startup: shortcut file failed to be created')
+                self.btn_run_startup.setText('DISABLED')
+                self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+
+    def btn_start_minimized_function(self):
+        self.setFocus()
+        global start_minimized_bool
+        if start_minimized_bool is True:
+            start_minimized_bool = False
+            print('-- setting start_minimized_bool:', start_minimized_bool)
+            self.write_var = 'start_minimized: false'
+            self.write_changes()
+            self.btn_start_minimized.setText('DISABLED')
+            self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
+
+        elif start_minimized_bool is False:
+            start_minimized_bool = True
+            print('-- setting start_minimized_bool:', start_minimized_bool)
+            self.write_var = 'start_minimized: true'
+            self.write_changes()
+            self.btn_start_minimized.setText('ENABLED')
+            self.btn_start_minimized.setStyleSheet(self.btn_enabled_style)
 
     def sanitize_rgb_values(self):
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
@@ -1051,7 +1169,8 @@ class App(QMainWindow):
         global cpu_startup_bool, dram_startup_bool, vram_startup_bool, hdd_startup_bool
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
-        compile_devices_thread = CompileDevicesClass()
+        global start_minimized_bool
+        compile_devices_thread = CompileDevicesClass(self.lbl_con_stat)
         compile_devices_thread.start()
         read_configuration_thread = ReadConfigurationClass()
         read_configuration_thread.start()
@@ -1067,6 +1186,21 @@ class App(QMainWindow):
         print('\n-- displaying application:')
         while allow_display_application is False:
             time.sleep(1)
+
+        if run_startup_bool is True:
+            self.btn_run_startup.setText('ENABLED')
+            self.btn_run_startup.setStyleSheet(self.btn_enabled_style)
+        elif run_startup_bool is False:
+            self.btn_run_startup.setText('DISABLED')
+            self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+
+        if start_minimized_bool is True:
+            self.showMinimized()
+            self.btn_start_minimized.setText('ENABLED')
+            self.btn_start_minimized.setStyleSheet(self.btn_enabled_style)
+        elif start_minimized_bool is False:
+            self.btn_start_minimized.setText('DISABLED')
+            self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
         if cpu_startup_bool is True:
             self.btn_cpu_mon.setText('ENABLED')
             self.btn_cpu_mon.setStyleSheet(self.btn_enabled_style)
@@ -1099,6 +1233,14 @@ class App(QMainWindow):
             self.btn_exclusive_con.setText('DISABLED')
             exclusive_access_bool = False
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
+        if connected_bool is False:
+            self.lbl_con_stat.setStyleSheet("""QLabel {background-color: rgb(255, 0, 0);
+                                               color: rgb(0, 0, 0);
+                                               border:2px solid rgb(35, 35, 35);}""")
+        elif connected_bool is True:
+            self.lbl_con_stat.setStyleSheet("""QLabel {background-color: rgb(0, 255, 0);
+                                               color: rgb(0, 0, 0);
+                                               border:2px solid rgb(35, 35, 35);}""")
 
         self.cpu_led_color_str = str(cpu_led_color).strip()
         self.cpu_led_color_str = self.cpu_led_color_str.replace('[', '')
@@ -1151,6 +1293,7 @@ class App(QMainWindow):
 
         self.hdd_led_time_on_str = str(hdd_led_time_on).strip()
         self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
+
         self.show()
 
     def changeEvent(self, event):
@@ -1189,67 +1332,85 @@ class App(QMainWindow):
 
 
 class CompileDevicesClass(QThread):
-    def __init__(self):
+    def __init__(self, lbl_con_stat):
         QThread.__init__(self)
+        self.lbl_con_stat = lbl_con_stat
 
     def run(self):
         global sdk, k95_rgb_platinum
         global connected_bool, connected_bool_prev
         global mon_threads, conf_thread
         global hdd_startup_bool, cpu_startup_bool, dram_startup_bool, vram_startup_bool, exclusive_access_bool
+        global configuration_read_complete
         time.sleep(3)
         while True:
-            connected = sdk.connect()
-            if not connected:
-                err = sdk.get_last_error()
-                connected_bool = False
-            elif connected:
-                device = sdk.get_devices()
-                i = 0
-                for _ in device:
-                    target_name = str(device[i])
-                    if 'K95 RGB PLATINUM' in target_name:
-                        k95_rgb_platinum.append(i)
-                    i += 1
-                if len(k95_rgb_platinum) >= 1:
-                    connected_bool = True
-            if connected_bool is False and connected_bool != connected_bool_prev:
-                print('-- stopping threads:', )
-                conf_thread[0].stop()
-                mon_threads[0].stop()
-                mon_threads[1].stop()
-                mon_threads[2].stop()
-                mon_threads[3].stop()
-                if exclusive_access_bool is True:
-                    sdk.request_control()
-                    exclusive_access_bool = False
-                elif exclusive_access_bool is False:
-                    sdk.release_control()
-                    exclusive_access_bool = True
-                connected_bool_prev = False
-            elif connected_bool is True and connected_bool != connected_bool_prev:
-                print('-- starting threads:', )
-                print('compile hdd_startup_bool:', hdd_startup_bool)
-                print('compile cpu_startup_bool:', cpu_startup_bool)
-                print('compile dram_startup_bool:', dram_startup_bool)
-                print('compile vram_startup_bool:', vram_startup_bool)
-                if hdd_startup_bool is True:
-                    mon_threads[0].start()
-                if cpu_startup_bool is True:
-                    mon_threads[1].start()
-                if dram_startup_bool is True:
-                    mon_threads[2].start()
-                if vram_startup_bool is True:
-                    mon_threads[3].start()
-                if exclusive_access_bool is True:
-                    sdk.request_control()
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
-                    exclusive_access_bool = False
-                elif exclusive_access_bool is False:
-                    sdk.release_control()
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
-                    exclusive_access_bool = True
-                connected_bool_prev = True
+            try:
+                if configuration_read_complete is False:
+                    while configuration_read_complete is False:
+                        print('-- waiting for configuration file to be read')
+                        time.sleep(2)
+                connected = sdk.connect()
+                if not connected:
+                    connected_bool = False
+                    err = sdk.get_last_error()
+                elif connected:
+                    device = sdk.get_devices()
+                    i = 0
+                    for _ in device:
+                        target_name = str(device[i])
+                        if 'K95 RGB PLATINUM' in target_name:
+                            k95_rgb_platinum.append(i)
+                        i += 1
+                    if len(k95_rgb_platinum) >= 1:
+                        connected_bool = True
+                if connected_bool is False and connected_bool != connected_bool_prev:
+                    print('-- stopping threads:', )
+                    conf_thread[0].stop()
+                    mon_threads[0].stop()
+                    mon_threads[1].stop()
+                    mon_threads[2].stop()
+                    mon_threads[3].stop()
+                    if exclusive_access_bool is True:
+                        sdk.request_control()
+                        exclusive_access_bool = False
+                    elif exclusive_access_bool is False:
+                        sdk.release_control()
+                        exclusive_access_bool = True
+                    connected_bool_prev = False
+                elif connected_bool is True and connected_bool != connected_bool_prev:
+                    print('-- starting threads:', )
+                    print('compile hdd_startup_bool:', hdd_startup_bool)
+                    print('compile cpu_startup_bool:', cpu_startup_bool)
+                    print('compile dram_startup_bool:', dram_startup_bool)
+                    print('compile vram_startup_bool:', vram_startup_bool)
+                    if hdd_startup_bool is True:
+                        mon_threads[0].start()
+                    if cpu_startup_bool is True:
+                        mon_threads[1].start()
+                    if dram_startup_bool is True:
+                        mon_threads[2].start()
+                    if vram_startup_bool is True:
+                        mon_threads[3].start()
+                    if exclusive_access_bool is True:
+                        sdk.request_control()
+                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                        exclusive_access_bool = False
+                    elif exclusive_access_bool is False:
+                        sdk.release_control()
+                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                        exclusive_access_bool = True
+                    connected_bool_prev = True
+
+                if connected_bool is False:
+                    self.lbl_con_stat.setStyleSheet("""QLabel {background-color: rgb(255, 0, 0);
+                                                                       color: rgb(0, 0, 0);
+                                                                       border:2px solid rgb(35, 35, 35);}""")
+                elif connected_bool is True:
+                    self.lbl_con_stat.setStyleSheet("""QLabel {background-color: rgb(0, 255, 0);
+                                                                               color: rgb(0, 0, 0);
+                                                                               border:2px solid rgb(35, 35, 35);}""")
+            except Exception as e:
+                print('[NAME]: CompileDevicesClass [FUNCTION]: run [EXCEPTION]:', e)
             time.sleep(3)
 
 
@@ -1277,6 +1438,25 @@ class ReadConfigurationClass(QThread):
                                         if var_int_1 >= 0 and var_int_1 <= 255:
                                             if var_int_2 >= 0 and var_int_2 <= 255:
                                                 self.sanitize_passed = True
+
+    def startup_settings(self):
+        global start_minimized_bool, run_startup_bool
+        with open('.\\config.dat', 'r') as fo:
+            for line in fo:
+                line = line.strip()
+                if line == 'start_minimized: true':
+                    start_minimized_bool = True
+                    print('-- setting start_minimized_bool:', start_minimized_bool)
+                elif line == 'start_minimized_bool: false':
+                    start_minimized_bool = False
+                    print('-- setting start_minimized_bool:', start_minimized_bool)
+
+                if line == 'run_startup: true' and os.path.exists(os.path.join(os.path.expanduser('~') + '/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/iCUEDisplay.lnk')):
+                    run_startup_bool = True
+                    print('-- setting run_startup:', run_startup_bool)
+                elif line == 'run_startup: false' or not os.path.exists(os.path.join(os.path.expanduser('~') + '/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/iCUEDisplay.lnk')):
+                    run_startup_bool = False
+                    print('-- setting run_startup:', run_startup_bool)
 
     def exclusive_access(self):
         global exclusive_access_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
@@ -1543,8 +1723,11 @@ class ReadConfigurationClass(QThread):
 
     def run(self):
         print('-- thread started: ReadConfigurationClass(QThread).run(self)')
-        global allow_mon_threads_bool, exclusive_access_bool, allow_display_application
+        global allow_mon_threads_bool, exclusive_access_bool, allow_display_application, connected_bool
+        global configuration_read_complete
         try:
+            configuration_read_complete = False
+            self.startup_settings()
             self.exclusive_access()
             self.hdd_sanitize()
             self.cpu_sanitize()
@@ -1552,6 +1735,7 @@ class ReadConfigurationClass(QThread):
             self.vram_sanitize()
             allow_mon_threads_bool = True
             allow_display_application = True
+            configuration_read_complete = True
         except Exception as e:
             print('[NAME]: ReadConfigurationClass [FUNCTION]: run [EXCEPTION]:', e)
 
