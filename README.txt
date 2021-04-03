@@ -25,6 +25,10 @@ EXCON (Exclusive Control): Enabled
 RGB 2: 0,0,0 (off) for all.
 
 
+Install:
+iCUEDisplay.exe will create its files and shortcut withing the directory iCUEDisplay is ran. iCUE Display can then be ran
+quietly from the created shortcut.
+
 Requirements:
 Python Version: 3.9
 OS Version: Windows 10
@@ -32,3 +36,7 @@ ICUE Running
 
 Note: This program is not a lighting display effect. It is designed to convert the icue keyboard into a non-distracting,
 efficient and non-resource heavy HUD.
+
+Developer notes:
+iCUE Display executable is compiled from .py so that module GPUINFO can pipe stdout which is necessary for gpu information.
+(This is why the vbs to run quietly will be used because iCUE display compiled from .py rather than .pyw).
