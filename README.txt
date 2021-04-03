@@ -1,9 +1,7 @@
-icue_display
+iCUE Display
 
 Converts K95 Platinum Elite Keyboard into a heads up display.
 
-Python Version: 3.9
-OS Version: Windows 10
 
 Keyboard HUD Displays:
 	* HDD DiskBytesPersec For Each Disk Instance & Each Instance is assigned to its own K95 alpha key.
@@ -11,12 +9,21 @@ Keyboard HUD Displays:
 	* DRAM Utilization Monitor
 	* VRAM Utilization Monitor
 
-Frontend is a personal template of mine and has been populated to plug into the backend. GUI is designed to be purely
-logical & non-resource heavy to be used as a tool.
+GUI:
+Designed to be purely logical & non-resource heavy to be used as a tool.
 
-This program is not a light display effect. It is designed to convert the icue keyboard into a non-distracting,
+Enable/Disable: - Turns functions on/off.
+RGB 1: Colour of RGB on.
+RGB 2: Colour of RGB off.
+Timing: Accepts value between 0.1 and 5. Lower the number, more respources iCUE Display will consume to display information
+to the keyboard
+
+
+Recommended Timing: All 1.0 except HDD at 0.1.
+
+
+Python Version: 3.9
+OS Version: Windows 10
+
+Note: This program is not a lighting display effect. It is designed to convert the icue keyboard into a non-distracting,
 efficient and non-resource heavy HUD.
-
-Values are saved to config.dat for memory accross reboots.
-
-Still in development. Plugging the backend into the GUI.
