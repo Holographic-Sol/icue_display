@@ -25,8 +25,10 @@ EXCON (Exclusive Control): Enabled
 RGB 2: 0,0,0 (off) for all.
 
 
+Requirements:
 Python Version: 3.9
 OS Version: Windows 10
+ICUE Running
 
 Note: This program is not a lighting display effect. It is designed to convert the icue keyboard into a non-distracting,
 efficient and non-resource heavy HUD.
