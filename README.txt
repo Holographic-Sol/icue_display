@@ -41,5 +41,5 @@ Developer notes:
 iCUE Display executable is compiled from .py so that module GPUINFO can pipe stdout which is necessary for gpu information.
 (This is why the vbs to run quietly will be used because iCUE display is compiled from .py rather than .pyw).
 
-iCUE Display ius designed to be efficient. Threads are killed when iCUE is not running. Threads are killed when function(s)
+iCUE Display is designed to be efficient. Threads are killed when iCUE is not running. Threads are killed when function(s)
 disabled. Use recommended settings for best efficiency and use.
