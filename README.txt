@@ -19,7 +19,10 @@ Timing: Accepts value between 0.1 and 5. Lower the number, more respources iCUE 
 to the keyboard
 
 
-Recommended Timing: All 1.0 except HDD at 0.1.
+Recommended Settings:
+Timing: All 1.0 except HDD at 0.1
+EXCON (Exclusive Control): Enabled
+RGB 2: 0,0,0 (off) for all.
 
 
 Python Version: 3.9
