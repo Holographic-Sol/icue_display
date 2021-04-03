@@ -198,9 +198,7 @@ def create_new():
             fo.writelines('hdd_led_color_off: 0,0,0\n')
             fo.writelines('hdd_led_time_on: 0.1\n')
             fo.writelines('hdd_startup: true\n')
-            fo.writelines('exclusive_access: true\n')
-            fo.writelines('start_minimized: false\n')
-            fo.writelines('run_startup: false')
+            fo.writelines('exclusive_access: true')
         fo.close()
 
     if not os.path.exists('./iCUEDisplay.vbs') or not os.path.exists('./iCUEDisplay.bat'):
@@ -622,10 +620,6 @@ class App(QMainWindow):
             print('-- searching for:', shortcut_out)
             if os.path.exists(shortcut_out):
                 print('-- removing:', shortcut_out)
-                try:
-                    os.remove(shortcut_out)
-                except Exception as e:
-                    print('-- btn_run_startup_function:', e)
             self.btn_run_startup.setText('DISABLED')
             self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
 
