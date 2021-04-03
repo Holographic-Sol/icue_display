@@ -18,12 +18,10 @@ RGB 2: Colour of RGB off.
 Timing: Accepts value between 0.1 and 5. Lower the number, more respources iCUE Display will consume to display information
 to the keyboard
 
-
 Recommended Settings:
 Timing: All 1.0 except HDD at 0.1
 EXCON (Exclusive Control): Enabled
 RGB 2: 0,0,0 (off) for all.
-
 
 Install:
 iCUEDisplay.exe will create its files and shortcut withing the directory iCUEDisplay is ran. iCUE Display can then be ran
