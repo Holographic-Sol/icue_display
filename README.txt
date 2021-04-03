@@ -28,6 +28,7 @@ RGB 2: 0,0,0 (off) for all.
 Install:
 iCUEDisplay.exe will create its files and shortcut withing the directory iCUEDisplay is ran. iCUE Display can then be ran
 quietly from the created shortcut.
+iCUE Display: https://drive.google.com/drive/folders/1xHeI_X5vnpKqQ3vkBz6hw97RnqaPwWNl?usp=sharing
 
 Requirements:
 Python Version: 3.9
