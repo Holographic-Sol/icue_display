@@ -1,6 +1,7 @@
 iCUE Display
 
-Converts K95 Platinum Elite Keyboard into a heads up display.
+Converts K95 Platinum Elite Keyboard into a heads up display. Providing data and a type of security whereby
+one can see what is happening on the system.
 
 
 Keyboard HUD Displays:
