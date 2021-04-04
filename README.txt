@@ -54,4 +54,5 @@ Shortcuts created are intended for use with iCUEDisplay.exe. Otherwise you must 
 iCUEDisplay.py.
 
 Observations:
-It is intersting that now the monitor can be turned off while still being able to see if a long download or process has completed among other information.
+It is intersting that now the monitor can be turned off while still being able to see if a long download or process has completed among other information,
+which uses less power and is then more efficient.
