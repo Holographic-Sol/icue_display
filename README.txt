@@ -15,20 +15,26 @@ Designed to be purely logical & non-resource heavy to be used as a tool.
 Enable/Disable: - Turns functions on/off.
 RGB 1: Colour of RGB on.
 RGB 2: Colour of RGB off.
+
 Timing: Accepts value between 0.1 and 5. Lower the number, more respources iCUE Display will consume to display information
 to the keyboard
 
+Network Traffic:
+1-9 Blue
+10-99 Light Blue
+100+ White
+Bytes Red, KB Green, MB Blue, GB Light Blue, TB White
+
 
 Recommended Settings:
-Timing: All 1.0 except HDD at 0.1
-EXCON (Exclusive Control): Enabled
+Timing: All 1.0 except HDD & Network traffic at 0.1
+Exclusive Connection(Exclusive Control): Enabled
 RGB 2: 0,0,0 (off) for all.
 
 
 Install:
 iCUEDisplay.exe will create its files and shortcut withing the directory iCUEDisplay is ran. iCUE Display can then be ran
 quietly from the created shortcut.
-iCUE Display: https://drive.google.com/drive/folders/1xHeI_X5vnpKqQ3vkBz6hw97RnqaPwWNl?usp=sharing
 
 Requirements:
 Python Version: 3.9

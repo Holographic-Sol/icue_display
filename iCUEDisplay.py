@@ -126,46 +126,82 @@ for _ in alpha_led:
     hdd_display_key_bool.append(False)
 
 network_adapter_name = ""
-func_rcv_led = [2, 3, 4, 5, 6, 7, 8, 9, 10]  #, 11, 12, 73]
-num_snt_led = [14, 15, 16, 17, 18, 19, 20, 21, 22]
-network_adapter_color = [255, 255, 255]
+net_rcv_led = [2, 3, 4, 5, 6, 7, 8, 9, 10]
+net_snt_led = [14, 15, 16, 17, 18, 19, 20, 21, 22]
 network_adapter_color_off = [0, 0, 0]
 network_adapter_time_on = 0.5
 network_adapter_initiation = False
-network_adapter_led_rcv_item = []
-network_adapter_led_off_rcv_item = []
-network_adapter_display_rcv_bool = []
-network_adapter_led_snt_item = []
-network_adapter_led_off_snt_item = []
 network_adapter_display_snt_bool = []
+network_adapter_display_rcv_bool = []
+network_adapter_led_off_snt_item = []
+network_adapter_led_off_rcv_item = []
+
+network_adapter_color_bytes = [255, 0, 0]
+network_adapter_color_kb = [0, 255, 0]
+network_adapter_color_mb = [0, 0, 255]
+network_adapter_color_gb = [0, 255, 255]
+network_adapter_color_tb = [255, 255, 255]
+network_adapter_led_rcv_item_bytes = []
+network_adapter_led_snt_item_bytes = []
+network_adapter_led_rcv_item_kb = []
+network_adapter_led_snt_item_kb = []
+network_adapter_led_rcv_item_mb = []
+network_adapter_led_snt_item_mb = []
+network_adapter_led_rcv_item_gb = []
+network_adapter_led_snt_item_gb = []
+network_adapter_led_rcv_item_tb = []
+network_adapter_led_snt_item_tb = []
+network_adapter_led_rcv_item_unit = [({11: (0, 0, 255)}), ({11: (0, 255, 255)}), ({11: (255, 255, 255)}), ({11: (0, 0, 0)})]
+network_adapter_led_snt_item_unit = [({23: (0, 0, 255)}), ({23: (0, 255, 255)}), ({23: (255, 255, 255)}), ({23: (0, 0, 0)})]
+
 i = 0
-for _ in func_rcv_led:
-    itm = {func_rcv_led[i]: network_adapter_color}
-    network_adapter_led_rcv_item.append(itm)
-    i += 1
-i = 0
-for _ in func_rcv_led:
-    itm = {func_rcv_led[i]: network_adapter_color_off}
+for _ in net_rcv_led:
+    itm = {net_rcv_led[i]: network_adapter_color_bytes}
+    network_adapter_led_rcv_item_bytes.append(itm)
+    itm = {net_snt_led[i]: network_adapter_color_bytes}
+    network_adapter_led_snt_item_bytes.append(itm)
+
+    itm = {net_rcv_led[i]: network_adapter_color_kb}
+    network_adapter_led_rcv_item_kb.append(itm)
+    itm = {net_snt_led[i]: network_adapter_color_kb}
+    network_adapter_led_snt_item_kb.append(itm)
+
+    itm = {net_rcv_led[i]: network_adapter_color_mb}
+    network_adapter_led_rcv_item_mb.append(itm)
+    itm = {net_snt_led[i]: network_adapter_color_mb}
+    network_adapter_led_snt_item_mb.append(itm)
+
+    itm = {net_rcv_led[i]: network_adapter_color_tb}
+    network_adapter_led_rcv_item_gb.append(itm)
+    itm = {net_snt_led[i]: network_adapter_color_tb}
+    network_adapter_led_snt_item_gb.append(itm)
+
+    itm = {net_rcv_led[i]: network_adapter_color_tb}
+    network_adapter_led_rcv_item_tb.append(itm)
+    itm = {net_snt_led[i]: network_adapter_color_tb}
+    network_adapter_led_snt_item_tb.append(itm)
+
+    itm = {net_rcv_led[i]: network_adapter_color_off}
     network_adapter_led_off_rcv_item.append(itm)
-    i += 1
-for _ in func_rcv_led:
+    itm = {net_snt_led[i]: network_adapter_color_off}
+    network_adapter_led_off_snt_item.append(itm)
+
     network_adapter_display_rcv_bool.append(False)
-i = 0
-
-i = 0
-for _ in num_snt_led:
-    itm = {num_snt_led[i]: network_adapter_color}
-    network_adapter_led_rcv_item.append(itm)
-    i += 1
-i = 0
-for _ in num_snt_led:
-    itm = {num_snt_led[i]: network_adapter_color_off}
-    network_adapter_led_off_rcv_item.append(itm)
-    i += 1
-for _ in num_snt_led:
     network_adapter_display_snt_bool.append(False)
-i = 0
+    i += 1
 
+print(network_adapter_led_rcv_item_bytes)
+print(network_adapter_led_snt_item_bytes)
+print(network_adapter_led_rcv_item_kb)
+print(network_adapter_led_snt_item_kb)
+print(network_adapter_led_rcv_item_mb)
+print(network_adapter_led_snt_item_mb)
+print(network_adapter_led_rcv_item_gb)
+print(network_adapter_led_snt_item_gb)
+print(network_adapter_led_rcv_item_tb)
+print(network_adapter_led_snt_item_tb)
+print(network_adapter_led_off_rcv_item)
+print(network_adapter_led_off_snt_item)
 
 cpu_stat = ()
 cpu_led_color = [255, 255, 255]
@@ -245,7 +281,6 @@ def create_new():
             fo.writelines('exclusive_access: true\n')
             fo.writelines('start_minimized: false\n')
             fo.writelines('run_startup: false\n')
-            fo.writelines('network_adapter_color: 255,0,255\n')
             fo.writelines('network_adapter_color_off: 0,0,0\n')
             fo.writelines('network_adapter_time_on: 1\n')
             fo.writelines('network_adapter_startup: false\n')
@@ -326,7 +361,7 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
 
         self.width = 372
-        self.height = 248
+        self.height = 272
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -602,115 +637,100 @@ class App(QMainWindow):
         self.btn_hdd_led_time_on.returnPressed.connect(self.btn_hdd_led_time_on_function)
         self.btn_hdd_led_time_on.setStyleSheet(self.qle_unselected)
 
-        self.lbl_exclusive_con = QLabel(self)
-        self.lbl_exclusive_con.move(2, (self.monitor_btn_pos_h * 6))
-        self.lbl_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.lbl_exclusive_con.setFont(self.font_s8b)
-        self.lbl_exclusive_con.setText(' EX_CON')
-        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_exclusive_con)
-
-        self.btn_exclusive_con = QPushButton(self)
-        self.btn_exclusive_con.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 6))
-        self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_exclusive_con.setFont(self.font_s8b)
-        self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
-        self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
-        print('-- created:', self.btn_exclusive_con)
-
-        self.lbl_start_minimized = QLabel(self)
-        self.lbl_start_minimized.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 6))
-        self.lbl_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.lbl_start_minimized.setFont(self.font_s8b)
-        self.lbl_start_minimized.setText(' STRT_MIN')
-        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_start_minimized)
-
-        self.btn_start_minimized = QPushButton(self)
-        self.btn_start_minimized.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 6))
-        self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_start_minimized.setFont(self.font_s8b)
-        self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
-        self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
-        print('-- created:', self.btn_start_minimized)
-
-        self.lbl_run_startup = QLabel(self)
-        self.lbl_run_startup.move(2, (self.monitor_btn_pos_h * 7))
-        self.lbl_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.lbl_run_startup.setFont(self.font_s8b)
-        self.lbl_run_startup.setText(' RUN_STRT')
-        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_run_startup)
-
-        self.btn_run_startup = QPushButton(self)
-        self.btn_run_startup.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 7))
-        self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_run_startup.setFont(self.font_s8b)
-        self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
-        self.btn_run_startup.clicked.connect(self.btn_run_startup_function)
-        print('-- created:', self.btn_run_startup)
-
         self.lbl_network_adapter = QLabel(self)
-        self.lbl_network_adapter.move(2, (self.monitor_btn_pos_h * 8))
-        self.lbl_network_adapter.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.lbl_network_adapter.move(2, (self.monitor_btn_pos_h * 6))
+        self.lbl_network_adapter.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
         self.lbl_network_adapter.setFont(self.font_s8b)
-        self.lbl_network_adapter.setText(' NET_ADPT')
+        self.lbl_network_adapter.setText(' NETWORK TRAFFIC')
         self.lbl_network_adapter.setStyleSheet(self.lbl_data_style)
         print('-- created:', self.lbl_network_adapter)
 
         self.btn_network_adapter = QPushButton(self)
-        self.btn_network_adapter.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 8))
+        self.btn_network_adapter.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 6))
         self.btn_network_adapter.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_network_adapter.setFont(self.font_s8b)
         self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
         self.btn_network_adapter.clicked.connect(self.btn_network_adapter_function)
         print('-- created:', self.btn_network_adapter)
 
-        self.btn_network_adapter_rgb_on = QLineEdit(self)
-        self.btn_network_adapter_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 8))
-        self.btn_network_adapter_rgb_on.setFont(self.font_s8b)
-        self.btn_network_adapter_rgb_on.returnPressed.connect(self.btn_network_adapter_mon_rgb_on_function)
-        self.btn_network_adapter_rgb_on.setStyleSheet(self.qle_unselected)
-
         self.btn_network_adapter_rgb_off = QLineEdit(self)
         self.btn_network_adapter_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 8))
+        self.btn_network_adapter_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 6))
         self.btn_network_adapter_rgb_off.setFont(self.font_s8b)
         self.btn_network_adapter_rgb_off.returnPressed.connect(self.btn_network_adapter_mon_rgb_off_function)
         self.btn_network_adapter_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_network_adapter_led_time_on = QLineEdit(self)
         self.btn_network_adapter_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 8))
+        self.btn_network_adapter_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 6))
         self.btn_network_adapter_led_time_on.setFont(self.font_s8b)
         self.btn_network_adapter_led_time_on.returnPressed.connect(self.btn_network_adapter_led_time_on_function)
         self.btn_network_adapter_led_time_on.setStyleSheet(self.qle_unselected)
 
-        self.lbl_network_adapter_name = QLabel(self)
-        self.lbl_network_adapter_name.move(2, (self.monitor_btn_pos_h * 9))
-        self.lbl_network_adapter_name.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.lbl_network_adapter_name.setFont(self.font_s8b)
-        self.lbl_network_adapter_name.setText(' SLCT_ADPT')
-        self.lbl_network_adapter_name.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_network_adapter_name)
-
         self.cmb_network_adapter_name = QComboBox(self)
         self.cmb_network_adapter_name.resize(226, self.monitor_btn_h)
-        self.cmb_network_adapter_name.move(self.monitor_btn_w + 2, (self.monitor_btn_pos_h * 9))
+        self.cmb_network_adapter_name.move(self.monitor_btn_w + 2, (self.monitor_btn_pos_h * 7))
         self.cmb_network_adapter_name.setStyleSheet("""QComboBox {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
         self.cmb_network_adapter_name.activated[str].connect(self.cmb_network_adapter_name_function)
 
         self.btn_network_adapter_refresh = QPushButton(self)
-        self.btn_network_adapter_refresh.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 9))
+        self.btn_network_adapter_refresh.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 7))
         self.btn_network_adapter_refresh.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_network_adapter_refresh.setFont(self.font_s8b)
         self.btn_network_adapter_refresh.setText('REFRESH')
         self.btn_network_adapter_refresh.setStyleSheet(self.btn_enabled_style)
         self.btn_network_adapter_refresh.clicked.connect(self.btn_network_adapter_refresh_function)
         print('-- created:', self.btn_network_adapter_refresh)
+
+        self.lbl_exclusive_con = QLabel(self)
+        self.lbl_exclusive_con.move(2, (self.height - ((self.monitor_btn_pos_h * 3) - 6)))
+        self.lbl_exclusive_con.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_exclusive_con.setFont(self.font_s8b)
+        self.lbl_exclusive_con.setText(' EXCLUSIVE CONTROL')
+        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_exclusive_con)
+
+        self.btn_exclusive_con = QPushButton(self)
+        self.btn_exclusive_con.move((self.monitor_btn_w * 2) + 6, (self.height - ((self.monitor_btn_pos_h * 3) - 6)))
+        self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_exclusive_con.setFont(self.font_s8b)
+        self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
+        self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
+        print('-- created:', self.btn_exclusive_con)
+
+        self.lbl_run_startup = QLabel(self)
+        self.lbl_run_startup.move(2, (self.height - ((self.monitor_btn_pos_h * 2) - 4)))
+        self.lbl_run_startup.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_run_startup.setFont(self.font_s8b)
+        self.lbl_run_startup.setText(' AUTOMATIC STARTUP')
+        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_run_startup)
+
+        self.btn_run_startup = QPushButton(self)
+        self.btn_run_startup.move((self.monitor_btn_w * 2) + 6, (self.height - ((self.monitor_btn_pos_h * 2) - 4)))
+        self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_run_startup.setFont(self.font_s8b)
+        self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+        self.btn_run_startup.clicked.connect(self.btn_run_startup_function)
+        print('-- created:', self.btn_run_startup)
+
+        self.lbl_start_minimized = QLabel(self)
+        self.lbl_start_minimized.move(2, (self.height - (self.monitor_btn_pos_h - 2)))
+        self.lbl_start_minimized.resize((self.monitor_btn_w * 2 + 2), self.monitor_btn_h)
+        self.lbl_start_minimized.setFont(self.font_s8b)
+        self.lbl_start_minimized.setText(' START MINIMIZED')
+        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_start_minimized)
+
+        self.btn_start_minimized = QPushButton(self)
+        self.btn_start_minimized.move((self.monitor_btn_w * 2) + 6, (self.height - (self.monitor_btn_pos_h - 2)))
+        self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_start_minimized.setFont(self.font_s8b)
+        self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
+        self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
+        print('-- created:', self.btn_start_minimized)
 
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
@@ -727,7 +747,6 @@ class App(QMainWindow):
         self.vram_led_time_on_str = ""
         self.hdd_led_time_on_str = ""
 
-        self.network_adapter_led_color_str = ""
         self.network_adapter_led_color_off_str = ""
         self.network_adapter_led_time_on_str = ""
 
@@ -763,34 +782,11 @@ class App(QMainWindow):
         except Exception as e:
             print('-- Exception in Function: network_adapter_sanitize.', e)
 
-    def btn_network_adapter_mon_rgb_on_function(self):
-        print('-- btn_network_adapter_mon_rgb_on_function')
-        global network_adapter_color, conf_thread
-        self.setFocus()
-        self.write_var_key = 8
-        self.write_var = self.btn_network_adapter_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_network_adapter_rgb_on.text())
-            self.write_changes()
-            self.network_adapter_led_color_str = self.btn_network_adapter_rgb_on.text().replace(' ', '')
-            self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace(',', ', ')
-            self.btn_network_adapter_rgb_on.setText(self.network_adapter_led_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_network_adapter_rgb_on.text())
-            self.network_adapter_led_color_str = str(network_adapter_color).replace('[', '')
-            self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace(']', '')
-            self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace(' ', '')
-            self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace(',', ', ')
-            self.btn_network_adapter_rgb_on.setText(self.network_adapter_led_color_str)
-            conf_thread[0].start()
-
     def btn_network_adapter_mon_rgb_off_function(self):
         print('-- btn_network_adapter_mon_rgb_off_function')
         global conf_thread
         self.setFocus()
-        self.write_var_key = 9
+        self.write_var_key = 8
         self.write_var = self.btn_network_adapter_rgb_off.text()
         self.sanitize_rgb_values()
         if self.write_var_bool is True:
@@ -922,7 +918,7 @@ class App(QMainWindow):
             self.btn_start_minimized.setStyleSheet(self.btn_enabled_style)
 
     def sanitize_rgb_values(self):
-        global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color, network_adapter_color
+        global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off, network_adapter_color_off
         print('-- attempting to sanitize input:', self.btn_cpu_mon_rgb_on.text())
         var_str = self.write_var
@@ -969,9 +965,6 @@ class App(QMainWindow):
                                                     hdd_led_color_off = [var_int_0, var_int_1, var_int_2]
                                                     self.write_var = 'hdd_led_color_off: ' + self.btn_hdd_mon_rgb_off.text().replace(' ', '')
                                                 elif self.write_var_key == 8:
-                                                    network_adapter_color = [var_int_0, var_int_1, var_int_2]
-                                                    self.write_var = 'network_adapter_color: ' + self.btn_network_adapter_rgb_on.text().replace(' ', '')
-                                                elif self.write_var_key == 9:
                                                     network_adapter_color_off = [var_int_0, var_int_1, var_int_2]
                                                     self.write_var = 'network_adapter_color_off: ' + self.btn_network_adapter_rgb_off.text().replace(' ', '')
 
@@ -1543,11 +1536,6 @@ class App(QMainWindow):
         self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
         self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
 
-        self.network_adapter_led_color_str = str(network_adapter_color).strip()
-        self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace('[', '')
-        self.network_adapter_led_color_str = self.network_adapter_led_color_str.replace(']', '')
-        self.btn_network_adapter_rgb_on.setText(self.network_adapter_led_color_str)
-
         self.network_adapter_led_color_off_str = str(network_adapter_color_off).strip()
         self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace('[', '')
         self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(']', '')
@@ -1718,10 +1706,11 @@ class ReadConfigurationClass(QThread):
 
     def network_adapter_sanitize(self):
         pythoncom.CoInitialize()
-        global network_adapter_startup_bool, network_adapter_time_on, network_adapter_led_rcv_item
-        global network_adapter_led_snt_item, network_adapter_color, network_adapter_color_off
-        global num_snt_led, func_rcv_led, network_adapter_led_off_rcv_item, network_adapter_led_off_snt_item
-        global network_adapter_name, network_adapter_name_bool
+        global network_adapter_startup_bool, network_adapter_time_on
+        global network_adapter_color_off
+        global net_snt_led, net_rcv_led, network_adapter_led_off_rcv_item, network_adapter_led_off_snt_item
+        global network_adapter_name, network_adapter_name_bool, network_adapter_led_off_snt_item
+        global network_adapter_led_off_rcv_item
         network_adapter_name_bool = False
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
@@ -1758,56 +1747,27 @@ class ReadConfigurationClass(QThread):
                     network_adapter_startup_bool = False
                     print('network_adapter_startup:', network_adapter_startup_bool)
 
-                if line.startswith('network_adapter_color: '):
-                    network_adapter_color = line.replace('network_adapter_color: ', '')
-                    network_adapter_color = network_adapter_color.split(',')
-                    self.sanitize_str = network_adapter_color
-                    self.sanitize_rgb_values()
-                    if self.sanitize_passed is True:
-                        network_adapter_color[0] = int(network_adapter_color[0])
-                        network_adapter_color[1] = int(network_adapter_color[1])
-                        network_adapter_color[2] = int(network_adapter_color[2])
-
-                        i = 0
-                        network_adapter_led_rcv_item = []
-                        for _ in func_rcv_led:
-                            itm = {func_rcv_led[i]: network_adapter_color}
-                            network_adapter_led_rcv_item.append(itm)
-                            i += 1
-                        i = 0
-                        network_adapter_led_snt_item = []
-                        for _ in num_snt_led:
-                            itm = {num_snt_led[i]: network_adapter_color}
-                            network_adapter_led_snt_item.append(itm)
-                            i += 1
-
-                    elif self.sanitize_passed is False:
-                        network_adapter_color = [255, 255, 255]
-
                 if line.startswith('network_adapter_color_off: '):
                     network_adapter_color_off = line.replace('network_adapter_color_off: ', '')
                     network_adapter_color_off = network_adapter_color_off.split(',')
                     self.sanitize_str = network_adapter_color_off
                     self.sanitize_rgb_values()
                     if self.sanitize_passed is True:
-                        print('network_adapter_color_off: passed sanitization')
                         network_adapter_color_off[0] = int(network_adapter_color_off[0])
                         network_adapter_color_off[1] = int(network_adapter_color_off[1])
                         network_adapter_color_off[2] = int(network_adapter_color_off[2])
                         i = 0
                         network_adapter_led_off_rcv_item = []
-                        for _ in func_rcv_led:
-                            itm = {func_rcv_led[i]: network_adapter_color_off}
-                            network_adapter_led_off_rcv_item.append(itm)
-                            i += 1
-                        i = 0
                         network_adapter_led_off_snt_item = []
-                        for _ in num_snt_led:
-                            itm = {num_snt_led[i]: network_adapter_color_off}
+                        for _ in net_rcv_led:
+                            itm = {net_rcv_led[i]: network_adapter_color_off}
+                            network_adapter_led_off_rcv_item.append(itm)
+                            itm = {net_snt_led[i]: network_adapter_color_off}
                             network_adapter_led_off_snt_item.append(itm)
                             i += 1
+                        print(network_adapter_led_off_snt_item)
+                        print(network_adapter_led_off_rcv_item)
                     elif self.sanitize_passed is False:
-                        print('network_adapter_color_off: failed sanitization')
                         network_adapter_color_off = [0, 0, 0]
 
                 if line.startswith('network_adapter_time_on: '):
@@ -1820,7 +1780,6 @@ class ReadConfigurationClass(QThread):
                         network_adapter_time_on = 0.5
                         print('[NAME]: ReadConfigurationClass [FUNCTION]: network_adapter_time_on [EXCEPTION]:', e)
 
-        print('network_adapter_color:', network_adapter_color)
         print('network_adapter_color_off:', network_adapter_color_off)
         print('network_adapter_time_on', network_adapter_time_on)
         print('network_adapter_startup:', network_adapter_startup_bool)
@@ -2134,10 +2093,15 @@ class ReadConfigurationClass(QThread):
 class NetworkMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.b_type = ()
+        self.u_type = ()
+        self.b_type_1 = ()
+        self.u_type_1 = ()
 
     def run(self):
         pythoncom.CoInitialize()
-        global k95_rgb_platinum, allow_mon_threads_bool, network_adapter_time_on
+        global k95_rgb_platinum, allow_mon_threads_bool, network_adapter_time_on, network_adapter_display_rcv_bool
+        global network_adapter_display_snt_bool
         print('-- thread started: NetworkMonClass(QThread).run(self)')
         while True:
             if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
@@ -2147,31 +2111,70 @@ class NetworkMonClass(QThread):
                 time.sleep(1)
 
     def send_instruction(self):
-        global network_adapter_display_rcv_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected, network_adapter_led_off_rcv_item
-        global network_adapter_display_snt_bool, network_adapter_led_snt_item, network_adapter_led_off_snt_item
+        global network_adapter_display_rcv_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global network_adapter_display_snt_bool, network_adapter_led_off_snt_item
+        global network_adapter_led_rcv_item_bytes, network_adapter_led_rcv_item_kb, network_adapter_led_rcv_item_mb
+        global network_adapter_led_rcv_item_gb, network_adapter_led_rcv_item_tb
+        global network_adapter_led_rcv_item_unit, network_adapter_led_snt_item_unit
+        global network_adapter_led_snt_item_bytes, network_adapter_led_snt_item_kb, network_adapter_led_snt_item_mb
+        global network_adapter_led_snt_item_gb, network_adapter_led_snt_item_tb
         self.get_stat()
         net_rcv_i = 0
         for _ in network_adapter_display_rcv_bool:
             if network_adapter_display_rcv_bool[net_rcv_i] is True:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item[net_rcv_i])
+                if self.u_type == 0:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[0])
+                elif self.u_type == 1:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[1])
+                elif self.u_type == 2:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[2])
+                if self.b_type == 0:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
+                elif self.b_type == 1:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_kb[net_rcv_i])
+                elif self.b_type == 2:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_mb[net_rcv_i])
+                elif self.b_type == 3:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_gb[net_rcv_i])
+                elif self.b_type == 4:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_tb[net_rcv_i])
             elif network_adapter_display_rcv_bool[net_rcv_i] is False:
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_rcv_item[net_rcv_i])
             if network_adapter_display_snt_bool[net_rcv_i] is True:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item[net_rcv_i])
+                if self.u_type_1 == 0:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[0])
+                elif self.u_type_1 == 1:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[1])
+                elif self.u_type_1 == 2:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[2])
+                if self.b_type_1 == 0:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
+                elif self.b_type_1 == 1:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_kb[net_rcv_i])
+                elif self.b_type_1 == 2:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_mb[net_rcv_i])
+                elif self.b_type_1 == 3:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_gb[net_rcv_i])
+                elif self.b_type_1 == 4:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_tb[net_rcv_i])
             elif network_adapter_display_snt_bool[net_rcv_i] is False:
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_snt_item[net_rcv_i])
+            if network_adapter_display_rcv_bool == [False, False, False, False, False, False, False, False, False]:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[3])
+            if network_adapter_display_snt_bool == [False, False, False, False, False, False, False, False, False]:
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[3])
             net_rcv_i += 1
         sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
-        global network_adapter_display_rcv_bool, func_rcv_led, network_adapter_name, network_adapter_time_on
+        global network_adapter_display_rcv_bool, net_rcv_led, network_adapter_name, network_adapter_time_on
         global network_adapter_display_snt_bool
         try:
             network_adapter_display_rcv_bool = []
             network_adapter_display_snt_bool = []
-            for _ in func_rcv_led:
+            for _ in net_rcv_led:
                 network_adapter_display_rcv_bool.append(False)
-            for _ in num_snt_led:
+            for _ in net_snt_led:
                 network_adapter_display_snt_bool.append(False)
 
             name_item = ''
@@ -2191,26 +2194,51 @@ class NetworkMonClass(QThread):
             # print(name_item, rec_bytes, sen_bytes)
             if 'bytes' in rec_bytes:
                 rec_bytes_str = rec_bytes.replace(' bytes', '')
+                self.b_type = 0
             elif 'KB' in rec_bytes:
                 rec_bytes_str = rec_bytes.replace(' KB', '')
+                self.b_type = 1
             elif 'MB' in rec_bytes:
                 rec_bytes_str = rec_bytes.replace(' MB', '')
+                self.b_type = 2
             elif 'GB' in rec_bytes:
                 rec_bytes_str = rec_bytes.replace(' GB', '')
+                self.b_type = 3
             elif 'TB' in rec_bytes:
                 rec_bytes_str = rec_bytes.replace(' TB', '')
+                self.b_type = 4
             if 'bytes' in sen_bytes:
                 sen_bytes_str = sen_bytes.replace(' bytes', '')
+                self.b_type_1 = 0
             elif 'KB' in sen_bytes:
                 sen_bytes_str = sen_bytes.replace(' KB', '')
+                self.b_type_1 = 1
             elif 'MB' in sen_bytes:
                 sen_bytes_str = sen_bytes.replace(' MB', '')
+                self.b_type_1 = 2
             elif 'GB' in sen_bytes:
                 sen_bytes_str = sen_bytes.replace(' GB', '')
+                self.b_type_1 = 3
             elif 'TB' in sen_bytes:
                 sen_bytes_str = sen_bytes.replace(' TB', '')
+                self.b_type_1 = 4
             rec_bytes_int = int(float(rec_bytes_str))
             sen_bytes_int = int(float(sen_bytes_str))
+
+            if rec_bytes_int < 10:
+                self.u_type = 0
+            elif rec_bytes_int >= 10 and rec_bytes_int < 100:
+                self.u_type = 1
+            elif rec_bytes_int > 100:
+                self.u_type = 2
+
+            if sen_bytes_int < 10:
+                self.u_type_1 = 0
+            elif sen_bytes_int >= 10 and sen_bytes_int < 100:
+                self.u_type_1 = 1
+            elif sen_bytes_int > 100:
+                self.u_type_1 = 2
+
             switch_num = ()
             switch_num_1 = ()
             if rec_bytes_int >= 1 and rec_bytes_int < 2:
