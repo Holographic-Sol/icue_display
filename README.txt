@@ -13,20 +13,17 @@ Keyboard HUD Displays:
 GUI:
 Designed to be purely logical & non-resource heavy to be used as a tool.
 
-Enable/Disable: - Turns functions on/off.
-RGB 1: Colour of RGB on.
-RGB 2: Colour of RGB off.
+CPU: Percent Utilized.
+RAM: Percent Memory Utilized.
+VRAM: Percent Memory Utilized.
+HDD: Displays which drive letter is being written too.
+Network Traffic Sent: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Blue)/10(L.Blue)/100(White) F1-F9(Bytes) F10(1/10/100)
+Network Traffic Received: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Blue)/10(L.Blue)/100(White) 1-9(Bytes) 0(1/10/100)
 
-Timing: Accepts value between 0.1 and 5. Lower the number, more respources iCUE Display will consume to display information
-to the keyboard
+Enable/Disable: - Turns functions on/off. RGB 1: Colour of RGB on. RGB 2: Colour of RGB off.
 
-Network Traffic:
-1-9 Blue
-10-99 Light Blue
-100+ White
-Bytes Red, KB Green, MB Blue, GB Light Blue, TB White
-SENT: Intuitively furthest away. F1 - F9. F10 Being unit/ten/hundred
-REVEIVED: Intuitively closest. 1 - 9. 0 Being unit/ten/hundred
+Timing: Accepts value between 0.1 and 5. Lower the number, more resources iCUE Display will consume.
+
 
 Recommended Settings:
 Timing: All 1.0 except HDD & Network traffic at 0.1
@@ -55,3 +52,6 @@ disabled. Use recommended settings for best efficiency and use.
 
 Shortcuts created are intended for use with iCUEDisplay.exe. Otherwise you must have python and required modules to run
 iCUEDisplay.py.
+
+Observations:
+It is intersting that now the monitor can be turned off while still being able to see if a long download or process has completed among other information.
