@@ -25,7 +25,8 @@ Network Traffic:
 10-99 Light Blue
 100+ White
 Bytes Red, KB Green, MB Blue, GB Light Blue, TB White
-
+SENT: Intuitively furthest away. F1 - F9. F10 Being unit/ten/hundred
+REVEIVED: Intuitively furthest away. 1 - 9. 0 Being unit/ten/hundred
 
 Recommended Settings:
 Timing: All 1.0 except HDD & Network traffic at 0.1
