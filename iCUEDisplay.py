@@ -2151,6 +2151,12 @@ class NetworkMonClass(QThread):
         global network_adapter_display_snt_bool
         network_adapter_exists_bool = False
         try:
+            network_adapter_display_rcv_bool = []
+            network_adapter_display_snt_bool = []
+            for _ in net_rcv_led:
+                network_adapter_display_rcv_bool.append(False)
+            for _ in net_snt_led:
+                network_adapter_display_snt_bool.append(False)
             rec_item = ''
             sen_item = ''
             obj_wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
