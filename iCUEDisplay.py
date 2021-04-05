@@ -151,8 +151,8 @@ network_adapter_led_rcv_item_gb = []
 network_adapter_led_snt_item_gb = []
 network_adapter_led_rcv_item_tb = []
 network_adapter_led_snt_item_tb = []
-network_adapter_led_rcv_item_unit = [({23: (0, 0, 255)}), ({23: (0, 255, 255)}), ({23: (255, 255, 255)}), ({23: (0, 0, 0)})]
-network_adapter_led_snt_item_unit = [({11: (0, 0, 255)}), ({11: (0, 255, 255)}), ({11: (255, 255, 255)}), ({11: (0, 0, 0)})]
+network_adapter_led_rcv_item_unit = [({23: (255, 0, 0)}), ({23: (0, 0, 255)}), ({23: (0, 255, 255)}), ({23: (255, 255, 255)}), ({23: (0, 0, 0)})]
+network_adapter_led_snt_item_unit = [({11: (255, 0, 0)}), ({11: (0, 0, 255)}), ({11: (0, 255, 255)}), ({11: (255, 255, 255)}), ({11: (0, 0, 0)})]
 i = 0
 for _ in net_rcv_led:
     itm = {net_rcv_led[i]: network_adapter_color_bytes}
@@ -2068,6 +2068,11 @@ class NetworkMonClass(QThread):
         self.u_type = ()
         self.b_type_1 = ()
         self.u_type_1 = ()
+        self.num_len_key = ()
+        self.switch_num = ()
+        self.switch_num_key = ()
+        self.switch_num_1 = ()
+        self.b_type_key = ()
 
     def run(self):
         pythoncom.CoInitialize()
@@ -2099,6 +2104,8 @@ class NetworkMonClass(QThread):
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[1])
                 elif self.u_type == 2:
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[2])
+                elif self.u_type == 3:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[3])
                 if self.b_type == 0:
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
                 elif self.b_type == 1:
@@ -2118,6 +2125,8 @@ class NetworkMonClass(QThread):
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[1])
                 elif self.u_type_1 == 2:
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[2])
+                elif self.u_type_1 == 3:
+                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[3])
                 if self.b_type_1 == 0:
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
                 elif self.b_type_1 == 1:
@@ -2131,19 +2140,15 @@ class NetworkMonClass(QThread):
             elif network_adapter_display_snt_bool[net_rcv_i] is False:
                 sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_snt_item[net_rcv_i])
             if network_adapter_display_rcv_bool == [False, False, False, False, False, False, False, False, False]:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[3])
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[4])
             if network_adapter_display_snt_bool == [False, False, False, False, False, False, False, False, False]:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[3])
+                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[4])
             net_rcv_i += 1
             sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
         global network_adapter_display_rcv_bool, net_rcv_led, network_adapter_name, network_adapter_time_on
         global network_adapter_display_snt_bool
-        self.b_type = ()
-        self.u_type = ()
-        self.b_type_1 = ()
-        self.u_type_1 = ()
         network_adapter_exists_bool = False
         try:
             network_adapter_display_rcv_bool = []
@@ -2164,207 +2169,88 @@ class NetworkMonClass(QThread):
                         sen_item = objItem.BytesSentPersec
                         network_adapter_exists_bool = True
             if network_adapter_exists_bool is True:
+
+                self.b_type_key = 0
                 rec_bytes = self.convert_bytes(float(rec_item))
+                self.b_type_key = 1
                 sen_bytes = self.convert_bytes(float(sen_item))
-                if 'bytes' in rec_bytes:
-                    rec_bytes_str = rec_bytes.replace(' bytes', '')
-                    self.b_type = 0
-                elif 'KB' in rec_bytes:
-                    rec_bytes_str = rec_bytes.replace(' KB', '')
-                    self.b_type = 1
-                elif 'MB' in rec_bytes:
-                    rec_bytes_str = rec_bytes.replace(' MB', '')
-                    self.b_type = 2
-                elif 'GB' in rec_bytes:
-                    rec_bytes_str = rec_bytes.replace(' GB', '')
-                    self.b_type = 3
-                elif 'TB' in rec_bytes:
-                    rec_bytes_str = rec_bytes.replace(' TB', '')
-                    self.b_type = 4
-                if 'bytes' in sen_bytes:
-                    sen_bytes_str = sen_bytes.replace(' bytes', '')
-                    self.b_type_1 = 0
-                elif 'KB' in sen_bytes:
-                    sen_bytes_str = sen_bytes.replace(' KB', '')
-                    self.b_type_1 = 1
-                elif 'MB' in sen_bytes:
-                    sen_bytes_str = sen_bytes.replace(' MB', '')
-                    self.b_type_1 = 2
-                elif 'GB' in sen_bytes:
-                    sen_bytes_str = sen_bytes.replace(' GB', '')
-                    self.b_type_1 = 3
-                elif 'TB' in sen_bytes:
-                    sen_bytes_str = sen_bytes.replace(' TB', '')
-                    self.b_type_1 = 4
-                rec_bytes_int = int(float(rec_bytes_str))
-                sen_bytes_int = int(float(sen_bytes_str))
-                if rec_bytes_int < 10:
-                    self.u_type = 0
-                elif rec_bytes_int >= 10 and rec_bytes_int < 100:
-                    self.u_type = 1
-                elif rec_bytes_int > 100:
-                    self.u_type = 2
-                if sen_bytes_int < 10:
-                    self.u_type_1 = 0
-                elif sen_bytes_int >= 10 and sen_bytes_int < 100:
-                    self.u_type_1 = 1
-                elif sen_bytes_int > 100:
-                    self.u_type_1 = 2
-                switch_num = ()
-                switch_num_1 = ()
-                if rec_bytes_int >= 1 and rec_bytes_int < 2:
-                    switch_num = 1
-                elif rec_bytes_int >= 2 and rec_bytes_int < 3:
-                    switch_num = 2
-                elif rec_bytes_int >= 3 and rec_bytes_int < 4:
-                    switch_num = 3
-                elif rec_bytes_int >= 4 and rec_bytes_int < 5:
-                    switch_num = 4
-                elif rec_bytes_int >= 5 and rec_bytes_int < 6:
-                    switch_num = 5
-                elif rec_bytes_int >= 6 and rec_bytes_int < 7:
-                    switch_num = 6
-                elif rec_bytes_int >= 7 and rec_bytes_int < 8:
-                    switch_num = 7
-                elif rec_bytes_int >= 8 and rec_bytes_int < 9:
-                    switch_num = 8
-                elif rec_bytes_int >= 9 and rec_bytes_int < 10:
-                    switch_num = 9
-                elif rec_bytes_int >= 10 and rec_bytes_int < 20:
-                    switch_num = 1
-                elif rec_bytes_int >= 20 and rec_bytes_int < 30:
-                    switch_num = 2
-                elif rec_bytes_int >= 30 and rec_bytes_int < 40:
-                    switch_num = 3
-                elif rec_bytes_int >= 40 and rec_bytes_int < 50:
-                    switch_num = 4
-                elif rec_bytes_int >= 50 and rec_bytes_int < 60:
-                    switch_num = 5
-                elif rec_bytes_int >= 60 and rec_bytes_int < 70:
-                    switch_num = 6
-                elif rec_bytes_int >= 70 and rec_bytes_int < 80:
-                    switch_num = 7
-                elif rec_bytes_int >= 80 and rec_bytes_int < 90:
-                    switch_num = 8
-                elif rec_bytes_int >= 90 and rec_bytes_int < 100:
-                    switch_num = 9
-                elif rec_bytes_int >= 100 and rec_bytes_int < 200:
-                    switch_num = 1
-                elif rec_bytes_int >= 200 and rec_bytes_int < 300:
-                    switch_num = 2
-                elif rec_bytes_int >= 300 and rec_bytes_int < 400:
-                    switch_num = 3
-                elif rec_bytes_int >= 400 and rec_bytes_int < 500:
-                    switch_num = 4
-                elif rec_bytes_int >= 500 and rec_bytes_int < 600:
-                    switch_num = 5
-                elif rec_bytes_int >= 600 and rec_bytes_int < 700:
-                    switch_num = 6
-                elif rec_bytes_int >= 700 and rec_bytes_int < 800:
-                    switch_num = 7
-                elif rec_bytes_int >= 800 and rec_bytes_int < 900:
-                    switch_num = 8
-                elif rec_bytes_int >= 900 and rec_bytes_int < 1000:
-                    switch_num = 9
-                if switch_num is 1:
-                    network_adapter_display_rcv_bool = [True, False, False, False, False, False, False, False, False]
-                elif switch_num is 2:
-                    network_adapter_display_rcv_bool = [True, True, False, False, False, False, False, False, False]
-                elif switch_num is 3:
-                    network_adapter_display_rcv_bool = [True, True, True, False, False, False, False, False, False]
-                elif switch_num is 4:
-                    network_adapter_display_rcv_bool = [True, True, True, True, False, False, False, False, False]
-                elif switch_num is 5:
-                    network_adapter_display_rcv_bool = [True, True, True, True, True, False, False, False, False]
-                elif switch_num is 6:
-                    network_adapter_display_rcv_bool = [True, True, True, True, True, True, False, False, False]
-                elif switch_num is 7:
-                    network_adapter_display_rcv_bool = [True, True, True, True, True, True, True, False, False]
-                elif switch_num is 8:
-                    network_adapter_display_rcv_bool = [True, True, True, True, True, True, True, True, False]
-                elif switch_num is 9:
-                    network_adapter_display_rcv_bool = [True, True, True, True, True, True, True, True, True]
-                if sen_bytes_int >= 1 and sen_bytes_int < 2:
-                    switch_num_1 = 1
-                elif sen_bytes_int >= 2 and sen_bytes_int < 3:
-                    switch_num_1 = 2
-                elif sen_bytes_int >= 3 and sen_bytes_int < 4:
-                    switch_num_1 = 3
-                elif sen_bytes_int >= 4 and sen_bytes_int < 5:
-                    switch_num_1 = 4
-                elif sen_bytes_int >= 5 and sen_bytes_int < 6:
-                    switch_num_1 = 5
-                elif sen_bytes_int >= 6 and sen_bytes_int < 7:
-                    switch_num_1 = 6
-                elif sen_bytes_int >= 7 and sen_bytes_int < 8:
-                    switch_num_1 = 7
-                elif sen_bytes_int >= 8 and sen_bytes_int < 9:
-                    switch_num_1 = 8
-                elif sen_bytes_int >= 9 and sen_bytes_int < 10:
-                    switch_num_1 = 9
-                elif sen_bytes_int >= 10 and sen_bytes_int < 20:
-                    switch_num_1 = 1
-                elif sen_bytes_int >= 20 and sen_bytes_int < 30:
-                    switch_num_1 = 2
-                elif sen_bytes_int >= 30 and sen_bytes_int < 40:
-                    switch_num_1 = 3
-                elif sen_bytes_int >= 40 and sen_bytes_int < 50:
-                    switch_num_1 = 4
-                elif sen_bytes_int >= 50 and sen_bytes_int < 60:
-                    switch_num_1 = 5
-                elif sen_bytes_int >= 60 and sen_bytes_int < 70:
-                    switch_num_1 = 6
-                elif sen_bytes_int >= 70 and sen_bytes_int < 80:
-                    switch_num_1 = 7
-                elif sen_bytes_int >= 80 and sen_bytes_int < 90:
-                    switch_num_1 = 8
-                elif sen_bytes_int >= 90 and sen_bytes_int < 100:
-                    switch_num_1 = 9
-                elif sen_bytes_int >= 100 and sen_bytes_int < 200:
-                    switch_num_1 = 1
-                elif sen_bytes_int >= 200 and sen_bytes_int < 300:
-                    switch_num_1 = 2
-                elif sen_bytes_int >= 300 and sen_bytes_int < 400:
-                    switch_num_1 = 3
-                elif sen_bytes_int >= 400 and sen_bytes_int < 500:
-                    switch_num_1 = 4
-                elif sen_bytes_int >= 500 and sen_bytes_int < 600:
-                    switch_num_1 = 5
-                elif sen_bytes_int >= 600 and sen_bytes_int < 700:
-                    switch_num_1 = 6
-                elif sen_bytes_int >= 700 and sen_bytes_int < 800:
-                    switch_num_1 = 7
-                elif sen_bytes_int >= 800 and sen_bytes_int < 900:
-                    switch_num_1 = 8
-                elif sen_bytes_int >= 900 and sen_bytes_int < 1000:
-                    switch_num_1 = 9
-                if switch_num_1 is 1:
-                    network_adapter_display_snt_bool = [True, False, False, False, False, False, False, False, False]
-                elif switch_num_1 is 2:
-                    network_adapter_display_snt_bool = [True, True, False, False, False, False, False, False, False]
-                elif switch_num_1 is 3:
-                    network_adapter_display_snt_bool = [True, True, True, False, False, False, False, False, False]
-                elif switch_num_1 is 4:
-                    network_adapter_display_snt_bool = [True, True, True, True, False, False, False, False, False]
-                elif switch_num_1 is 5:
-                    network_adapter_display_snt_bool = [True, True, True, True, True, False, False, False, False]
-                elif switch_num_1 is 6:
-                    network_adapter_display_snt_bool = [True, True, True, True, True, True, False, False, False]
-                elif switch_num_1 is 7:
-                    network_adapter_display_snt_bool = [True, True, True, True, True, True, True, False, False]
-                elif switch_num_1 is 8:
-                    network_adapter_display_snt_bool = [True, True, True, True, True, True, True, True, False]
-                elif switch_num_1 is 9:
-                    network_adapter_display_snt_bool = [True, True, True, True, True, True, True, True, True]
+
+                rec_bytes_int = int(rec_bytes)
+                sen_bytes_int = int(sen_bytes)
+
+                self.num_len_key = 0
+                self.num_len(rec_bytes_int)
+                self.num_len_key = 1
+                self.num_len(sen_bytes_int)
+
+                self.switch_num_key = 0
+                self.switch_num_function(rec_bytes_int)
+                self.switch_num_key = 1
+                self.switch_num_function(sen_bytes_int)
+
+                print('rec_bytes_int:', rec_bytes_int, '   switch_num:', self.switch_num, '   sen_bytes_int:', sen_bytes_int, '   switch_num_1:', self.switch_num_1)
+
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
 
     def convert_bytes(self, num):
+        i = 0
         for x in ['bytes', 'KB', 'MB', 'GB', 'TB']:
             if num < 1024.0:
-                return ("%3.1f %s" % (num, x))
+                if self.b_type_key == 0:
+                    self.b_type = i
+                elif self.b_type_key == 1:
+                    self.b_type_1 = i
+                return num
             num /= 1024.0
+            i += 1
+
+    def switch_num_function(self, num):
+        global network_adapter_display_rcv_bool, network_adapter_display_snt_bool
+        n = str(num)
+        n = n[0]
+        for x in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+            if n == x:
+                if self.switch_num_key == 0:
+                    self.switch_num = int(n)
+                    network_adapter_display_rcv_bool = [False, False, False, False, False, False, False, False, False]
+                    i_rcv = 0
+                    for _ in network_adapter_display_rcv_bool:
+                        if i_rcv < int(self.switch_num):
+                            network_adapter_display_rcv_bool[i_rcv] = True
+                        i_rcv += 1
+                elif self.switch_num_key == 1:
+                    self.switch_num_1 = int(n)
+                    network_adapter_display_snt_bool = [False, False, False, False, False, False, False, False, False]
+                    i_snt = 0
+                    for _ in network_adapter_display_snt_bool:
+                        if i_snt < int(self.switch_num_1):
+                            network_adapter_display_snt_bool[i_snt] = True
+                        i_snt += 1
+
+    def num_len(self, num):
+        n = len(str(num))
+        if n == 1:
+            if self.num_len_key == 0:
+                self.u_type = 0
+            elif self.num_len_key == 1:
+                self.u_type_1 = 0
+        elif n == 2:
+            if self.num_len_key == 0:
+                self.u_type = 1
+            elif self.num_len_key == 1:
+                self.u_type_1 = 1
+        elif n == 3:
+            if self.num_len_key == 0:
+                self.u_type = 2
+            elif self.num_len_key == 1:
+                self.u_type_1 = 2
+        elif n >= 4:
+            if self.num_len_key == 0:
+                self.u_type = 3
+            elif self.num_len_key == 1:
+                self.u_type_1 = 3
 
     def stop(self):
         print('-- stopping: NetworkMonClass')
