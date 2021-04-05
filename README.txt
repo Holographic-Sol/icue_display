@@ -17,8 +17,8 @@ CPU: Percent Utilized.
 RAM: Percent Memory Utilized.
 VRAM: Percent Memory Utilized.
 HDD: Displays which drive letter is being written too.
-Network Traffic Sent: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Blue)/10(L.Blue)/100(White) F1-F9(Bytes) F10(1/10/100)
-Network Traffic Received: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Blue)/10(L.Blue)/100(White) 1-9(Bytes) 0(1/10/100)
+Network Traffic Sent: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Blue)/10(L.Blue)/100(L.Blue)/1000+(White) F1-F9(Bytes) F10(1/10/100)
+Network Traffic Received: Displays Bytes(Red)/KB(Green)/MB(Blue)/GB(L.Blue)/TB(White (For people from the future)) 1(Red)/10(Blue)/100(L.Blue)/1000+(White) 1-9(Bytes) 0(1/10/100)
 
 Enable/Disable: - Turns functions on/off. RGB 1: Colour of RGB on. RGB 2: Colour of RGB off.
 
