@@ -2151,12 +2151,6 @@ class NetworkMonClass(QThread):
         global network_adapter_display_snt_bool
         network_adapter_exists_bool = False
         try:
-            network_adapter_display_rcv_bool = []
-            network_adapter_display_snt_bool = []
-            for _ in net_rcv_led:
-                network_adapter_display_rcv_bool.append(False)
-            for _ in net_snt_led:
-                network_adapter_display_snt_bool.append(False)
             rec_item = ''
             sen_item = ''
             obj_wmi_service = win32com.client.Dispatch("WbemScripting.SWbemLocator")
@@ -2169,26 +2163,21 @@ class NetworkMonClass(QThread):
                         sen_item = objItem.BytesSentPersec
                         network_adapter_exists_bool = True
             if network_adapter_exists_bool is True:
-
                 self.b_type_key = 0
                 rec_bytes = self.convert_bytes(float(rec_item))
                 self.b_type_key = 1
                 sen_bytes = self.convert_bytes(float(sen_item))
-
                 rec_bytes_int = int(rec_bytes)
                 sen_bytes_int = int(sen_bytes)
-
                 self.num_len_key = 0
                 self.num_len(rec_bytes_int)
                 self.num_len_key = 1
                 self.num_len(sen_bytes_int)
-
                 self.switch_num_key = 0
                 self.switch_num_function(rec_bytes_int)
                 self.switch_num_key = 1
                 self.switch_num_function(sen_bytes_int)
-
-                print('rec_bytes_int:', rec_bytes_int, '   switch_num:', self.switch_num, '   sen_bytes_int:', sen_bytes_int, '   switch_num_1:', self.switch_num_1)
+                # print('rec_bytes_int:', rec_bytes_int, '   switch_num:', self.switch_num, '   sen_bytes_int:', sen_bytes_int, '   switch_num_1:', self.switch_num_1)
 
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
