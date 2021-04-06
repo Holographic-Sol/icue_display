@@ -79,6 +79,7 @@ key_name = []
 key_id = []
 m_key_name = []
 m_key_id = []
+corsair_mouse_led_id = ['CorsairLedId.M_1', 'CorsairLedId.M_2', 'CorsairLedId.M_2', 'CorsairLedId.M_3', 'CorsairLedId.M_4']
 cpu_led_id = ['CorsairLedId.K_Keypad1',
               'CorsairLedId.K_Keypad4',
               'CorsairLedId.K_Keypad7',
@@ -108,6 +109,8 @@ corsair_led_id_f10 = 'CorsairLedId.K_F10'
 corsair_led_id_0 = 'CorsairLedId.K_0'
 alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
              'u', 'v', 'w', 'x', 'y', 'z']
+mouse_led = ['', '', '', '']
+net_adapter_connected_item = []
 cpu_stat = ()
 cpu_led_time_on = 1.0
 cpu_led_color = [255, 255, 255]
@@ -1514,7 +1517,7 @@ class CompileDevicesClass(QThread):
         global network_adapter_color_off, network_adapter_led_off_rcv_item, network_adapter_led_off_snt_item
         global network_adapter_led_rcv_item_unit, network_adapter_led_snt_item_unit
         global cpu_led_item, dram_led_item, vram_led_item, cpu_led, dram_led, vram_led
-        global cpu_led_off_item, dram_led_off_item, vram_led_off_item
+        global cpu_led_off_item, dram_led_off_item, vram_led_off_item, net_adapter_connected_item
 
         if self.compile_dicts_key == 0:
             print('-- compiling list of dictionaries for keyboard:')
@@ -1713,7 +1716,7 @@ class CompileDevicesClass(QThread):
                         if var_0 == vram_led_id[i_led]:
                             vram_led[i_led] = int(var_1)
                         i_led += 1
-            self.compile_dicts()
+                self.compile_dicts()
 
         elif 'CorsairLedId.M_' in led_position_str_tmp[0]:
             self.compile_dicts_key = 1
@@ -1722,6 +1725,16 @@ class CompileDevicesClass(QThread):
                 m_key_name = []
                 m_key_id = []
                 mouse_device.append(self.device_index)
+                for _ in led_position_str:
+                    var = _.split()
+                    var_0 = var[0]
+                    var_0 = var_0.replace('{', '')
+                    var_0 = var_0.replace('<', '')
+                    var_0 = var_0.replace(':', '')
+                    var_1 = var[1].replace('>:', '')
+                    print('Corsair LED ID NAME:', var_0, '  LED ID:', var_1)
+                    m_key_id.append(int(var_1))
+                self.compile_dicts()
 
     def stop_all_threads(self):
         global exclusive_access_bool, connected_bool_prev, conf_thread, mon_threads
