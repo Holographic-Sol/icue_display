@@ -2265,13 +2265,13 @@ class NetworkMonClass(QThread):
         try:
             for _ in network_adapter_display_rcv_bool:
                 if network_adapter_display_rcv_bool[net_rcv_i] is True:
-                    if self.u_type == 0:
+                    if self.u_type_1 == 0:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[0])
-                    elif self.u_type == 1:
+                    elif self.u_type_1 == 1:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[1])
-                    elif self.u_type == 2:
+                    elif self.u_type_1 == 2:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[2])
-                    elif self.u_type == 3:
+                    elif self.u_type_1 == 3:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[3])
                     if self.b_type == 0:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
@@ -2286,13 +2286,13 @@ class NetworkMonClass(QThread):
                 elif network_adapter_display_rcv_bool[net_rcv_i] is False:
                     sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_rcv_item[net_rcv_i])
                 if network_adapter_display_snt_bool[net_rcv_i] is True:
-                    if self.u_type_1 == 0:
+                    if self.u_type == 0:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[0])
-                    elif self.u_type_1 == 1:
+                    elif self.u_type == 1:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[1])
-                    elif self.u_type_1 == 2:
+                    elif self.u_type == 2:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[2])
-                    elif self.u_type_1 == 3:
+                    elif self.u_type == 3:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[3])
                     if self.b_type_1 == 0:
                         sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
@@ -2348,6 +2348,9 @@ class NetworkMonClass(QThread):
                 self.switch_num_function(rec_bytes_int)
                 self.switch_num_key = 1
                 self.switch_num_function(sen_bytes_int)
+
+                print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
+                print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
 
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
