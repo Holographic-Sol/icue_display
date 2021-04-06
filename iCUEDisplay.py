@@ -1305,19 +1305,18 @@ class App(QMainWindow):
         print('clicked: btn_exclusive_con_function')
         self.setFocus()
         global exclusive_access_bool
-        if exclusive_access_bool is True:
+        if exclusive_access_bool is False:
             print('-- exclusive access request changed: requesting control')
             self.write_var = 'exclusive_access: true'
             sdk.request_control()
-            exclusive_access_bool = False
+            exclusive_access_bool = True
             self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
             self.btn_exclusive_con.setText('ENABLED')
-
-        elif exclusive_access_bool is False:
+        elif exclusive_access_bool is True:
             print('-- exclusive access request changed: releasing control')
             self.write_var = 'exclusive_access: false'
             sdk.release_control()
-            exclusive_access_bool = True
+            exclusive_access_bool = False
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
             self.btn_exclusive_con.setText('DISABLED')
         self.write_changes()
@@ -1386,11 +1385,9 @@ class App(QMainWindow):
             self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         if exclusive_access_bool is True:
             self.btn_exclusive_con.setText('ENABLED')
-            exclusive_access_bool = True
             self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
         elif exclusive_access_bool is False:
             self.btn_exclusive_con.setText('DISABLED')
-            exclusive_access_bool = False
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
         if connected_bool is False:
             self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
@@ -1745,12 +1742,12 @@ class CompileDevicesClass(QThread):
         mon_threads[2].stop()
         mon_threads[3].stop()
         mon_threads[4].stop()
-        if exclusive_access_bool is True:
+        if exclusive_access_bool is False:
             sdk.request_control()
-            exclusive_access_bool = False
-        elif exclusive_access_bool is False:
-            sdk.release_control()
             exclusive_access_bool = True
+        elif exclusive_access_bool is True:
+            sdk.release_control()
+            exclusive_access_bool = False
 
     def stop_m_threads(self):
         print('-- stopping mouse threads')
@@ -1825,7 +1822,6 @@ class CompileDevicesClass(QThread):
                     while configuration_read_complete is False:
                         time.sleep(3)
                 connected = sdk.connect()
-
                 # Not Connected
                 if not connected:
                     connected_bool = False
@@ -1860,7 +1856,6 @@ class CompileDevicesClass(QThread):
                             self.device_str = target_name
                             self.enumerate_device()
                             device_i += 1
-
                         if len(key_board) < 1:
                             print('-- keyboard unplugged:', key_board)
                             self.stop_kb_threads()
@@ -1868,7 +1863,6 @@ class CompileDevicesClass(QThread):
                             print('-- found keyboard:', sdk.get_device_info(key_board[0]))
                             if str(sdk.get_device_info(key_board[0])) not in str(prev_device):
                                 self.start_kb_threads()
-
                         if len(mouse_device) < 1:
                             print('-- mouse unplugged:', mouse_device)
                             self.stop_m_threads()
@@ -1876,7 +1870,6 @@ class CompileDevicesClass(QThread):
                             print('-- found mouse:', sdk.get_device_info(mouse_device[0]))
                             if str(sdk.get_device_info(mouse_device[0])) not in str(prev_device):
                                 self.start_m_threads()
-
                         prev_device = device
 
                 if connected_bool is False and connected_bool != connected_bool_prev:
@@ -2217,7 +2210,7 @@ class ReadConfigurationClass(QThread):
 
     def run(self):
         print('-- thread started: ReadConfigurationClass(QThread).run(self)')
-        global allow_mon_threads_bool, exclusive_access_bool, allow_display_application, connected_bool
+        global allow_mon_threads_bool, allow_display_application, connected_bool
         global configuration_read_complete
         try:
             configuration_read_complete = False
@@ -2360,9 +2353,6 @@ class NetworkMonClass(QThread):
                 self.switch_num_function(rec_bytes_int)
                 self.switch_num_key = 1
                 self.switch_num_function(sen_bytes_int)
-
-                # print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
-                # print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
 
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
