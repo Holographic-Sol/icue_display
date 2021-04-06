@@ -33,7 +33,8 @@ RGB 2: 0,0,0 (off) for all.
 
 Install:
 iCUEDisplay.exe will create its files and shortcut withing the directory iCUEDisplay is ran. iCUE Display can then be ran
-quietly from the created shortcut.
+quietly from the created shortcut. To re-install/update to the same directory please delete config.dat, .vbs, .lnl and .bat.
+iCUEDisplay is portable and will install itself into its current working directory when executed for the first time.
 
 Requirements:
 Python Version: 3.9
