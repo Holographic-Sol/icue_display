@@ -2361,6 +2361,9 @@ class NetworkMonClass(QThread):
                 self.switch_num_key = 1
                 self.switch_num_function(sen_bytes_int)
 
+                # print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
+                # print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
+
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
