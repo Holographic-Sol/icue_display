@@ -12,6 +12,7 @@ import win32con
 import win32api
 import win32process
 import win32com.client
+import subprocess
 from cuesdk import CueSdk
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QCursor, QFont
@@ -68,6 +69,8 @@ dram_startup_bool = False
 vram_startup_bool = False
 network_adapter_name_bool = False
 network_adapter_startup_bool = False
+ping_test_thread_startup = True
+compile_devices_thread = []
 mon_threads = []
 conf_thread = []
 key_board = []
@@ -106,10 +109,14 @@ corsair_led_id_f1_f9 = ['CorsairLedId.K_F1', 'CorsairLedId.K_F2', 'CorsairLedId.
                         'CorsairLedId.K_F4', 'CorsairLedId.K_F5', 'CorsairLedId.K_F6',
                         'CorsairLedId.K_F7', 'CorsairLedId.K_F8', 'CorsairLedId.K_F9']
 corsair_led_id_f10 = 'CorsairLedId.K_F10'
+corsair_led_id_f11 = 'CorsairLedId.K_F11'
+corsair_led_id_f12 = 'CorsairLedId.K_F12'
 corsair_led_id_0 = 'CorsairLedId.K_0'
 alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
              'u', 'v', 'w', 'x', 'y', 'z']
 mouse_led = ['', '', '', '']
+ping_test_f11 = ()
+ping_test_f12 = ()
 net_adapter_connected_item = []
 cpu_stat = ()
 cpu_led_time_on = 1.0
@@ -718,6 +725,9 @@ class App(QMainWindow):
             self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
             self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_network_adapter_led_time_on_function(self):
         print('-- btn_network_adapter_led_time_on_function')
@@ -1066,6 +1076,9 @@ class App(QMainWindow):
             self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_off_function(self):
         global conf_thread
@@ -1088,6 +1101,9 @@ class App(QMainWindow):
             self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
             self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_off_function(self):
         global conf_thread
@@ -1110,6 +1126,9 @@ class App(QMainWindow):
             self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
             self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_off_function(self):
         global hdd_led_color, conf_thread
@@ -1132,6 +1151,9 @@ class App(QMainWindow):
             self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_cpu_mon_rgb_on_function(self):
         global cpu_led_color, conf_thread
@@ -1154,6 +1176,9 @@ class App(QMainWindow):
             self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_on_function(self):
         global conf_thread
@@ -1176,6 +1201,9 @@ class App(QMainWindow):
             self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
             self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_on_function(self):
         global conf_thread
@@ -1198,6 +1226,9 @@ class App(QMainWindow):
             self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
             self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_on_function(self):
         global hdd_led_color, conf_thread
@@ -1220,6 +1251,9 @@ class App(QMainWindow):
             self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
             conf_thread[0].start()
+        global compile_devices_thread
+        compile_devices_thread[0].stop()
+        compile_devices_thread[0].start()
 
     def btn_cpu_mon_function(self):
         print('-- clicked: btn_cpu_mon')
@@ -1327,9 +1361,10 @@ class App(QMainWindow):
         global cpu_startup_bool, dram_startup_bool, vram_startup_bool, hdd_startup_bool
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
-        global start_minimized_bool
-        compile_devices_thread = CompileDevicesClass(self.lbl_con_stat, self.lbl_con_stat_false, self.lbl_con_stat_true)
-        compile_devices_thread.start()
+        global start_minimized_bool, compile_devices_thread
+        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat, self.lbl_con_stat_false, self.lbl_con_stat_true)
+        compile_devices_thread.append(compile_devices_thread_0)
+        compile_devices_thread[0].start()
         read_configuration_thread = ReadConfigurationClass()
         read_configuration_thread.start()
         conf_thread.append(read_configuration_thread)
@@ -1343,6 +1378,8 @@ class App(QMainWindow):
         mon_threads.append(vram_mon_thread)
         network_mon_thread = NetworkMonClass()
         mon_threads.append(network_mon_thread)
+        ping_test_thread = PingTestClass()
+        mon_threads.append(ping_test_thread)
         print('\n-- displaying application:')
         while allow_display_application is False:
             time.sleep(1)
@@ -1657,7 +1694,8 @@ class CompileDevicesClass(QThread):
         global corsair_led_id_1_9, corsair_led_id_f1_f9, net_rcv_led, net_snt_led, corsair_led_id_f10, corsair_led_id_0
         global network_adapter_led_rcv_item_unit_led, network_adapter_led_snt_item_unit_led
         global cpu_led_id, dram_led_id, vram_led_id, cpu_led, dram_led, vram_led
-        global enum_compile_kb_bool, enum_compile_m_bool
+        global enum_compile_kb_bool, enum_compile_m_bool, ping_test_f11, ping_test_f12
+        global corsair_led_id_f11, corsair_led_id_f12
         print('-- enumerating device:', self.device_str)
 
         # 1. Get Key Names & Key IDs
@@ -1699,6 +1737,10 @@ class CompileDevicesClass(QThread):
                         i_led += 1
                     if var_0 == corsair_led_id_f10:
                         network_adapter_led_snt_item_unit_led = int(var_1)
+                    if var_0 == corsair_led_id_f11:
+                        ping_test_f11 = int(var_1)
+                    if var_0 == corsair_led_id_f12:
+                        ping_test_f12 = int(var_1)
                     if var_0 == corsair_led_id_0:
                         network_adapter_led_rcv_item_unit_led = int(var_1)
                     i_led = 0
@@ -1724,7 +1766,7 @@ class CompileDevicesClass(QThread):
                 enum_compile_m_bool = False
                 m_key_name = []
                 m_key_id = []
-                mouse_device.append(self.device_index)
+                mouse_device.append(int(self.device_index))
                 for _ in led_position_str:
                     var = _.split()
                     var_0 = var[0]
@@ -1754,10 +1796,17 @@ class CompileDevicesClass(QThread):
 
     def stop_m_threads(self):
         print('-- stopping mouse threads')
+        try:
+            mon_threads[5].stop()
+        except Exception as e:
+            print('-- exception stopping mon_threads[5]', e)
 
     def start_m_threads(self):
+        global mon_threads
         if len(mouse_device) >= 1:
             print('-- starting mouse threads')
+            if ping_test_thread_startup is True:
+                mon_threads[5].start()
 
     def stop_kb_threads(self):
         global mon_threads
@@ -1818,6 +1867,7 @@ class CompileDevicesClass(QThread):
         time.sleep(3)
         key_name = []
         key_id = []
+        prev_device = []
         while True:
             try:
                 if configuration_read_complete is False:
@@ -1902,6 +1952,12 @@ class CompileDevicesClass(QThread):
             except Exception as e:
                 print('[NAME]: CompileDevicesClass [FUNCTION]: run [EXCEPTION]:', e)
             time.sleep(3)
+
+    def stop(self):
+        print('-- stopping: CompileDevicesClass')
+        self.stop_kb_threads()
+        self.stop_m_threads()
+        self.terminate()
 
 
 class ReadConfigurationClass(QThread):
@@ -2251,6 +2307,7 @@ class NetworkMonClass(QThread):
         self.switch_num_key = ()
         self.switch_num_1 = ()
         self.b_type_key = ()
+        self.ping_bool = False
 
     def run(self):
         pythoncom.CoInitialize()
@@ -2364,6 +2421,8 @@ class NetworkMonClass(QThread):
                 # print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
                 # print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
 
+                # self.ping()
+
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
@@ -2439,6 +2498,79 @@ class NetworkMonClass(QThread):
             # print('NetworkMonClass:', e)
             pass
         self.terminate()
+
+
+class PingTestClass(QThread):
+    def __init__(self):
+        QThread.__init__(self)
+        self.ping_bool = False
+        self.ping_bool_prev = None
+        self.ping_fail_i = 0
+
+    def run(self):
+        global key_board, allow_mon_threads_bool
+        print('-- thread started: HddMonClass(QThread).run(self)')
+        while True:
+            try:
+                if len(key_board) >= 1 or len(mouse_device) >= 1 and allow_mon_threads_bool is True:
+                    self.send_instruction()
+                    time.sleep(5)
+                else:
+                    time.sleep(3)
+            except Exception as e:
+                print('-- exception in PingTestClass:', e)
+
+    def send_instruction(self):
+        global mouse_led, sdk, mouse_device, mouse_device_selected, m_key_id, ping_test_key_id, ping_test_f11, ping_test_f12
+        global network_adapter_led_snt_item_bytes, network_adapter_led_snt_item_unit, mon_threads
+        self.ping()
+        if self.ping_fail_i == 1:
+            self.ping()
+        if self.ping_fail_i == 2:
+            self.ping_bool = False
+        if self.ping_bool is True and self.ping_bool != self.ping_bool_prev:
+            print('-- sending instruction: ping True')
+            mon_threads[4].start()
+            if len(mouse_device) >= 1:
+                if len(m_key_id) >= 3:
+                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[2]: (0, 255, 0)}))
+            if len(key_board) >= 1:
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f11: (0, 255, 0)}))
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f12: (0, 255, 0)}))
+            self.ping_bool_prev = True
+        elif self.ping_bool is False and self.ping_bool != self.ping_bool_prev:
+            print('-- sending instruction: ping False')
+            mon_threads[4].stop()
+            if len(mouse_device) >= 1:
+                if len(m_key_id) >= 3:
+                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[2]: (255, 0, 0)}))
+            if len(key_board) >= 1:
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f11: (255, 0, 0)}))
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f12: (255, 0, 0)}))
+                for _ in network_adapter_led_snt_item_bytes:
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], _)
+            self.ping_bool_prev = False
+        sdk.set_led_colors_flush_buffer()
+
+    def ping(self):
+        self.ping_bool = False
+        cmd = 'ping -n 1 -l 1 8.8.8.8'  # Google
+        if self.ping_fail_i == 1:
+            cmd = 'ping -n 1 -l 1 9.9.9.9'  # Quad9. The free DNS service was co-developed by the Global Cyber Alliance, IBM, and Packet Clearing House.
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            stdout, stderror = p.communicate()
+            output = stdout.decode('UTF-8')
+            lines = output.split(os.linesep)
+            for _ in lines:
+                if 'Packets: Sent = 1, Received = 0, Lost = 1 (100% loss)' in _:
+                    self.ping_fail_i += 1
+                elif 'Packets: Sent = 1, Received = 1, Lost = 0 (0% loss)' in _:
+                    self.ping_bool = True
+        except Exception as e:
+            print('-- exception in PingTestClass.ping:', e)
 
 
 class HddMonClass(QThread):
