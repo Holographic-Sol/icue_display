@@ -70,11 +70,15 @@ network_adapter_name_bool = False
 network_adapter_startup_bool = False
 mon_threads = []
 conf_thread = []
-k95_rgb_platinum = []
-k95_rgb_platinum_selected = 0
+key_board = []
+key_board_selected = 0
+mouse_device = []
+mouse_device_selected = 0
 prev_device = []
 key_name = []
 key_id = []
+m_key_name = []
+m_key_id = []
 cpu_led_id = ['CorsairLedId.K_Keypad1',
               'CorsairLedId.K_Keypad4',
               'CorsairLedId.K_Keypad7',
@@ -1494,17 +1498,7 @@ class CompileDevicesClass(QThread):
         self.lbl_con_stat_true = lbl_con_stat_true
         self.device_str = ''
         self.device_index = ()
-
-    def summary(self):
-        print('Enumeration Summary:')
-        print('alpha_led_id', alpha_led_id)
-        print('net_rcv_led:', net_rcv_led)
-        print('net_snt_led:', net_snt_led)
-        print('network_adapter_led_rcv_item_unit_led:', network_adapter_led_rcv_item_unit_led)
-        print('network_adapter_led_snt_item_unit_led:', network_adapter_led_snt_item_unit_led)
-        print('cpu_led:', cpu_led)
-        print('dram_led:', dram_led)
-        print('vram_led:', vram_led)
+        self.compile_dicts_key = ()
 
     def compile_dicts(self):
         global alpha_led_id, hdd_led_item, hdd_led_off_item
@@ -1522,136 +1516,140 @@ class CompileDevicesClass(QThread):
         global cpu_led_item, dram_led_item, vram_led_item, cpu_led, dram_led, vram_led
         global cpu_led_off_item, dram_led_off_item, vram_led_off_item
 
-        hdd_led_item = []
-        hdd_led_off_item = []
-        cpu_led_item = []
-        cpu_led_off_item = []
-        dram_led_item = []
-        dram_led_off_item = []
-        vram_led_item = []
-        vram_led_off_item = []
+        if self.compile_dicts_key == 0:
+            print('-- compiling list of dictionaries for keyboard:')
+            hdd_led_item = []
+            hdd_led_off_item = []
+            cpu_led_item = []
+            cpu_led_off_item = []
+            dram_led_item = []
+            dram_led_off_item = []
+            vram_led_item = []
+            vram_led_off_item = []
 
-        i_1 = 0
-        for _ in alpha_str:
-            itm = {alpha_led_id[i_1]: hdd_led_color}
-            hdd_led_item.append(itm)
-            itm = {alpha_led_id[i_1]: hdd_led_color_off}
-            hdd_led_off_item.append(itm)
-            i_1 += 1
-        print('Compiled hdd_led_item:', hdd_led_item)
-        print('Compiled hdd_led_off_item:', hdd_led_off_item)
+            i_1 = 0
+            for _ in alpha_str:
+                itm = {alpha_led_id[i_1]: hdd_led_color}
+                hdd_led_item.append(itm)
+                itm = {alpha_led_id[i_1]: hdd_led_color_off}
+                hdd_led_off_item.append(itm)
+                i_1 += 1
+            print('Compiled hdd_led_item:', hdd_led_item)
+            print('Compiled hdd_led_off_item:', hdd_led_off_item)
 
-        i_2 = 0
-        for _ in cpu_led:
-            itm = {cpu_led[i_2]: cpu_led_color}
-            cpu_led_item.append(itm)
-            itm = {cpu_led[i_2]: cpu_led_color_off}
-            cpu_led_off_item.append(itm)
-            i_2 += 1
-        print('Compiled cpu_led_item:', cpu_led_item, len(cpu_led_item))
-        print('Compiled cpu_led_off_item:', cpu_led_off_item)
+            i_2 = 0
+            for _ in cpu_led:
+                itm = {cpu_led[i_2]: cpu_led_color}
+                cpu_led_item.append(itm)
+                itm = {cpu_led[i_2]: cpu_led_color_off}
+                cpu_led_off_item.append(itm)
+                i_2 += 1
+            print('Compiled cpu_led_item:', cpu_led_item, len(cpu_led_item))
+            print('Compiled cpu_led_off_item:', cpu_led_off_item)
 
-        i_3 = 0
-        for _ in dram_led:
-            itm = {dram_led[i_3]: dram_led_color}
-            dram_led_item.append(itm)
-            itm = {dram_led[i_3]: dram_led_color_off}
-            dram_led_off_item.append(itm)
-            i_3 += 1
-        print('Compiled dram_led_item:', dram_led_item)
-        print('Compiled dram_led_off_item:', dram_led_off_item)
+            i_3 = 0
+            for _ in dram_led:
+                itm = {dram_led[i_3]: dram_led_color}
+                dram_led_item.append(itm)
+                itm = {dram_led[i_3]: dram_led_color_off}
+                dram_led_off_item.append(itm)
+                i_3 += 1
+            print('Compiled dram_led_item:', dram_led_item)
+            print('Compiled dram_led_off_item:', dram_led_off_item)
 
-        i_4 = 0
-        for _ in vram_led:
-            itm = {vram_led[i_4]: vram_led_color}
-            vram_led_item.append(itm)
-            itm = {vram_led[i_4]: vram_led_color_off}
-            vram_led_off_item.append(itm)
-            i_4 += 1
-        print('Compiled vram_led_item:', vram_led_item)
-        print('Compiled vram_led_off_item:', vram_led_off_item)
+            i_4 = 0
+            for _ in vram_led:
+                itm = {vram_led[i_4]: vram_led_color}
+                vram_led_item.append(itm)
+                itm = {vram_led[i_4]: vram_led_color_off}
+                vram_led_off_item.append(itm)
+                i_4 += 1
+            print('Compiled vram_led_item:', vram_led_item)
+            print('Compiled vram_led_off_item:', vram_led_off_item)
 
-        network_adapter_led_rcv_item_bytes = []
-        network_adapter_led_snt_item_bytes = []
-        network_adapter_led_rcv_item_kb = []
-        network_adapter_led_snt_item_kb = []
-        network_adapter_led_rcv_item_mb = []
-        network_adapter_led_snt_item_mb = []
-        network_adapter_led_rcv_item_gb = []
-        network_adapter_led_snt_item_gb = []
-        network_adapter_led_rcv_item_tb = []
-        network_adapter_led_snt_item_tb = []
-        network_adapter_led_off_rcv_item = []
-        network_adapter_led_off_snt_item = []
+            network_adapter_led_rcv_item_bytes = []
+            network_adapter_led_snt_item_bytes = []
+            network_adapter_led_rcv_item_kb = []
+            network_adapter_led_snt_item_kb = []
+            network_adapter_led_rcv_item_mb = []
+            network_adapter_led_snt_item_mb = []
+            network_adapter_led_rcv_item_gb = []
+            network_adapter_led_snt_item_gb = []
+            network_adapter_led_rcv_item_tb = []
+            network_adapter_led_snt_item_tb = []
+            network_adapter_led_off_rcv_item = []
+            network_adapter_led_off_snt_item = []
 
-        i_5 = 0
-        for _ in net_rcv_led:
-            itm = {net_rcv_led[i_5]: network_adapter_color_bytes}
-            network_adapter_led_rcv_item_bytes.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_bytes}
-            network_adapter_led_snt_item_bytes.append(itm)
+            i_5 = 0
+            for _ in net_rcv_led:
+                itm = {net_rcv_led[i_5]: network_adapter_color_bytes}
+                network_adapter_led_rcv_item_bytes.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_bytes}
+                network_adapter_led_snt_item_bytes.append(itm)
 
-            itm = {net_rcv_led[i_5]: network_adapter_color_kb}
-            network_adapter_led_rcv_item_kb.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_kb}
-            network_adapter_led_snt_item_kb.append(itm)
+                itm = {net_rcv_led[i_5]: network_adapter_color_kb}
+                network_adapter_led_rcv_item_kb.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_kb}
+                network_adapter_led_snt_item_kb.append(itm)
 
-            itm = {net_rcv_led[i_5]: network_adapter_color_mb}
-            network_adapter_led_rcv_item_mb.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_mb}
-            network_adapter_led_snt_item_mb.append(itm)
+                itm = {net_rcv_led[i_5]: network_adapter_color_mb}
+                network_adapter_led_rcv_item_mb.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_mb}
+                network_adapter_led_snt_item_mb.append(itm)
 
-            itm = {net_rcv_led[i_5]: network_adapter_color_gb}
-            network_adapter_led_rcv_item_gb.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_gb}
-            network_adapter_led_snt_item_gb.append(itm)
+                itm = {net_rcv_led[i_5]: network_adapter_color_gb}
+                network_adapter_led_rcv_item_gb.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_gb}
+                network_adapter_led_snt_item_gb.append(itm)
 
-            itm = {net_rcv_led[i_5]: network_adapter_color_tb}
-            network_adapter_led_rcv_item_tb.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_tb}
-            network_adapter_led_snt_item_tb.append(itm)
+                itm = {net_rcv_led[i_5]: network_adapter_color_tb}
+                network_adapter_led_rcv_item_tb.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_tb}
+                network_adapter_led_snt_item_tb.append(itm)
 
-            itm = {net_rcv_led[i_5]: network_adapter_color_off}
-            network_adapter_led_off_rcv_item.append(itm)
-            itm = {net_snt_led[i_5]: network_adapter_color_off}
-            network_adapter_led_off_snt_item.append(itm)
-            i_5 += 1
-        print('Compiled network_adapter_led_rcv_item_bytes:', network_adapter_led_rcv_item_bytes)
-        print('Compiled network_adapter_led_snt_item_bytes:', network_adapter_led_snt_item_bytes)
+                itm = {net_rcv_led[i_5]: network_adapter_color_off}
+                network_adapter_led_off_rcv_item.append(itm)
+                itm = {net_snt_led[i_5]: network_adapter_color_off}
+                network_adapter_led_off_snt_item.append(itm)
+                i_5 += 1
+            print('Compiled network_adapter_led_rcv_item_bytes:', network_adapter_led_rcv_item_bytes)
+            print('Compiled network_adapter_led_snt_item_bytes:', network_adapter_led_snt_item_bytes)
 
-        print('Compiled network_adapter_led_rcv_item_kb:', network_adapter_led_rcv_item_kb)
-        print('Compiled network_adapter_led_snt_item_kb:', network_adapter_led_snt_item_kb)
+            print('Compiled network_adapter_led_rcv_item_kb:', network_adapter_led_rcv_item_kb)
+            print('Compiled network_adapter_led_snt_item_kb:', network_adapter_led_snt_item_kb)
 
-        print('Compiled network_adapter_led_rcv_item_mb:', network_adapter_led_rcv_item_mb)
-        print('Compiled network_adapter_led_snt_item_mb:', network_adapter_led_snt_item_mb)
+            print('Compiled network_adapter_led_rcv_item_mb:', network_adapter_led_rcv_item_mb)
+            print('Compiled network_adapter_led_snt_item_mb:', network_adapter_led_snt_item_mb)
 
-        print('Compiled network_adapter_led_rcv_item_gb:', network_adapter_led_rcv_item_gb)
-        print('Compiled network_adapter_led_snt_item_gb:', network_adapter_led_snt_item_gb)
+            print('Compiled network_adapter_led_rcv_item_gb:', network_adapter_led_rcv_item_gb)
+            print('Compiled network_adapter_led_snt_item_gb:', network_adapter_led_snt_item_gb)
 
-        print('Compiled network_adapter_led_rcv_item_tb:', network_adapter_led_rcv_item_tb)
-        print('Compiled network_adapter_led_snt_item_tb:', network_adapter_led_snt_item_tb)
+            print('Compiled network_adapter_led_rcv_item_tb:', network_adapter_led_rcv_item_tb)
+            print('Compiled network_adapter_led_snt_item_tb:', network_adapter_led_snt_item_tb)
 
-        print('Compiled network_adapter_led_off_rcv_item:', network_adapter_led_off_rcv_item)
-        print('Compiled network_adapter_led_off_snt_item:', network_adapter_led_off_snt_item)
+            print('Compiled network_adapter_led_off_rcv_item:', network_adapter_led_off_rcv_item)
+            print('Compiled network_adapter_led_off_snt_item:', network_adapter_led_off_snt_item)
 
-        print('network_adapter_led_rcv_item_unit_led:', network_adapter_led_rcv_item_unit_led)
-        print('network_adapter_led_snt_item_unit_led:', network_adapter_led_snt_item_unit_led)
-        network_adapter_led_rcv_item_unit = [({network_adapter_led_rcv_item_unit_led: (255, 0, 0)}),
-                                             ({network_adapter_led_rcv_item_unit_led: (0, 0, 255)}),
-                                             ({network_adapter_led_rcv_item_unit_led: (0, 255, 255)}),
-                                             ({network_adapter_led_rcv_item_unit_led: (255, 255, 255)}),
-                                             ({network_adapter_led_rcv_item_unit_led: (0, 0, 0)})]
-        network_adapter_led_snt_item_unit = [({network_adapter_led_snt_item_unit_led: (255, 0, 0)}),
-                                             ({network_adapter_led_snt_item_unit_led: (0, 0, 255)}),
-                                             ({network_adapter_led_snt_item_unit_led: (0, 255, 255)}),
-                                             ({network_adapter_led_snt_item_unit_led: (255, 255, 255)}),
-                                             ({network_adapter_led_snt_item_unit_led: (0, 0, 0)})]
-        print('network_adapter_led_rcv_item_unit:', network_adapter_led_rcv_item_unit)
-        print('network_adapter_led_snt_item_unit:', network_adapter_led_snt_item_unit)
+            print('network_adapter_led_rcv_item_unit_led:', network_adapter_led_rcv_item_unit_led)
+            print('network_adapter_led_snt_item_unit_led:', network_adapter_led_snt_item_unit_led)
+            network_adapter_led_rcv_item_unit = [({network_adapter_led_rcv_item_unit_led: (255, 0, 0)}),
+                                                 ({network_adapter_led_rcv_item_unit_led: (0, 0, 255)}),
+                                                 ({network_adapter_led_rcv_item_unit_led: (0, 255, 255)}),
+                                                 ({network_adapter_led_rcv_item_unit_led: (255, 255, 255)}),
+                                                 ({network_adapter_led_rcv_item_unit_led: (0, 0, 0)})]
+            network_adapter_led_snt_item_unit = [({network_adapter_led_snt_item_unit_led: (255, 0, 0)}),
+                                                 ({network_adapter_led_snt_item_unit_led: (0, 0, 255)}),
+                                                 ({network_adapter_led_snt_item_unit_led: (0, 255, 255)}),
+                                                 ({network_adapter_led_snt_item_unit_led: (255, 255, 255)}),
+                                                 ({network_adapter_led_snt_item_unit_led: (0, 0, 0)})]
+            print('network_adapter_led_rcv_item_unit:', network_adapter_led_rcv_item_unit)
+            print('network_adapter_led_snt_item_unit:', network_adapter_led_snt_item_unit)
+        elif self.compile_dicts_key == 1:
+            print('-- compiling list of dictionaries for mouse:')
 
     def enumerate_device(self):
-        global k95_rgb_platinum
-        global key_name, key_id
+        global key_board, mouse_device
+        global key_name, key_id, m_key_name, m_key_id
         global corsair_led_id_alpha, alpha_led_id
         global corsair_led_id_1_9, corsair_led_id_f1_f9, net_rcv_led, net_snt_led, corsair_led_id_f10, corsair_led_id_0
         global network_adapter_led_rcv_item_unit_led, network_adapter_led_snt_item_unit_led
@@ -1667,12 +1665,11 @@ class CompileDevicesClass(QThread):
 
         if 'CorsairLedId.K_' in led_position_str_tmp[0]:
             if enum_compile_kb_bool is True:
+                self.compile_dicts_key = 0
                 enum_compile_kb_bool = False
-                # k95_rgb_platinum = []
                 key_name = []
                 key_id = []
-                print('enum_compile_kb_bool:', enum_compile_kb_bool)
-                k95_rgb_platinum.append(self.device_index)
+                key_board.append(self.device_index)
                 for _ in led_position_str:
                     var = _.split()
                     var_0 = var[0]
@@ -1698,9 +1695,9 @@ class CompileDevicesClass(QThread):
                             net_snt_led[i_led] = int(var_1)
                         i_led += 1
                     if var_0 == corsair_led_id_f10:
-                        network_adapter_led_rcv_item_unit_led = int(var_1)
-                    if var_0 == corsair_led_id_0:
                         network_adapter_led_snt_item_unit_led = int(var_1)
+                    if var_0 == corsair_led_id_0:
+                        network_adapter_led_rcv_item_unit_led = int(var_1)
                     i_led = 0
                     for _ in cpu_led_id:
                         if var_0 == cpu_led_id[i_led]:
@@ -1717,16 +1714,18 @@ class CompileDevicesClass(QThread):
                             vram_led[i_led] = int(var_1)
                         i_led += 1
             self.compile_dicts()
-            self.summary()
 
         elif 'CorsairLedId.M_' in led_position_str_tmp[0]:
+            self.compile_dicts_key = 1
             if enum_compile_m_bool is True:
                 enum_compile_m_bool = False
-                print('enum_compile_m_bool:', enum_compile_m_bool)
+                m_key_name = []
+                m_key_id = []
+                mouse_device.append(self.device_index)
 
     def stop_all_threads(self):
         global exclusive_access_bool, connected_bool_prev, conf_thread, mon_threads
-        print('-- stopping threads:', )
+        print('-- stopping all threads:', )
         conf_thread[0].stop()
         mon_threads[0].stop()
         mon_threads[1].stop()
@@ -1740,9 +1739,15 @@ class CompileDevicesClass(QThread):
             sdk.release_control()
             exclusive_access_bool = True
 
+    def stop_m_threads(self):
+        print('-- stopping mouse threads')
+
+    def start_m_threads(self):
+        if len(mouse_device) >= 1:
+            print('-- starting mouse threads')
+
     def stop_kb_threads(self):
         global mon_threads
-        print('mon_threads len:', len(mon_threads))
         print('-- stopping keyboard threads')
         try:
             mon_threads[0].stop()
@@ -1767,17 +1772,10 @@ class CompileDevicesClass(QThread):
         print('-- stopping keyboard threads: done')
 
     def start_kb_threads(self):
-        global exclusive_access_bool
         global hdd_startup_bool, cpu_startup_bool, dram_startup_bool, vram_startup_bool, network_adapter_startup_bool
         global mon_threads
-        if len(k95_rgb_platinum) >= 1:
-            print('-- starting threads:', )
-            print('hdd_startup_bool:', hdd_startup_bool)
-            print('cpu_startup_bool:', cpu_startup_bool)
-            print('dram_startup_bool:', dram_startup_bool)
-            print('vram_startup_bool:', vram_startup_bool)
-            print('network_adapter_startup_bool:', network_adapter_startup_bool)
-            print('mon_threads len:', len(mon_threads))
+        if len(key_board) >= 1:
+            print('-- starting keyboard threads:', )
             if hdd_startup_bool is True:
                 mon_threads[0].start()
             if cpu_startup_bool is True:
@@ -1795,15 +1793,9 @@ class CompileDevicesClass(QThread):
             dram_startup_bool = False
             vram_startup_bool = False
             network_adapter_startup_bool = False
-            print('-- starting threads:', )
-            print('hdd_startup_bool:', hdd_startup_bool)
-            print('cpu_startup_bool:', cpu_startup_bool)
-            print('dram_startup_bool:', dram_startup_bool)
-            print('vram_startup_bool:', vram_startup_bool)
-            print('network_adapter_startup_bool:', network_adapter_startup_bool)
 
     def run(self):
-        global sdk, k95_rgb_platinum
+        global sdk, key_board, mouse_device, mouse_device_selected
         global connected_bool, connected_bool_prev
         global mon_threads, conf_thread
         global hdd_startup_bool, cpu_startup_bool, dram_startup_bool, vram_startup_bool, exclusive_access_bool
@@ -1846,9 +1838,9 @@ class CompileDevicesClass(QThread):
                         enum_compile_kb_bool = True
                         enum_compile_m_bool = True
                         print('-- device list changed: enumerating changes')
-                        # prev_device = device
                         device_i = 0
-                        k95_rgb_platinum = []
+                        key_board = []
+                        mouse_device = []
                         for _ in device:
                             target_name = str(device[device_i])
                             self.device_index = device_i
@@ -1856,16 +1848,23 @@ class CompileDevicesClass(QThread):
                             self.enumerate_device()
                             device_i += 1
 
-                        if len(k95_rgb_platinum) < 1:
-                            print('-- keyboard unplugged:', k95_rgb_platinum)
+                        if len(key_board) < 1:
+                            print('-- keyboard unplugged:', key_board)
                             self.stop_kb_threads()
-                        elif len(k95_rgb_platinum) >= 1:
-                            print('k95_rgb_platinum:', sdk.get_device_info(k95_rgb_platinum[0]))
-                            if str(sdk.get_device_info(k95_rgb_platinum[0])) not in str(prev_device):
+                        elif len(key_board) >= 1:
+                            print('-- found keyboard:', sdk.get_device_info(key_board[0]))
+                            if str(sdk.get_device_info(key_board[0])) not in str(prev_device):
                                 self.start_kb_threads()
 
+                        if len(mouse_device) < 1:
+                            print('-- mouse unplugged:', mouse_device)
+                            self.stop_m_threads()
+                        elif len(mouse_device) >= 1:
+                            print('-- found mouse:', sdk.get_device_info(mouse_device[0]))
+                            if str(sdk.get_device_info(mouse_device[0])) not in str(prev_device):
+                                self.start_m_threads()
+
                         prev_device = device
-                        print('prev_device:', prev_device, ' device:', device)
 
                 if connected_bool is False and connected_bool != connected_bool_prev:
                     self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
@@ -1875,11 +1874,11 @@ class CompileDevicesClass(QThread):
                 elif connected_bool is True and connected_bool != connected_bool_prev:
                     if exclusive_access_bool is True:
                         sdk.request_control()
-                        # sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                         exclusive_access_bool = False
                     elif exclusive_access_bool is False:
                         sdk.release_control()
-                        # sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], {1: (255, 0, 0)})
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                         exclusive_access_bool = True
                     connected_bool_prev = True
 
@@ -1998,7 +1997,7 @@ class ReadConfigurationClass(QThread):
                     print('-- setting run_startup:', run_startup_bool)
 
     def exclusive_access(self):
-        global exclusive_access_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global exclusive_access_bool, sdk, key_board, key_board_selected
         with open('.\\config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
@@ -2242,18 +2241,18 @@ class NetworkMonClass(QThread):
 
     def run(self):
         pythoncom.CoInitialize()
-        global k95_rgb_platinum, allow_mon_threads_bool, network_adapter_time_on, network_adapter_display_rcv_bool
+        global key_board, allow_mon_threads_bool, network_adapter_time_on, network_adapter_display_rcv_bool
         global network_adapter_display_snt_bool
         print('-- thread started: NetworkMonClass(QThread).run(self)')
         while True:
-            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+            if len(key_board) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
                 time.sleep(network_adapter_time_on)
             else:
                 time.sleep(1)
 
     def send_instruction(self):
-        global network_adapter_display_rcv_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global network_adapter_display_rcv_bool, sdk, key_board, key_board_selected
         global network_adapter_display_snt_bool, network_adapter_led_off_snt_item
         global network_adapter_led_rcv_item_bytes, network_adapter_led_rcv_item_kb, network_adapter_led_rcv_item_mb
         global network_adapter_led_rcv_item_gb, network_adapter_led_rcv_item_tb
@@ -2265,51 +2264,51 @@ class NetworkMonClass(QThread):
         try:
             for _ in network_adapter_display_rcv_bool:
                 if network_adapter_display_rcv_bool[net_rcv_i] is True:
-                    if self.u_type_1 == 0:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[0])
-                    elif self.u_type_1 == 1:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[1])
-                    elif self.u_type_1 == 2:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[2])
-                    elif self.u_type_1 == 3:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[3])
-                    if self.b_type == 0:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
-                    elif self.b_type == 1:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_kb[net_rcv_i])
-                    elif self.b_type == 2:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_mb[net_rcv_i])
-                    elif self.b_type == 3:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_gb[net_rcv_i])
-                    elif self.b_type == 4:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_tb[net_rcv_i])
-                elif network_adapter_display_rcv_bool[net_rcv_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_rcv_item[net_rcv_i])
-                if network_adapter_display_snt_bool[net_rcv_i] is True:
                     if self.u_type == 0:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[0])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[0])
                     elif self.u_type == 1:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[1])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[1])
                     elif self.u_type == 2:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[2])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[2])
                     elif self.u_type == 3:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[3])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[3])
+                    if self.b_type == 0:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
+                    elif self.b_type == 1:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_kb[net_rcv_i])
+                    elif self.b_type == 2:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_mb[net_rcv_i])
+                    elif self.b_type == 3:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_gb[net_rcv_i])
+                    elif self.b_type == 4:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_tb[net_rcv_i])
+                elif network_adapter_display_rcv_bool[net_rcv_i] is False:
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_rcv_item[net_rcv_i])
+                if network_adapter_display_snt_bool[net_rcv_i] is True:
+                    if self.u_type_1 == 0:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
+                    elif self.u_type_1 == 1:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[1])
+                    elif self.u_type_1 == 2:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[2])
+                    elif self.u_type_1 == 3:
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[3])
                     if self.b_type_1 == 0:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
                     elif self.b_type_1 == 1:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_kb[net_rcv_i])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_kb[net_rcv_i])
                     elif self.b_type_1 == 2:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_mb[net_rcv_i])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_mb[net_rcv_i])
                     elif self.b_type_1 == 3:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_gb[net_rcv_i])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_gb[net_rcv_i])
                     elif self.b_type_1 == 4:
-                        sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_tb[net_rcv_i])
+                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_tb[net_rcv_i])
                 elif network_adapter_display_snt_bool[net_rcv_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_snt_item[net_rcv_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_snt_item[net_rcv_i])
                 if network_adapter_display_rcv_bool == [False, False, False, False, False, False, False, False, False]:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_rcv_item_unit[4])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[4])
                 if network_adapter_display_snt_bool == [False, False, False, False, False, False, False, False, False]:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_snt_item_unit[4])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[4])
                 net_rcv_i += 1
         except Exception as e:
             print('NetworkMonClass:', e)
@@ -2349,8 +2348,8 @@ class NetworkMonClass(QThread):
                 self.switch_num_key = 1
                 self.switch_num_function(sen_bytes_int)
 
-                print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
-                print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
+                # print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
+                # print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
 
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
@@ -2416,11 +2415,11 @@ class NetworkMonClass(QThread):
 
     def stop(self):
         print('-- stopping: NetworkMonClass')
-        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, network_adapter_led_off_rcv_item
+        global sdk, key_board, key_board_selected, network_adapter_led_off_rcv_item
         try:
             net_rcv_i = 0
             for _ in network_adapter_led_off_rcv_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], network_adapter_led_off_rcv_item[net_rcv_i])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_rcv_item[net_rcv_i])
                 net_rcv_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
@@ -2435,26 +2434,26 @@ class HddMonClass(QThread):
 
     def run(self):
         pythoncom.CoInitialize()
-        global k95_rgb_platinum, allow_mon_threads_bool
+        global key_board, allow_mon_threads_bool
         print('-- thread started: HddMonClass(QThread).run(self)')
         while True:
-            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+            if len(key_board) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
                 time.sleep(hdd_led_time_on)
             else:
                 time.sleep(1)
 
     def send_instruction(self):
-        global hdd_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
+        global hdd_display_key_bool, sdk, key_board, key_board_selected, hdd_led_off_item
         global hdd_led_item
         self.get_stat()
         hdd_i = 0
         try:
             for _ in hdd_display_key_bool:
                 if hdd_display_key_bool[hdd_i] is True:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_item[hdd_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_item[hdd_i])
                 elif hdd_display_key_bool[hdd_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_off_item[hdd_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_off_item[hdd_i])
                 hdd_i += 1
         except Exception as e:
             print('HddMonClass:', e)
@@ -2492,11 +2491,11 @@ class HddMonClass(QThread):
 
     def stop(self):
         print('-- stopping: HddMonClass')
-        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, hdd_led_off_item
+        global sdk, key_board, key_board_selected, hdd_led_off_item
         try:
             hdd_i = 0
             for _ in hdd_led_off_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], hdd_led_off_item[hdd_i])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_off_item[hdd_i])
                 hdd_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
@@ -2514,27 +2513,27 @@ class CpuMonClass(QThread):
         self.cpu_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
-        global k95_rgb_platinum
+        global key_board
         print('-- thread started: CpuMonClass(QThread).run(self)')
 
         while True:
-            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+            if len(key_board) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
                 time.sleep(cpu_led_time_on)
             else:
                 time.sleep(1)
 
     def send_instruction(self):
-        global cpu_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global cpu_display_key_bool, sdk, key_board, key_board_selected
         global cpu_led_item, cpu_led_off_item
         self.get_stat()
         cpu_i = 0
         try:
             for _ in cpu_led_item:
                 if cpu_display_key_bool[cpu_i] is True:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_item[cpu_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_item[cpu_i])
                 elif cpu_display_key_bool[cpu_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[cpu_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_off_item[cpu_i])
                 cpu_i += 1
         except Exception as e:
             print('CpuMonClass:', e)
@@ -2558,11 +2557,11 @@ class CpuMonClass(QThread):
 
     def stop(self):
         print('-- stopping: CpuMonClass')
-        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, cpu_led_off_item
+        global sdk, key_board, key_board_selected, cpu_led_off_item
         try:
             cpu_i = 0
             for _ in cpu_led_off_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], cpu_led_off_item[cpu_i])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_off_item[cpu_i])
                 cpu_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
@@ -2580,25 +2579,25 @@ class DramMonClass(QThread):
         self.dram_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
-        global k95_rgb_platinum
+        global key_board
         print('-- thread started: DramMonClass(QThread).run(self)')
         while True:
-            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+            if len(key_board) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
                 time.sleep(dram_led_time_on)
             else:
                 time.sleep(1)
 
     def send_instruction(self):
-        global dram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global dram_display_key_bool, sdk, key_board, key_board_selected
         self.get_stat()
         dram_i = 0
         try:
             for _ in dram_led_item:
                 if dram_display_key_bool[dram_i] is True:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_item[dram_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_item[dram_i])
                 elif dram_display_key_bool[dram_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[dram_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_off_item[dram_i])
                 dram_i += 1
         except Exception as e:
             print('DramMonClass:', e)
@@ -2622,11 +2621,11 @@ class DramMonClass(QThread):
 
     def stop(self):
         print('-- stopping: DramMonClass')
-        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, dram_led_off_item
+        global sdk, key_board, key_board_selected, dram_led_off_item
         try:
             dram_i = 0
             for _ in dram_led_off_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], dram_led_off_item[dram_i])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_off_item[dram_i])
                 dram_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
@@ -2644,25 +2643,25 @@ class VramMonClass(QThread):
         self.vram_display_key_bool_tmp_3 = [True, True, True, True]
 
     def run(self):
-        global k95_rgb_platinum
+        global key_board
         print('-- thread started: VramMonClass(QThread).run(self)')
         while True:
-            if len(k95_rgb_platinum) >= 1 and allow_mon_threads_bool is True:
+            if len(key_board) >= 1 and allow_mon_threads_bool is True:
                 self.send_instruction()
                 time.sleep(vram_led_time_on)
             else:
                 time.sleep(1)
 
     def send_instruction(self):
-        global vram_display_key_bool, sdk, k95_rgb_platinum, k95_rgb_platinum_selected
+        global vram_display_key_bool, sdk, key_board, key_board_selected
         self.get_stat()
         vram_i = 0
         try:
             for _ in vram_led_item:
                 if vram_display_key_bool[vram_i] is True:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_item[vram_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_item[vram_i])
                 elif vram_display_key_bool[vram_i] is False:
-                    sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[vram_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_off_item[vram_i])
                 vram_i += 1
         except Exception as e:
             print('VramMonClass:', e)
@@ -2690,11 +2689,11 @@ class VramMonClass(QThread):
 
     def stop(self):
         print('-- stopping: VramMonClass')
-        global sdk, k95_rgb_platinum, k95_rgb_platinum_selected, vram_led_off_item
+        global sdk, key_board, key_board_selected, vram_led_off_item
         try:
             vram_i = 0
             for _ in vram_led_off_item:
-                sdk.set_led_colors_buffer_by_device_index(k95_rgb_platinum[k95_rgb_platinum_selected], vram_led_off_item[vram_i])
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_off_item[vram_i])
                 vram_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
