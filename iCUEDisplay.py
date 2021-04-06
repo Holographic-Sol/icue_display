@@ -1878,14 +1878,8 @@ class CompileDevicesClass(QThread):
                     connected_bool_prev = False
 
                 elif connected_bool is True and connected_bool != connected_bool_prev:
-                    if exclusive_access_bool is True:
-                        sdk.request_control()
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
-                        exclusive_access_bool = False
-                    elif exclusive_access_bool is False:
-                        sdk.release_control()
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
-                        exclusive_access_bool = True
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                     connected_bool_prev = True
 
                 if connected_bool is False:
