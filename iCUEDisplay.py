@@ -2529,6 +2529,7 @@ class PingTestClass(QThread):
             self.ping()
         if self.ping_fail_i == 2:
             self.ping_bool = False
+            self.ping_fail_i = 0
         if self.ping_bool is True and self.ping_bool != self.ping_bool_prev:
             print('-- sending instruction: ping True')
             mon_threads[4].start()
@@ -2568,7 +2569,7 @@ class PingTestClass(QThread):
             for _ in lines:
                 if 'Packets: Sent = 1, Received = 0, Lost = 1 (100% loss)' in _:
                     self.ping_fail_i += 1
-                elif 'Packets: Sent = 1, Received = 1, Lost = 0 (0% loss)' in _:
+                if 'Packets: Sent = 1, Received = 1, Lost = 0 (0% loss)' in _:
                     self.ping_bool = True
         except Exception as e:
             print('-- exception in PingTestClass.ping:', e)
