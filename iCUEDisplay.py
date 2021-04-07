@@ -80,7 +80,6 @@ mouse_device_selected = 0
 prev_device = []
 key_name = []
 key_id = []
-m_key_name = []
 m_key_id = []
 corsair_mouse_led_id = ['CorsairLedId.M_1', 'CorsairLedId.M_2', 'CorsairLedId.M_2', 'CorsairLedId.M_3', 'CorsairLedId.M_4']
 cpu_led_id = ['CorsairLedId.K_Keypad1',
@@ -1689,7 +1688,7 @@ class CompileDevicesClass(QThread):
 
     def enumerate_device(self):
         global key_board, mouse_device
-        global key_name, key_id, m_key_name, m_key_id
+        global key_name, key_id, m_key_id
         global corsair_led_id_alpha, alpha_led_id
         global corsair_led_id_1_9, corsair_led_id_f1_f9, net_rcv_led, net_snt_led, corsair_led_id_f10, corsair_led_id_0
         global network_adapter_led_rcv_item_unit_led, network_adapter_led_snt_item_unit_led
@@ -1764,8 +1763,7 @@ class CompileDevicesClass(QThread):
             self.compile_dicts_key = 1
             if enum_compile_m_bool is True:
                 enum_compile_m_bool = False
-                m_key_name = []
-                m_key_id = []
+                m_key_id = ['', '', '', '']
                 mouse_device.append(int(self.device_index))
                 for _ in led_position_str:
                     var = _.split()
@@ -1775,8 +1773,14 @@ class CompileDevicesClass(QThread):
                     var_0 = var_0.replace(':', '')
                     var_1 = var[1].replace('>:', '')
                     print('Corsair LED ID NAME:', var_0, '  LED ID:', var_1)
-                    m_key_id.append(int(var_1))
-                self.compile_dicts()
+                    if 'CorsairLedId.M_1' == var_0:
+                        m_key_id[0] = int(var_1)
+                    elif 'CorsairLedId.M_2' == var_0:
+                        m_key_id[1] = int(var_1)
+                    elif 'CorsairLedId.M_3' == var_0:
+                        m_key_id[2] = int(var_1)
+                    elif 'CorsairLedId.M_4' == var_0:
+                        m_key_id[3] = int(var_1)
 
     def stop_all_threads(self):
         global exclusive_access_bool, connected_bool_prev, conf_thread, mon_threads
@@ -2307,7 +2311,6 @@ class NetworkMonClass(QThread):
         self.switch_num_key = ()
         self.switch_num_1 = ()
         self.b_type_key = ()
-        self.ping_bool = False
 
     def run(self):
         pythoncom.CoInitialize()
@@ -2421,8 +2424,6 @@ class NetworkMonClass(QThread):
                 # print('rec_bytes_int:', rec_bytes_int, 'u_type:', self.u_type)
                 # print('sen_bytes_int:', sen_bytes_int, 'u_type_1:', self.u_type_1)
 
-                # self.ping()
-
         except Exception as e:
             print('[NAME]: NetworkMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
             sdk.set_led_colors_flush_buffer()
@@ -2533,7 +2534,7 @@ class PingTestClass(QThread):
             mon_threads[4].start()
             if len(mouse_device) >= 1:
                 if len(m_key_id) >= 3:
-                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[2]: (0, 255, 0)}))
+                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[3]: (0, 255, 0)}))
             if len(key_board) >= 1:
                 sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
                 sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f11: (0, 255, 0)}))
@@ -2544,7 +2545,7 @@ class PingTestClass(QThread):
             mon_threads[4].stop()
             if len(mouse_device) >= 1:
                 if len(m_key_id) >= 3:
-                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[2]: (255, 0, 0)}))
+                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[3]: (255, 0, 0)}))
             if len(key_board) >= 1:
                 sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
                 sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({ping_test_f11: (255, 0, 0)}))
@@ -2576,6 +2577,9 @@ class PingTestClass(QThread):
 class HddMonClass(QThread):
     def __init__(self):
         QThread.__init__(self)
+        self.hdd_display_key_bool_prev = []
+        for _ in alpha_led_id:
+            self.hdd_display_key_bool_prev.append(False)
 
     def run(self):
         pythoncom.CoInitialize()
@@ -2595,10 +2599,14 @@ class HddMonClass(QThread):
         hdd_i = 0
         try:
             for _ in hdd_display_key_bool:
-                if hdd_display_key_bool[hdd_i] is True:
+                if hdd_display_key_bool[hdd_i] is True and self.hdd_display_key_bool_prev[hdd_i] != hdd_display_key_bool[hdd_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_item[hdd_i])
-                elif hdd_display_key_bool[hdd_i] is False:
+                    self.hdd_display_key_bool_prev[hdd_i] = True
+                    # print('-- setting drive letter:', hdd_led_item[hdd_i], 'True')
+                elif hdd_display_key_bool[hdd_i] is False and self.hdd_display_key_bool_prev[hdd_i] != hdd_display_key_bool[hdd_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_off_item[hdd_i])
+                    self.hdd_display_key_bool_prev[hdd_i] = False
+                    # print('-- setting drive letter:', hdd_led_item[hdd_i], 'False')
                 hdd_i += 1
         except Exception as e:
             print('HddMonClass:', e)
@@ -2656,6 +2664,8 @@ class CpuMonClass(QThread):
         self.cpu_display_key_bool_tmp_1 = [True, True, False, False]
         self.cpu_display_key_bool_tmp_2 = [True, True, True, False]
         self.cpu_display_key_bool_tmp_3 = [True, True, True, True]
+        self.cpu_display_key_bool_prev = [False, False, False, False]
+        self.switch_count = 0
 
     def run(self):
         global key_board
@@ -2675,10 +2685,16 @@ class CpuMonClass(QThread):
         cpu_i = 0
         try:
             for _ in cpu_led_item:
-                if cpu_display_key_bool[cpu_i] is True:
+                if cpu_display_key_bool[cpu_i] is True and self.cpu_display_key_bool_prev[cpu_i] != cpu_display_key_bool[cpu_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_item[cpu_i])
-                elif cpu_display_key_bool[cpu_i] is False:
+                    self.cpu_display_key_bool_prev[cpu_i] = True
+                    print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'True')
+                    self.switch_count += 1
+                elif cpu_display_key_bool[cpu_i] is False and self.cpu_display_key_bool_prev[cpu_i] != cpu_display_key_bool[cpu_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_off_item[cpu_i])
+                    self.cpu_display_key_bool_prev[cpu_i] = False
+                    print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'False')
+                    self.switch_count += 1
                 cpu_i += 1
         except Exception as e:
             print('CpuMonClass:', e)
@@ -2722,6 +2738,8 @@ class DramMonClass(QThread):
         self.dram_display_key_bool_tmp_1 = [True, True, False, False]
         self.dram_display_key_bool_tmp_2 = [True, True, True, False]
         self.dram_display_key_bool_tmp_3 = [True, True, True, True]
+        self.dram_display_key_bool_prev = [False, False, False, False]
+        self.switch_count = 0
 
     def run(self):
         global key_board
@@ -2739,10 +2757,17 @@ class DramMonClass(QThread):
         dram_i = 0
         try:
             for _ in dram_led_item:
-                if dram_display_key_bool[dram_i] is True:
+                if dram_display_key_bool[dram_i] is True and self.dram_display_key_bool_prev[dram_i] != dram_display_key_bool[dram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_item[dram_i])
-                elif dram_display_key_bool[dram_i] is False:
+                    self.dram_display_key_bool_prev[dram_i] = True
+                    print(self.switch_count, '-- setting dram key:', dram_led_item[dram_i], 'True')
+                    self.switch_count += 1
+
+                elif dram_display_key_bool[dram_i] is False and self.dram_display_key_bool_prev[dram_i] != dram_display_key_bool[dram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_off_item[dram_i])
+                    self.dram_display_key_bool_prev[dram_i] = False
+                    print(self.switch_count, '-- setting dram key:', dram_led_off_item[dram_i], 'False')
+                    self.switch_count += 1
                 dram_i += 1
         except Exception as e:
             print('DramMonClass:', e)
@@ -2786,6 +2811,8 @@ class VramMonClass(QThread):
         self.vram_display_key_bool_tmp_1 = [True, True, False, False]
         self.vram_display_key_bool_tmp_2 = [True, True, True, False]
         self.vram_display_key_bool_tmp_3 = [True, True, True, True]
+        self.vram_display_key_bool_prev = [False, False, False, False]
+        self.switch_count = 0
 
     def run(self):
         global key_board
@@ -2803,10 +2830,18 @@ class VramMonClass(QThread):
         vram_i = 0
         try:
             for _ in vram_led_item:
-                if vram_display_key_bool[vram_i] is True:
+                if vram_display_key_bool[vram_i] is True and self.vram_display_key_bool_prev[vram_i] != vram_display_key_bool[vram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_item[vram_i])
-                elif vram_display_key_bool[vram_i] is False:
+                    self.vram_display_key_bool_prev[vram_i] = True
+                    print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
+                    self.switch_count += 1
+
+                elif vram_display_key_bool[vram_i] is False and self.vram_display_key_bool_prev[vram_i] != vram_display_key_bool[vram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_off_item[vram_i])
+                    self.vram_display_key_bool_prev[vram_i] = False
+                    print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
+                    self.switch_count += 1
+
                 vram_i += 1
         except Exception as e:
             print('VramMonClass:', e)
