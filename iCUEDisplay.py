@@ -2311,6 +2311,9 @@ class NetworkMonClass(QThread):
         self.switch_num_key = ()
         self.switch_num_1 = ()
         self.b_type_key = ()
+        self.network_adapter_display_rcv_bool_prev = [False, False, False, False, False, False, False, False, False]
+        self.network_adapter_display_snt_bool_prev = [False, False, False, False, False, False, False, False, False]
+        self.switch_count = 0
 
     def run(self):
         pythoncom.CoInitialize()
@@ -2336,7 +2339,10 @@ class NetworkMonClass(QThread):
         net_rcv_i = 0
         try:
             for _ in network_adapter_display_rcv_bool:
-                if network_adapter_display_rcv_bool[net_rcv_i] is True:
+                if network_adapter_display_rcv_bool[net_rcv_i] is True and self.network_adapter_display_rcv_bool_prev[net_rcv_i] != network_adapter_display_rcv_bool[net_rcv_i]:
+                    self.network_adapter_display_rcv_bool_prev[net_rcv_i] = True
+                    self.switch_count += 1
+                    print(self.switch_count, '-- setting net rcv: True')
                     if self.u_type == 0:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[0])
                     elif self.u_type == 1:
@@ -2345,19 +2351,42 @@ class NetworkMonClass(QThread):
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[2])
                     elif self.u_type == 3:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[3])
+                    sdk.set_led_colors_flush_buffer()
                     if self.b_type == 0:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_bytes[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_bytes[net_set])
+                            net_set += 1
                     elif self.b_type == 1:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_kb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_kb[net_set])
+                            net_set += 1
                     elif self.b_type == 2:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_mb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_mb[net_set])
+                            net_set += 1
                     elif self.b_type == 3:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_gb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_gb[net_set])
+                            net_set += 1
                     elif self.b_type == 4:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_tb[net_rcv_i])
-                elif network_adapter_display_rcv_bool[net_rcv_i] is False:
+                        net_set = 0
+                        while net_set < self.switch_num:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_tb[net_set])
+                            net_set += 1
+                    sdk.set_led_colors_flush_buffer()
+                if network_adapter_display_rcv_bool[net_rcv_i] is False and self.network_adapter_display_rcv_bool_prev[net_rcv_i] != network_adapter_display_rcv_bool[net_rcv_i]:
+                    self.network_adapter_display_rcv_bool_prev[net_rcv_i] = False
+                    self.switch_count += 1
+                    print(self.switch_count, '-- setting net rcv: False')
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_rcv_item[net_rcv_i])
-                if network_adapter_display_snt_bool[net_rcv_i] is True:
+                if network_adapter_display_snt_bool[net_rcv_i] is True and self.network_adapter_display_snt_bool_prev[net_rcv_i] != network_adapter_display_snt_bool[net_rcv_i]:
+                    self.network_adapter_display_snt_bool_prev[net_rcv_i] = True
+                    self.switch_count += 1
+                    print(self.switch_count, '-- setting net snt: True')
                     if self.u_type_1 == 0:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
                     elif self.u_type_1 == 1:
@@ -2366,17 +2395,37 @@ class NetworkMonClass(QThread):
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[2])
                     elif self.u_type_1 == 3:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[3])
+                    sdk.set_led_colors_flush_buffer()
                     if self.b_type_1 == 0:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_bytes[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num_1:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_bytes[net_set])
+                            net_set += 1
                     elif self.b_type_1 == 1:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_kb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num_1:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_kb[net_set])
+                            net_set += 1
                     elif self.b_type_1 == 2:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_mb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num_1:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_mb[net_set])
+                            net_set += 1
                     elif self.b_type_1 == 3:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_gb[net_rcv_i])
+                        net_set = 0
+                        while net_set < self.switch_num_1:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_gb[net_set])
+                            net_set += 1
                     elif self.b_type_1 == 4:
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_tb[net_rcv_i])
-                elif network_adapter_display_snt_bool[net_rcv_i] is False:
+                        net_set = 0
+                        while net_set < self.switch_num_1:
+                            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_tb[net_set])
+                            net_set += 1
+                    sdk.set_led_colors_flush_buffer()
+                if network_adapter_display_snt_bool[net_rcv_i] is False and self.network_adapter_display_snt_bool_prev[net_rcv_i] != network_adapter_display_snt_bool[net_rcv_i]:
+                    self.network_adapter_display_snt_bool_prev[net_rcv_i] = False
+                    self.switch_count += 1
+                    print(self.switch_count, '-- setting net snt: False')
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_snt_item[net_rcv_i])
                 if network_adapter_display_rcv_bool == [False, False, False, False, False, False, False, False, False]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[4])
@@ -2385,7 +2434,7 @@ class NetworkMonClass(QThread):
                 net_rcv_i += 1
         except Exception as e:
             print('NetworkMonClass:', e)
-        sdk.set_led_colors_flush_buffer()
+            sdk.set_led_colors_flush_buffer()
 
     def get_stat(self):
         global network_adapter_display_rcv_bool, net_rcv_led, network_adapter_name, network_adapter_time_on
@@ -2448,7 +2497,6 @@ class NetworkMonClass(QThread):
             if n == x:
                 if self.switch_num_key == 0:
                     self.switch_num = int(n)
-                    network_adapter_display_rcv_bool = [False, False, False, False, False, False, False, False, False]
                     i_rcv = 0
                     for _ in network_adapter_display_rcv_bool:
                         if i_rcv < int(self.switch_num):
@@ -2456,7 +2504,6 @@ class NetworkMonClass(QThread):
                         i_rcv += 1
                 elif self.switch_num_key == 1:
                     self.switch_num_1 = int(n)
-                    network_adapter_display_snt_bool = [False, False, False, False, False, False, False, False, False]
                     i_snt = 0
                     for _ in network_adapter_display_snt_bool:
                         if i_snt < int(self.switch_num_1):
@@ -2514,6 +2561,7 @@ class PingTestClass(QThread):
         while True:
             try:
                 if len(key_board) >= 1 or len(mouse_device) >= 1 and allow_mon_threads_bool is True:
+                    self.ping_fail_i = 0
                     self.send_instruction()
                     time.sleep(5)
                 else:
