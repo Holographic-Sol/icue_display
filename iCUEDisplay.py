@@ -2544,6 +2544,7 @@ class PingTestClass(QThread):
         elif self.ping_bool is False and self.ping_bool != self.ping_bool_prev:
             print('-- sending instruction: ping False')
             mon_threads[4].stop()
+            time.sleep(0.1)
             if len(mouse_device) >= 1:
                 if len(m_key_id) >= 3:
                     sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[3]: (255, 0, 0)}))
