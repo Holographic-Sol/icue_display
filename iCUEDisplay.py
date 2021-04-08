@@ -1931,11 +1931,11 @@ class CompileDevicesClass(QThread):
                 elif connected_bool is True and connected_bool != connected_bool_prev:
                     if exclusive_access_bool is True:
                         sdk.request_control()
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
+                        # sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                         exclusive_access_bool = False
                     elif exclusive_access_bool is False:
                         sdk.release_control()
-                        sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
+                        # sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                         exclusive_access_bool = True
                     connected_bool_prev = True
 
@@ -2333,7 +2333,7 @@ class NetworkMonClass(QThread):
                 if self.network_adapter_display_rcv_bool[net_rcv_i] is True and self.network_adapter_display_rcv_bool_prev[net_rcv_i] != self.network_adapter_display_rcv_bool[net_rcv_i]:
                     self.network_adapter_display_rcv_bool_prev[net_rcv_i] = True
                     self.switch_count += 1
-                    print(self.switch_count, '-- setting net rcv: True')
+                    # print(self.switch_count, '-- setting net rcv: True')
                     if self.u_type == 0:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[0])
                     elif self.u_type == 1:
@@ -2372,12 +2372,12 @@ class NetworkMonClass(QThread):
                 if self.network_adapter_display_rcv_bool[net_rcv_i] is False and self.network_adapter_display_rcv_bool_prev[net_rcv_i] != self.network_adapter_display_rcv_bool[net_rcv_i]:
                     self.network_adapter_display_rcv_bool_prev[net_rcv_i] = False
                     self.switch_count += 1
-                    print(self.switch_count, '-- setting net rcv: False')
+                    # print(self.switch_count, '-- setting net rcv: False')
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_rcv_item[net_rcv_i])
                 if self.network_adapter_display_snt_bool[net_rcv_i] is True and self.network_adapter_display_snt_bool_prev[net_rcv_i] != self.network_adapter_display_snt_bool[net_rcv_i]:
                     self.network_adapter_display_snt_bool_prev[net_rcv_i] = True
                     self.switch_count += 1
-                    print(self.switch_count, '-- setting net snt: True')
+                    # print(self.switch_count, '-- setting net snt: True')
                     if self.u_type_1 == 0:
                         sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[0])
                     elif self.u_type_1 == 1:
@@ -2416,7 +2416,7 @@ class NetworkMonClass(QThread):
                 if self.network_adapter_display_snt_bool[net_rcv_i] is False and self.network_adapter_display_snt_bool_prev[net_rcv_i] != self.network_adapter_display_snt_bool[net_rcv_i]:
                     self.network_adapter_display_snt_bool_prev[net_rcv_i] = False
                     self.switch_count += 1
-                    print(self.switch_count, '-- setting net snt: False')
+                    # print(self.switch_count, '-- setting net snt: False')
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_snt_item[net_rcv_i])
                 if self.network_adapter_display_rcv_bool == [False, False, False, False, False, False, False, False, False]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[4])
@@ -2605,6 +2605,7 @@ class PingTestClass(QThread):
     def stop(self):
         print('-- stopping: PingTestClass')
         global sdk, key_board, key_board_selected
+        self.ping_bool_prev = None
         self.terminate()
 
 
