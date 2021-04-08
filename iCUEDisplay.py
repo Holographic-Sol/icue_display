@@ -2099,6 +2099,7 @@ class CompileDevicesClass(QThread):
 
         if fresh_start is True:
             print('-- fresh start: True')
+            self.exc_con()
             self.stop_all_threads()
             time.sleep(1)
             self.exc_con()
@@ -2778,13 +2779,11 @@ class PingTestClass(QThread):
                 print('-- exception in PingTestClass:', e)
 
     def send_instruction_on(self):
-
         if len(mouse_device) >= 1 and mouse_net_con_startup is True:
             if mouse_net_con_id < len(m_key_id):
                 sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (self.rgb_key)}))
         if len(key_board) >= 1 and kb_net_con_startup is True:
             sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (self.rgb_key)}))
-        time.sleep(0.4)
 
     def send_instruction_off(self):
         if len(mouse_device) >= 1 and mouse_net_con_startup is True:
@@ -2792,7 +2791,6 @@ class PingTestClass(QThread):
                 sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
         if len(key_board) >= 1 and kb_net_con_startup is True:
             sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (0, 0, 0)}))
-        time.sleep(0.2)
 
     def send_instruction(self):
         global mouse_led, sdk, mouse_device, mouse_device_selected, m_key_id, ping_test_key_id, ping_test_f11, ping_test_f12
@@ -2808,25 +2806,38 @@ class PingTestClass(QThread):
             print('-- sending instruction: ping True')
             mon_threads[4].start()
             self.rgb_key = (0, 255, 0)
-            self.send_instruction_on()
             self.send_instruction_off()
+            time.sleep(0.35)
             self.send_instruction_on()
+            time.sleep(0.35)
             self.send_instruction_off()
+            time.sleep(0.35)
+            self.send_instruction_on()
+            time.sleep(0.35)
+            self.send_instruction_off()
+            time.sleep(0.35)
             self.send_instruction_on()
             self.ping_bool_prev = True
+            sdk.set_led_colors_flush_buffer()
 
         elif self.ping_bool is False and self.ping_bool != self.ping_bool_prev:
             print('-- sending instruction: ping False')
             mon_threads[4].stop()
             time.sleep(0.1)
             self.rgb_key = (255, 0, 0)
-            self.send_instruction_on()
             self.send_instruction_off()
+            time.sleep(0.35)
             self.send_instruction_on()
+            time.sleep(0.35)
             self.send_instruction_off()
+            time.sleep(0.35)
+            self.send_instruction_on()
+            time.sleep(0.35)
+            self.send_instruction_off()
+            time.sleep(0.35)
             self.send_instruction_on()
             self.ping_bool_prev = False
-        sdk.set_led_colors_flush_buffer()
+            sdk.set_led_colors_flush_buffer()
 
     def ping(self):
         self.ping_bool = False
