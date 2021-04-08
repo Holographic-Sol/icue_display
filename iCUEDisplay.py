@@ -52,6 +52,7 @@ win32process.SetPriorityClass(handle, priority_classes[4])
 print('-- win32process priority class:', priority_classes[4])
 
 sdk = CueSdk(os.path.join(os.getcwd(), 'bin\\CUESDK.x64_2017.dll'))
+
 exclusive_access_bool = False
 enum_compile_m_bool = True
 enum_compile_kb_bool = True
@@ -59,7 +60,7 @@ install_bool = False
 run_startup_bool = False
 start_minimized_bool = False
 allow_display_application = False
-connected_bool = None
+connected_bool = False
 connected_bool_prev = None
 configuration_read_complete = False
 net_con_startup = False
@@ -71,7 +72,7 @@ dram_startup_bool = False
 vram_startup_bool = False
 network_adapter_name_bool = False
 network_adapter_startup_bool = False
-ping_test_thread_startup = True
+ping_test_thread_startup = False
 compile_devices_thread = []
 mon_threads = []
 conf_thread = []
@@ -1888,6 +1889,7 @@ class CompileDevicesClass(QThread):
                 enum_compile_kb_bool = False
                 key_name = []
                 key_id = []
+                key_board = []
                 key_board.append(self.device_index)
                 for _ in led_position_str:
                     var = _.split()
@@ -1942,6 +1944,7 @@ class CompileDevicesClass(QThread):
             self.compile_dicts_key = 1
             if enum_compile_m_bool is True:
                 enum_compile_m_bool = False
+                mouse_device = []
                 m_key_id = ['', '', '', '']
                 mouse_device.append(int(self.device_index))
                 for _ in led_position_str:
@@ -1972,12 +1975,6 @@ class CompileDevicesClass(QThread):
         mon_threads[4].stop()
         mon_threads[5].stop()
         mon_threads[5].stop()
-        if exclusive_access_bool is True:
-            sdk.request_control()
-            exclusive_access_bool = False
-        elif exclusive_access_bool is False:
-            sdk.release_control()
-            exclusive_access_bool = True
 
     def stop_m_threads(self):
         global mon_threads
@@ -1991,7 +1988,7 @@ class CompileDevicesClass(QThread):
     def start_mouse_kb_threads(self):
         global mon_threads, net_con_startup
         try:
-            if net_con_startup is True:
+            if net_con_startup is True and len(key_board) >= 1 or len(mouse_device) >= 1:
                 mon_threads[5].start()
         except Exception as e:
             print('-- exception stopping mon_threads[0]', e)
@@ -2031,121 +2028,93 @@ class CompileDevicesClass(QThread):
         global mon_threads
         if len(key_board) >= 1:
             print('-- starting keyboard threads:', )
-            if hdd_startup_bool is True:
+            if hdd_startup_bool is True and len(key_board) >= 1:
                 mon_threads[0].start()
-            if cpu_startup_bool is True:
+            if cpu_startup_bool is True and len(key_board) >= 1:
                 mon_threads[1].start()
-            if dram_startup_bool is True:
+            if dram_startup_bool is True and len(key_board) >= 1:
                 mon_threads[2].start()
-            if vram_startup_bool is True:
+            if vram_startup_bool is True and len(key_board) >= 1:
                 mon_threads[3].start()
-            if network_adapter_startup_bool is True:
+            if network_adapter_startup_bool is True and len(key_board) >= 1:
                 mon_threads[4].start()
         else:
             print('-- keyboard device not found: setting startup boolean values false')
-            hdd_startup_bool = False
-            cpu_startup_bool = False
-            dram_startup_bool = False
-            vram_startup_bool = False
-            network_adapter_startup_bool = False
+
+    def exc_con(self):
+        global exclusive_access_bool
+        if exclusive_access_bool is True:
+            sdk.request_control()
+
+    def config_wait(self):
+        global configuration_read_complete
+        if configuration_read_complete is False:
+            print('-- waiting for configuration file to be read')
+            while configuration_read_complete is False:
+                time.sleep(3)
+
+    def attempt_connect(self):
+        global sdk, connected_bool, prev_device, connected_bool_prev
+        connected = sdk.connect()
+
+        if not connected:
+            connected_bool = False
+            if connected_bool != connected_bool_prev:
+                connected_bool_prev = connected_bool
+                self.stop_all_threads()
+            prev_device = []
+            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
+            time.sleep(2)
+            self.attempt_connect()
+
+        elif connected:
+            print('-- connected to icue')
+            connected_bool = True
+            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_true)
+            self.get_devices()
+
+    def get_devices(self):
+        global sdk, prev_device, enum_compile_kb_bool, enum_compile_m_bool, mon_threads, key_board, mouse_device
+        enum_compile_kb_bool = False
+        enum_compile_m_bool = False
+        fresh_start = False
+
+        device = sdk.get_devices()
+        device_i = 0
+        for _ in device:
+            target_name = str(device[device_i])
+            print('Device:', target_name)
+            self.device_index = device_i
+            self.device_str = target_name
+            if str(device) != str(prev_device):
+                if fresh_start is False:
+                    key_board = []
+                    mouse_device = []
+                fresh_start = True
+                enum_compile_kb_bool = True
+                enum_compile_m_bool = True
+                self.enumerate_device()
+            device_i += 1
+        prev_device = device
+
+        if fresh_start is True:
+            print('-- fresh start: True')
+            self.stop_all_threads()
+            time.sleep(1)
+            self.exc_con()
+            self.start_kb_threads()
+            self.start_m_threads()
+            self.start_mouse_kb_threads()
 
     def run(self):
-        global sdk, key_board, mouse_device, mouse_device_selected
-        global connected_bool, connected_bool_prev
-        global mon_threads, conf_thread
-        global hdd_startup_bool, cpu_startup_bool, dram_startup_bool, vram_startup_bool, exclusive_access_bool
-        global configuration_read_complete, network_adapter_startup_bool
-        global key_name, key_id
-        global enum_compile_kb_bool, enum_compile_m_bool, prev_device, prev_kb
-        time.sleep(3)
-        key_name = []
-        key_id = []
-        prev_device = []
         while True:
             try:
-                if configuration_read_complete is False:
-                    print('-- waiting for configuration file to be read')
-                    while configuration_read_complete is False:
-                        time.sleep(3)
-                connected = sdk.connect()
+                self.config_wait()
 
-                # Not Connected
-                if not connected:
-                    connected_bool = False
-                    prev_device = []
-                    err = sdk.get_last_error()
-                    if connected_bool != connected_bool_prev:
-                        self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
-                        self.stop_all_threads()
-                        connected_bool_prev = False
-                    print('-- waiting for icue service to be started')
-                    while not connected:
-                        try:
-                            connected = sdk.connect()
-                        except Exception as e:
-                            print('-- CompileDevicesClass:', e)
-                        time.sleep(3)
-                    connected_bool_prev = False
-                # Connected
-                if connected:
-                    connected_bool = True
-                    device = sdk.get_devices()
-                    if str(device) != str(prev_device):
-                        enum_compile_kb_bool = True
-                        enum_compile_m_bool = True
-                        print('-- device list changed: enumerating changes')
-                        device_i = 0
-                        key_board = []
-                        mouse_device = []
-                        for _ in device:
-                            target_name = str(device[device_i])
-                            self.device_index = device_i
-                            self.device_str = target_name
-                            self.enumerate_device()
-                            device_i += 1
+                self.attempt_connect()
 
-                        if len(key_board) < 1:
-                            print('-- keyboard unplugged:', key_board)
-                            self.stop_kb_threads()
-                        elif len(key_board) >= 1:
-                            print('-- found keyboard:', sdk.get_device_info(key_board[0]))
-                            if str(sdk.get_device_info(key_board[0])) not in str(prev_device):
-                                self.start_kb_threads()
+                time.sleep(3)
 
-                        if len(mouse_device) < 1:
-                            print('-- mouse unplugged:', mouse_device)
-                            self.stop_m_threads()
-                        elif len(mouse_device) >= 1:
-                            print('-- found mouse:', sdk.get_device_info(mouse_device[0]))
-                            if str(sdk.get_device_info(mouse_device[0])) not in str(prev_device):
-                                self.start_m_threads()
-
-                        prev_device = device
-
-                if connected_bool is False and connected_bool != connected_bool_prev:
-                    self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
-                    self.stop_all_threads()
-                    connected_bool_prev = False
-
-                elif connected_bool is True and connected_bool != connected_bool_prev:
-                    if exclusive_access_bool is True:
-                        sdk.request_control()
-                        # sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
-                        exclusive_access_bool = False
-                    elif exclusive_access_bool is False:
-                        sdk.release_control()
-                        # sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
-                        exclusive_access_bool = True
-
-                    if len(mouse_device) >= 1 or len(key_board) >= 1:
-                        mon_threads[5].start()
-
-                    connected_bool_prev = True
-
-                if connected_bool is False:
-                    self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
-                elif connected_bool is True:
-                    self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_true)
             except Exception as e:
                 print('[NAME]: CompileDevicesClass [FUNCTION]: run [EXCEPTION]:', e)
             time.sleep(3)
@@ -2154,6 +2123,7 @@ class CompileDevicesClass(QThread):
         print('-- stopping: CompileDevicesClass')
         self.stop_kb_threads()
         self.stop_m_threads()
+        self.stop_mouse_kb_threads()
         self.terminate()
 
 
@@ -2765,7 +2735,7 @@ class NetworkMonClass(QThread):
                 net_rcv_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('NetworkMonClass:', e)
+            print('NetworkMonClass stopping 0:', e)
             pass
         try:
             net_rcv_i = 0
@@ -2774,13 +2744,13 @@ class NetworkMonClass(QThread):
                 net_rcv_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('NetworkMonClass:', e)
+            print('NetworkMonClass stopping 1:', e)
             pass
         try:
             sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[4])
             sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[4])
         except Exception as e:
-            # print('NetworkMonClass:', e)
+            print('NetworkMonClass stopping 2:', e)
             pass
         self.terminate()
 
@@ -2883,11 +2853,11 @@ class PingTestClass(QThread):
         try:
             sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
         except Exception as e:
-            print('-- exception in PingTestClass.stop:', e)
+            print('-- exception in PingTestClass.stop 0:', e)
         try:
             sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (0, 0, 0)}))
         except Exception as e:
-            print('-- exception in PingTestClass.stop:', e)
+            print('-- exception in PingTestClass.stop 1:', e)
         self.terminate()
 
 
@@ -2971,7 +2941,7 @@ class HddMonClass(QThread):
                 hdd_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('HddMonClass:', e)
+            print('HddMonClass:', e)
             pass
         self.terminate()
 
@@ -3047,7 +3017,7 @@ class CpuMonClass(QThread):
                 self.cpu_stat += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('-- CpuMonClass:', e)
+            print('-- CpuMonClass:', e)
             pass
         self.terminate()
 
@@ -3122,7 +3092,7 @@ class DramMonClass(QThread):
                 dram_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('-- DramMonClass:', e)
+            print('-- DramMonClass:', e)
             pass
         self.terminate()
 
@@ -3144,6 +3114,8 @@ class VramMonClass(QThread):
         print('-- thread started: VramMonClass(QThread).run(self)')
         while True:
             if len(key_board) >= 1:
+                # print('self.vram_display_key_bool:', self.vram_display_key_bool)
+                # print('self.vram_display_key_bool_prev:', self.vram_display_key_bool_prev)
                 self.send_instruction()
                 time.sleep(vram_led_time_on)
             else:
@@ -3204,7 +3176,7 @@ class VramMonClass(QThread):
                 vram_i += 1
             sdk.set_led_colors_flush_buffer()
         except Exception as e:
-            # print('-- VramMonClass:', e)
+            print('-- VramMonClass:', e)
             pass
         self.terminate()
 
