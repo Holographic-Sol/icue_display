@@ -62,6 +62,9 @@ allow_display_application = False
 connected_bool = None
 connected_bool_prev = None
 configuration_read_complete = False
+net_con_startup = False
+mouse_net_con_startup = False
+kb_net_con_startup = False
 hdd_startup_bool = False
 cpu_startup_bool = False
 dram_startup_bool = False
@@ -112,6 +115,7 @@ corsair_led_id_f12 = 'CorsairLedId.K_F12'
 corsair_led_id_0 = 'CorsairLedId.K_0'
 alpha_str = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
              'u', 'v', 'w', 'x', 'y', 'z']
+mouse_net_con_id = 0
 mouse_led = ['', '', '', '']
 ping_test_f11 = ()
 ping_test_f12 = ()
@@ -204,7 +208,11 @@ def create_new():
             fo.writelines('network_adapter_color_off: 0,0,0\n')
             fo.writelines('network_adapter_time_on: 1\n')
             fo.writelines('network_adapter_startup: false\n')
-            fo.writelines('network_adapter_name: ')
+            fo.writelines('network_adapter_name: \n')
+            fo.writelines('mouse_net_con_startup: true\n')
+            fo.writelines('mouse_net_con_id: 0\n')
+            fo.writelines('kb_net_con_startup: true\n')
+            fo.writelines('net_con_startup: true')
         fo.close()
     if not os.path.exists('./iCUEDisplay.vbs') or not os.path.exists('./iCUEDisplay.bat'):
         print('-- installing')
@@ -272,7 +280,7 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
 
         self.width = 372
-        self.height = 272
+        self.height = 318
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -641,6 +649,72 @@ class App(QMainWindow):
         self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
         print('-- created:', self.btn_start_minimized)
 
+        self.lbl_net_con_mouse = QLabel(self)
+        self.lbl_net_con_mouse.move(2, (self.monitor_btn_pos_h * 8))
+        self.lbl_net_con_mouse.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_net_con_mouse.setFont(self.font_s8b)
+        self.lbl_net_con_mouse.setText(' ONLINE: MOUSE')
+        self.lbl_net_con_mouse.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_net_con_mouse)
+
+        self.btn_net_con_mouse = QPushButton(self)
+        self.btn_net_con_mouse.move(self.monitor_btn_w * 2 + 6, (self.monitor_btn_pos_h * 8))
+        self.btn_net_con_mouse.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_net_con_mouse.setFont(self.font_s8b)
+        self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_mouse.clicked.connect(self.btn_net_con_mouse_function)
+        print('-- created:', self.btn_net_con_mouse)
+
+        self.btn_net_con_mouse_led_selected_prev = QPushButton(self)
+        self.btn_net_con_mouse_led_selected_prev.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 8))
+        self.btn_net_con_mouse_led_selected_prev.resize((self.monitor_btn_w / 2) - 2, self.monitor_btn_h)
+        self.btn_net_con_mouse_led_selected_prev.setFont(self.font_s8b)
+        self.btn_net_con_mouse_led_selected_prev.setText('-')
+        self.btn_net_con_mouse_led_selected_prev.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_mouse_led_selected_prev.clicked.connect(self.btn_net_con_mouse_led_selected_prev_function)
+        print('-- created:', self.btn_net_con_mouse_led_selected_prev)
+
+        self.lbl_net_con_mouse_led_selected = QLabel(self)
+        self.lbl_net_con_mouse_led_selected.move((self.monitor_btn_w * 3) + (self.monitor_btn_w / 2) + 8, (self.monitor_btn_pos_h * 8))
+        self.lbl_net_con_mouse_led_selected.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
+        self.lbl_net_con_mouse_led_selected.setFont(self.font_s8b)
+        self.lbl_net_con_mouse_led_selected.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_net_con_mouse_led_selected)
+
+        self.btn_net_con_mouse_led_selected_next = QPushButton(self)
+        self.btn_net_con_mouse_led_selected_next.move((self.monitor_btn_w * 4) + (self.monitor_btn_w / 2) + 12, (self.monitor_btn_pos_h * 8))
+        self.btn_net_con_mouse_led_selected_next.resize((self.monitor_btn_w / 2) - 2, self.monitor_btn_h)
+        self.btn_net_con_mouse_led_selected_next.setFont(self.font_s8b)
+        self.btn_net_con_mouse_led_selected_next.setText('+')
+        self.btn_net_con_mouse_led_selected_next.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_mouse_led_selected_next.clicked.connect(self.btn_net_con_mouse_led_selected_next_function)
+        print('-- created:', self.btn_net_con_mouse_led_selected_next)
+
+        # ToDo -->
+        self.lbl_net_con_kb = QLabel(self)
+        self.lbl_net_con_kb.move(2, (self.monitor_btn_pos_h * 9))
+        self.lbl_net_con_kb.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_net_con_kb.setFont(self.font_s8b)
+        self.lbl_net_con_kb.setText(' ONLINE: KEYBOARD')
+        self.lbl_net_con_kb.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_net_con_kb)
+
+        self.btn_net_con_kb = QPushButton(self)
+        self.btn_net_con_kb.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 9))
+        self.btn_net_con_kb.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_net_con_kb.setFont(self.font_s8b)
+        self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_kb.clicked.connect(self.btn_net_con_kb_function)
+        print('-- created:', self.btn_net_con_kb)
+
+        self.btn_net_con = QPushButton(self)
+        self.btn_net_con.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 9))
+        self.btn_net_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_net_con.setFont(self.font_s8b)
+        self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con.clicked.connect(self.btn_net_con_function)
+        print('-- created:', self.btn_net_con)
+
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
         self.vram_led_color_str = ""
@@ -664,6 +738,101 @@ class App(QMainWindow):
         self.write_var_key = -1
 
         self.initUI()
+
+    def btn_net_con_function(self):
+        global net_con_startup
+        self.setFocus()
+        if net_con_startup is True:
+            net_con_startup = False
+            print('-- setting net_con_startup:', net_con_startup)
+            self.write_var = 'net_con_startup: false'
+            self.write_changes()
+            mon_threads[5].stop()
+            self.btn_net_con.setText('DISABLED')
+            self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+
+        elif net_con_startup is False:
+            net_con_startup = True
+            print('-- setting net_con_startup:', net_con_startup)
+            self.write_var = 'net_con_startup: true'
+            self.write_changes()
+            mon_threads[5].start()
+            self.btn_net_con.setText('ENABLED')
+            self.btn_net_con.setStyleSheet(self.btn_enabled_style)
+
+    def btn_net_con_kb_function(self):
+        global kb_net_con_startup, mouse_net_con_startup
+        self.setFocus()
+        if kb_net_con_startup is True:
+            kb_net_con_startup = False
+            print('-- setting kb_net_con_startup:', kb_net_con_startup)
+            self.write_var = 'kb_net_con_startup: false'
+            self.write_changes()
+            mon_threads[5].stop()
+            self.btn_net_con_kb.setText('DISABLED')
+            self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
+            mon_threads[5].start()
+
+        elif kb_net_con_startup is False:
+            kb_net_con_startup = True
+            print('-- setting kb_net_con_startup:', kb_net_con_startup)
+            self.write_var = 'kb_net_con_startup: true'
+            self.write_changes()
+            mon_threads[5].stop()
+            self.btn_net_con_kb.setText('ENABLED')
+            self.btn_net_con_kb.setStyleSheet(self.btn_enabled_style)
+            mon_threads[5].start()
+
+    def btn_net_con_mouse_led_selected_prev_function(self):
+        global mouse_net_con_id, m_key_id, sdk, mouse_device_selected, mon_threads, mouse_net_con_startup, kb_net_con_startup
+        self.setFocus()
+        if mouse_net_con_id > 0:
+            mon_threads[5].stop()
+            sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+            mouse_net_con_id = int(mouse_net_con_id - 1)
+            print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
+            self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
+            self.write_changes()
+            if mouse_net_con_startup is True:
+                mon_threads[5].start()
+            self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
+
+    def btn_net_con_mouse_led_selected_next_function(self):
+        global mouse_net_con_id, m_key_id, sdk, mouse_device_selected, mon_threads, mouse_net_con_startup, kb_net_con_startup
+        self.setFocus()
+        if mouse_net_con_id < len(m_key_id) - 1:
+            mon_threads[5].stop()
+            sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+            mouse_net_con_id = int(mouse_net_con_id + 1)
+            print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
+            self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
+            self.write_changes()
+            if mouse_net_con_startup is True:
+                mon_threads[5].start()
+            self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
+
+    def btn_net_con_mouse_function(self):
+        global mouse_net_con_startup, mon_threads, kb_net_con_startup
+        self.setFocus()
+        if mouse_net_con_startup is True:
+            mouse_net_con_startup = False
+            print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
+            self.write_var = 'mouse_net_con_startup: false'
+            self.write_changes()
+            mon_threads[5].stop()
+            self.btn_net_con_mouse.setText('DISABLED')
+            self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
+            mon_threads[5].start()
+
+        elif mouse_net_con_startup is False:
+            mouse_net_con_startup = True
+            print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
+            self.write_var = 'mouse_net_con_startup: true'
+            self.write_changes()
+            mon_threads[5].stop()
+            self.btn_net_con_mouse.setText('ENABLED')
+            self.btn_net_con_mouse.setStyleSheet(self.btn_enabled_style)
+            mon_threads[5].start()
 
     def cmb_network_adapter_name_function(self, text):
         global network_adapter_name, conf_thread
@@ -1426,6 +1595,29 @@ class App(QMainWindow):
             self.btn_network_adapter.setStyleSheet(self.btn_enabled_style)
             self.btn_network_adapter.setText('ENABLED')
 
+        if mouse_net_con_startup is False:
+            self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
+            self.btn_net_con_mouse.setText('DISABLED')
+        elif mouse_net_con_startup is True:
+            self.btn_net_con_mouse.setStyleSheet(self.btn_enabled_style)
+            self.btn_net_con_mouse.setText('ENABLED')
+
+        if net_con_startup is False:
+            self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+            self.btn_net_con.setText('DISABLED')
+        elif net_con_startup is True:
+            self.btn_net_con.setStyleSheet(self.btn_enabled_style)
+            self.btn_net_con.setText('ENABLED')
+
+        if kb_net_con_startup is False:
+            self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
+            self.btn_net_con_kb.setText('DISABLED')
+        elif kb_net_con_startup is True:
+            self.btn_net_con_kb.setStyleSheet(self.btn_enabled_style)
+            self.btn_net_con_kb.setText('ENABLED')
+
+        self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
+
         self.cpu_led_color_str = str(cpu_led_color).strip()
         self.cpu_led_color_str = self.cpu_led_color_str.replace('[', '')
         self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
@@ -1790,17 +1982,24 @@ class CompileDevicesClass(QThread):
     def stop_m_threads(self):
         global mon_threads
         print('-- stopping mouse threads')
-        try:
-            mon_threads[5].stop()
-        except Exception as e:
-            print('-- exception stopping mon_threads[5]', e)
 
     def start_m_threads(self):
-        global mon_threads, ping_test_thread_startup
+        global mon_threads, mouse_net_con_startup
         if len(mouse_device) >= 1:
             print('-- starting mouse threads')
-            if ping_test_thread_startup is True:
+
+    def start_mouse_kb_threads(self):
+        global mon_threads, net_con_startup
+        try:
+            if net_con_startup is True:
                 mon_threads[5].start()
+        except Exception as e:
+            print('-- exception stopping mon_threads[0]', e)
+
+    def stop_mouse_kb_threads(self):
+        global mon_threads, net_con_startup
+        if net_con_startup is True:
+            mon_threads[5].stop()
 
     def stop_kb_threads(self):
         global mon_threads
@@ -1937,6 +2136,10 @@ class CompileDevicesClass(QThread):
                         sdk.release_control()
                         # sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], {1: (255, 0, 0)})
                         exclusive_access_bool = True
+
+                    if len(mouse_device) >= 1 or len(key_board) >= 1:
+                        mon_threads[5].start()
+
                     connected_bool_prev = True
 
                 if connected_bool is False:
@@ -1978,6 +2181,34 @@ class ReadConfigurationClass(QThread):
                                         if var_int_1 >= 0 and var_int_1 <= 255:
                                             if var_int_2 >= 0 and var_int_2 <= 255:
                                                 self.sanitize_passed = True
+
+    def net_con(self):
+        global mouse_net_con_startup, mouse_net_con_id, kb_net_con_startup, net_con_startup
+        with open('.\\config.dat', 'r') as fo:
+            for line in fo:
+                line = line.strip()
+                if line == 'net_con_startup: true':
+                    net_con_startup = True
+                if line == 'net_con_startup: false':
+                    net_con_startup = False
+                if line == 'kb_net_con_startup: true':
+                    kb_net_con_startup = True
+                if line == 'kb_net_con_startup: false':
+                    kb_net_con_startup = False
+                if line == 'mouse_net_con_startup: true':
+                    mouse_net_con_startup = True
+                if line == 'mouse_net_con_startup: false':
+                    mouse_net_con_startup = False
+                if line.startswith('mouse_net_con_id: '):
+                    var = line.replace('mouse_net_con_id: ', '')
+                    if var.isdigit():
+                        var = int(var)
+                        if var >= 1 and var <= 3:
+                            mouse_net_con_id = var
+                        else:
+                            mouse_net_con_id = 0
+                    else:
+                        mouse_net_con_id = 0
 
     def network_adapter_sanitize(self):
         pythoncom.CoInitialize()
@@ -2273,6 +2504,7 @@ class ReadConfigurationClass(QThread):
             configuration_read_complete = False
             self.startup_settings()
             self.exclusive_access()
+            self.net_con()
             self.hdd_sanitize()
             self.cpu_sanitize()
             self.dram_sanitize()
@@ -2524,13 +2756,29 @@ class NetworkMonClass(QThread):
 
     def stop(self):
         print('-- stopping: NetworkMonClass')
-        global sdk, key_board, key_board_selected, network_adapter_led_off_rcv_item
+        global sdk, key_board, key_board_selected, network_adapter_led_off_rcv_item, network_adapter_led_off_snt_item
+        global network_adapter_led_rcv_item_unit, network_adapter_led_snt_item_unit
         try:
             net_rcv_i = 0
             for _ in network_adapter_led_off_rcv_item:
                 sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_rcv_item[net_rcv_i])
                 net_rcv_i += 1
             sdk.set_led_colors_flush_buffer()
+        except Exception as e:
+            # print('NetworkMonClass:', e)
+            pass
+        try:
+            net_rcv_i = 0
+            for _ in network_adapter_led_off_snt_item:
+                sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_off_snt_item[net_rcv_i])
+                net_rcv_i += 1
+            sdk.set_led_colors_flush_buffer()
+        except Exception as e:
+            # print('NetworkMonClass:', e)
+            pass
+        try:
+            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_rcv_item_unit[4])
+            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], network_adapter_led_snt_item_unit[4])
         except Exception as e:
             # print('NetworkMonClass:', e)
             pass
@@ -2543,6 +2791,7 @@ class PingTestClass(QThread):
         self.ping_bool = False
         self.ping_bool_prev = None
         self.ping_fail_i = 0
+        self.rgb_key = ()
 
     def run(self):
         global key_board
@@ -2558,29 +2807,54 @@ class PingTestClass(QThread):
             except Exception as e:
                 print('-- exception in PingTestClass:', e)
 
+    def send_instruction_on(self):
+
+        if len(mouse_device) >= 1 and mouse_net_con_startup is True:
+            if mouse_net_con_id < len(m_key_id):
+                sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (self.rgb_key)}))
+        if len(key_board) >= 1 and kb_net_con_startup is True:
+            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (self.rgb_key)}))
+        time.sleep(0.4)
+
+    def send_instruction_off(self):
+        if len(mouse_device) >= 1 and mouse_net_con_startup is True:
+            if mouse_net_con_id < len(m_key_id):
+                sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+        if len(key_board) >= 1 and kb_net_con_startup is True:
+            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (0, 0, 0)}))
+        time.sleep(0.2)
+
     def send_instruction(self):
         global mouse_led, sdk, mouse_device, mouse_device_selected, m_key_id, ping_test_key_id, ping_test_f11, ping_test_f12
-        global mon_threads
+        global mon_threads, mouse_net_con_id, mouse_net_con_startup, kb_net_con_startup, key_board, key_board_selected
         self.ping()
         if self.ping_fail_i == 1:
             self.ping()
         if self.ping_fail_i == 2:
             self.ping_bool = False
             self.ping_fail_i = 0
+
         if self.ping_bool is True and self.ping_bool != self.ping_bool_prev:
             print('-- sending instruction: ping True')
             mon_threads[4].start()
-            if len(mouse_device) >= 1:
-                if len(m_key_id) >= 3:
-                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[3]: (0, 255, 0)}))
+            self.rgb_key = (0, 255, 0)
+            self.send_instruction_on()
+            self.send_instruction_off()
+            self.send_instruction_on()
+            self.send_instruction_off()
+            self.send_instruction_on()
             self.ping_bool_prev = True
+
         elif self.ping_bool is False and self.ping_bool != self.ping_bool_prev:
             print('-- sending instruction: ping False')
             mon_threads[4].stop()
             time.sleep(0.1)
-            if len(mouse_device) >= 1:
-                if len(m_key_id) >= 3:
-                    sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[3]: (255, 0, 0)}))
+            self.rgb_key = (255, 0, 0)
+            self.send_instruction_on()
+            self.send_instruction_off()
+            self.send_instruction_on()
+            self.send_instruction_off()
+            self.send_instruction_on()
             self.ping_bool_prev = False
         sdk.set_led_colors_flush_buffer()
 
@@ -2604,8 +2878,16 @@ class PingTestClass(QThread):
 
     def stop(self):
         print('-- stopping: PingTestClass')
-        global sdk, key_board, key_board_selected
+        global sdk, key_board, key_board_selected, m_key_id, mouse_net_con_id
         self.ping_bool_prev = None
+        try:
+            sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+        except Exception as e:
+            print('-- exception in PingTestClass.stop:', e)
+        try:
+            sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], ({1: (0, 0, 0)}))
+        except Exception as e:
+            print('-- exception in PingTestClass.stop:', e)
         self.terminate()
 
 
