@@ -881,8 +881,9 @@ class App(QMainWindow):
             self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
             self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_network_adapter_led_time_on_function(self):
@@ -1232,8 +1233,9 @@ class App(QMainWindow):
             self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_off_function(self):
@@ -1257,8 +1259,9 @@ class App(QMainWindow):
             self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
             self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_off_function(self):
@@ -1282,8 +1285,9 @@ class App(QMainWindow):
             self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
             self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_off_function(self):
@@ -1307,12 +1311,13 @@ class App(QMainWindow):
             self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_cpu_mon_rgb_on_function(self):
-        global cpu_led_color, conf_thread
+        global cpu_led_color, conf_thread, compile_devices_thread, prev_device
         self.setFocus()
         self.write_var_key = 0
         self.write_var = self.btn_cpu_mon_rgb_on.text()
@@ -1332,8 +1337,8 @@ class App(QMainWindow):
             self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
             self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
             conf_thread[0].start()
-        global compile_devices_thread
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_on_function(self):
@@ -1357,8 +1362,9 @@ class App(QMainWindow):
             self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
             self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_on_function(self):
@@ -1382,8 +1388,9 @@ class App(QMainWindow):
             self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
             self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_on_function(self):
@@ -1407,8 +1414,9 @@ class App(QMainWindow):
             self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
             self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
             conf_thread[0].start()
-        global compile_devices_thread
+        global compile_devices_thread, prev_device
         compile_devices_thread[0].stop()
+        prev_device = []
         compile_devices_thread[0].start()
 
     def btn_cpu_mon_function(self):
@@ -2047,13 +2055,19 @@ class CompileDevicesClass(QThread):
             sdk.request_control()
 
     def config_wait(self):
+        print('-- plugged in: config_wait')
         global configuration_read_complete
         if configuration_read_complete is False:
             print('-- waiting for configuration file to be read')
+            i = 0
             while configuration_read_complete is False:
-                time.sleep(3)
+                print('-- waiting', i, 'seconds')
+                time.sleep(1)
+                i += 1
+            print('-- configuration read bool:', configuration_read_complete)
 
     def attempt_connect(self):
+        print('-- plugged in: attempt_connect')
         global sdk, connected_bool, prev_device, connected_bool_prev
         connected = sdk.connect()
 
@@ -2068,12 +2082,13 @@ class CompileDevicesClass(QThread):
             self.attempt_connect()
 
         elif connected:
-            print('-- connected to icue')
+            # print('-- connected to icue')
             connected_bool = True
             self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_true)
             self.get_devices()
 
     def get_devices(self):
+        print('-- plugged in: get_devices')
         global sdk, prev_device, enum_compile_kb_bool, enum_compile_m_bool, mon_threads, key_board, mouse_device
         enum_compile_kb_bool = False
         enum_compile_m_bool = False
@@ -2095,10 +2110,10 @@ class CompileDevicesClass(QThread):
                 enum_compile_m_bool = True
                 self.enumerate_device()
             device_i += 1
-        prev_device = device
 
         if fresh_start is True:
             print('-- fresh start: True')
+            prev_device = device
             self.exc_con()
             self.stop_all_threads()
             time.sleep(1)
@@ -2108,6 +2123,7 @@ class CompileDevicesClass(QThread):
             self.start_mouse_kb_threads()
 
     def run(self):
+        print('-- plugged in: CompileDevicesClass.run')
         while True:
             try:
                 self.config_wait()
@@ -2966,7 +2982,7 @@ class CpuMonClass(QThread):
         self.cpu_display_key_bool_tmp_3 = [True, True, True, True]
         self.cpu_display_key_bool_prev = [None, None, None, None]
         self.cpu_display_key_bool = [True, False, False, False]
-        self.switch_count = 0
+        # self.switch_count = 0
         self.cpu_stat = ()
 
     def run(self):
@@ -2990,13 +3006,13 @@ class CpuMonClass(QThread):
                 if self.cpu_display_key_bool[cpu_i] is True and self.cpu_display_key_bool_prev[cpu_i] != self.cpu_display_key_bool[cpu_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_item[cpu_i])
                     self.cpu_display_key_bool_prev[cpu_i] = True
-                    print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'True')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'True')
+                    # self.switch_count += 1
                 elif self.cpu_display_key_bool[cpu_i] is False and self.cpu_display_key_bool_prev[cpu_i] != self.cpu_display_key_bool[cpu_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], cpu_led_off_item[cpu_i])
                     self.cpu_display_key_bool_prev[cpu_i] = False
-                    print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'False')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting cpu key:', cpu_led_item[cpu_i], 'False')
+                    # self.switch_count += 1
                 cpu_i += 1
         except Exception as e:
             print('CpuMonClass:', e)
@@ -3042,7 +3058,7 @@ class DramMonClass(QThread):
         self.dram_display_key_bool_tmp_3 = [True, True, True, True]
         self.dram_display_key_bool_prev = [None, None, None, None]
         self.dram_display_key_bool = [True, False, False, False]
-        self.switch_count = 0
+        # self.switch_count = 0
         self.dram_stat = ()
 
     def run(self):
@@ -3064,14 +3080,14 @@ class DramMonClass(QThread):
                 if self.dram_display_key_bool[dram_i] is True and self.dram_display_key_bool_prev[dram_i] != self.dram_display_key_bool[dram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_item[dram_i])
                     self.dram_display_key_bool_prev[dram_i] = True
-                    print(self.switch_count, '-- setting dram key:', dram_led_item[dram_i], 'True')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting dram key:', dram_led_item[dram_i], 'True')
+                    # self.switch_count += 1
 
                 elif self.dram_display_key_bool[dram_i] is False and self.dram_display_key_bool_prev[dram_i] != self.dram_display_key_bool[dram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], dram_led_off_item[dram_i])
                     self.dram_display_key_bool_prev[dram_i] = False
-                    print(self.switch_count, '-- setting dram key:', dram_led_off_item[dram_i], 'False')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting dram key:', dram_led_off_item[dram_i], 'False')
+                    # self.switch_count += 1
                 dram_i += 1
         except Exception as e:
             print('DramMonClass:', e)
@@ -3118,15 +3134,13 @@ class VramMonClass(QThread):
         self.vram_display_key_bool_prev = [None, None, None, None]
         self.vram_display_key_bool = [True, False, False, False]
         self.vram_stat = ()
-        self.switch_count = 0
+        # self.switch_count = 0
 
     def run(self):
         global key_board
         print('-- thread started: VramMonClass(QThread).run(self)')
         while True:
             if len(key_board) >= 1:
-                # print('self.vram_display_key_bool:', self.vram_display_key_bool)
-                # print('self.vram_display_key_bool_prev:', self.vram_display_key_bool_prev)
                 self.send_instruction()
                 time.sleep(vram_led_time_on)
             else:
@@ -3138,18 +3152,17 @@ class VramMonClass(QThread):
         vram_i = 0
         try:
             for _ in vram_led_item:
-                # print('self.vram_display_key_bool[vram_i]:', self.vram_display_key_bool[vram_i])
                 if self.vram_display_key_bool[vram_i] is True and self.vram_display_key_bool_prev[vram_i] != self.vram_display_key_bool[vram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_item[vram_i])
                     self.vram_display_key_bool_prev[vram_i] = True
-                    print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
+                    # self.switch_count += 1
 
                 elif self.vram_display_key_bool[vram_i] is False and self.vram_display_key_bool_prev[vram_i] != self.vram_display_key_bool[vram_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], vram_led_off_item[vram_i])
                     self.vram_display_key_bool_prev[vram_i] = False
-                    print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
-                    self.switch_count += 1
+                    # print(self.switch_count, '-- setting vram key:', vram_led_item[vram_i], 'True')
+                    # self.switch_count += 1
 
                 vram_i += 1
         except Exception as e:
