@@ -280,8 +280,8 @@ class App(QMainWindow):
         print('-- setting self.title as:', self.title)
         self.setWindowTitle(self.title)
 
-        self.width = 372
-        self.height = 318
+        self.width = 324
+        self.height = 534
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -298,6 +298,16 @@ class App(QMainWindow):
 
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
         self.font_s9b = QFont("Segoe UI", 10, QFont.Bold)
+
+        self.cmb_style = """QComboBox {background-color: rgb(35, 35, 35);
+                   color: rgb(200, 200, 200);
+                   border-top:1px solid rgb(40, 40, 40);
+                   border-left:1px solid rgb(40, 40, 40);}"""
+
+        self.lbl_stat_style = """QLabel {background-color: rgb(0, 0, 0);
+                   color: rgb(200, 200, 200);
+                   border-top:1px solid rgb(0, 0, 0);
+                   border-left:1px solid rgb(0, 0, 0);}"""
 
         self.lbl_data_style = """QLabel {background-color: rgb(35, 35, 35);
            color: rgb(200, 200, 200);
@@ -344,7 +354,7 @@ class App(QMainWindow):
         self.monitor_btn_h = 20
         self.monitor_btn_w = 72
         self.monitor_btn_pos_w = 2
-        self.monitor_btn_pos_h = 25
+        self.monitor_btn_pos_h = 24
 
         self.btn_title_logo = QPushButton(self)
         self.btn_title_logo.move(0, 0)
@@ -367,20 +377,14 @@ class App(QMainWindow):
         print('-- created:', self.lbl_title_bg)
 
         self.lbl_title = QLabel(self)
-        self.lbl_title.move((self.width / 2) - 44, 15)
-        self.lbl_title.resize(86, 30)
+        self.lbl_title.move((self.width / 2) - 44, 20)
+        self.lbl_title.resize(86, 20)
         self.lbl_title.setFont(self.font_s9b)
         self.lbl_title.setText('iCUE-DISPLAY')
         self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
         print('-- created:', self.lbl_title)
-
-        self.lbl_con_stat = QLabel(self)
-        self.lbl_con_stat.move(2, 2)
-        self.lbl_con_stat.resize(8, 8)
-        self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
-        print('-- created:', self.lbl_con_stat)
 
         self.btn_quit = QPushButton(self)
         self.btn_quit.move((self.width - 20), 0)
@@ -406,8 +410,43 @@ class App(QMainWindow):
         )
         print('-- created self.btn_minimize', self.btn_minimize)
 
+        self.inner_group_spacing_h = 4
+        self.group_spacing_h = 10
+        self.object_height = 20
+
+        self.lbl_status_anchor_h = 50
+
+        self.lbl_status = QLabel(self)
+        self.lbl_status.move(2, self.lbl_status_anchor_h)
+        self.lbl_status.resize(self.width - 4, self.object_height)
+        self.lbl_status.setFont(self.font_s8b)
+        self.lbl_status.setText('STATUS')
+        self.lbl_status.setAlignment(Qt.AlignCenter)
+        self.lbl_status.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_status)
+
+        self.lbl_con_stat_name = QLabel(self)
+        self.lbl_con_stat_name.move(2, self.lbl_status_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.lbl_con_stat_name.resize(self.monitor_btn_w * 2, self.monitor_btn_h)
+        self.lbl_con_stat_name.setFont(self.font_s8b)
+        self.lbl_con_stat_name.setText(' Connected: ')
+        self.lbl_con_stat_name.setStyleSheet(self.lbl_stat_style)
+        print('-- created:', self.lbl_con_stat_name)
+
+        # self.lbl_utilization_anchor_h = 100
+        self.lbl_utilization_anchor_h = (self.lbl_status_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2) + self.group_spacing_h)
+
+        self.lbl_utilization = QLabel(self)
+        self.lbl_utilization.move(2, self.lbl_utilization_anchor_h)
+        self.lbl_utilization.resize(self.width - 4, self.object_height)
+        self.lbl_utilization.setFont(self.font_s8b)
+        self.lbl_utilization.setText('UTILIZATION')
+        self.lbl_utilization.setAlignment(Qt.AlignCenter)
+        self.lbl_utilization.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_utilization)
+
         self.lbl_cpu_mon = QLabel(self)
-        self.lbl_cpu_mon.move(2, (self.monitor_btn_pos_h * 2))
+        self.lbl_cpu_mon.move(2, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.lbl_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_cpu_mon.setFont(self.font_s8b)
         self.lbl_cpu_mon.setText(' CPU')
@@ -415,7 +454,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_cpu_mon)
 
         self.btn_cpu_mon = QPushButton(self)
-        self.btn_cpu_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_cpu_mon.setFont(self.font_s8b)
         self.btn_cpu_mon.setFont(self.font_s8b)
@@ -425,27 +464,27 @@ class App(QMainWindow):
 
         self.btn_cpu_mon_rgb_on = QLineEdit(self)
         self.btn_cpu_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_cpu_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_cpu_mon_rgb_on.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_on.returnPressed.connect(self.btn_cpu_mon_rgb_on_function)
         self.btn_cpu_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_cpu_mon_rgb_off = QLineEdit(self)
         self.btn_cpu_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_cpu_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_cpu_mon_rgb_off.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_off.returnPressed.connect(self.btn_cpu_mon_rgb_off_function)
         self.btn_cpu_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_cpu_led_time_on = QLineEdit(self)
-        self.btn_cpu_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_cpu_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 2))
+        self.btn_cpu_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_cpu_led_time_on.move((self.monitor_btn_w * 4) + 10, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_cpu_led_time_on.setFont(self.font_s8b)
         self.btn_cpu_led_time_on.returnPressed.connect(self.btn_cpu_led_time_on_function)
         self.btn_cpu_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_dram_mon = QLabel(self)
-        self.lbl_dram_mon.move(2, (self.monitor_btn_pos_h * 3))
+        self.lbl_dram_mon.move(2, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.lbl_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_dram_mon.setFont(self.font_s8b)
         self.lbl_dram_mon.setText(' DRAM')
@@ -453,7 +492,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_dram_mon)
 
         self.btn_dram_mon = QPushButton(self)
-        self.btn_dram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_dram_mon.setFont(self.font_s8b)
         self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
@@ -462,27 +501,27 @@ class App(QMainWindow):
 
         self.btn_dram_mon_rgb_on = QLineEdit(self)
         self.btn_dram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_dram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_dram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_on.returnPressed.connect(self.btn_dram_mon_rgb_on_function)
         self.btn_dram_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_dram_mon_rgb_off = QLineEdit(self)
         self.btn_dram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_dram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_dram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_off.returnPressed.connect(self.btn_dram_mon_rgb_off_function)
         self.btn_dram_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_dram_led_time_on = QLineEdit(self)
-        self.btn_dram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_dram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 3))
+        self.btn_dram_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_dram_led_time_on.move((self.monitor_btn_w * 4) + 10, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_dram_led_time_on.setFont(self.font_s8b)
         self.btn_dram_led_time_on.returnPressed.connect(self.btn_dram_led_time_on_function)
         self.btn_dram_led_time_on.setStyleSheet(self.qle_unselected)
 
         self.lbl_vram_mon = QLabel(self)
-        self.lbl_vram_mon.move(2, (self.monitor_btn_pos_h * 4))
+        self.lbl_vram_mon.move(2, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
         self.lbl_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_vram_mon.setFont(self.font_s8b)
         self.lbl_vram_mon.setText(' VRAM')
@@ -490,7 +529,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_vram_mon)
 
         self.btn_vram_mon = QPushButton(self)
-        self.btn_vram_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
         self.btn_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_vram_mon.setFont(self.font_s8b)
         self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
@@ -499,27 +538,38 @@ class App(QMainWindow):
 
         self.btn_vram_mon_rgb_on = QLineEdit(self)
         self.btn_vram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_vram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
         self.btn_vram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_on.returnPressed.connect(self.btn_vram_mon_rgb_on_function)
         self.btn_vram_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_vram_mon_rgb_off = QLineEdit(self)
         self.btn_vram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_vram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
         self.btn_vram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_off.returnPressed.connect(self.btn_vram_mon_rgb_off_function)
         self.btn_vram_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_vram_led_time_on = QLineEdit(self)
-        self.btn_vram_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_vram_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 4))
+        self.btn_vram_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_vram_led_time_on.move((self.monitor_btn_w * 4) + 10, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
         self.btn_vram_led_time_on.setFont(self.font_s8b)
         self.btn_vram_led_time_on.returnPressed.connect(self.btn_vram_led_time_on_function)
         self.btn_vram_led_time_on.setStyleSheet(self.qle_unselected)
 
+        self.lbl_disks_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 4) + (self.inner_group_spacing_h * 4) + self.group_spacing_h)
+
         self.lbl_hdd_mon = QLabel(self)
-        self.lbl_hdd_mon.move(2, (self.monitor_btn_pos_h * 5))
+        self.lbl_hdd_mon.move(2, self.lbl_disks_anchor_h)
+        self.lbl_hdd_mon.resize(self.width - 4, self.monitor_btn_h)
+        self.lbl_hdd_mon.setFont(self.font_s8b)
+        self.lbl_hdd_mon.setText('DISKS')
+        self.lbl_hdd_mon.setAlignment(Qt.AlignCenter)
+        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_hdd_mon)
+
+        self.lbl_hdd_mon = QLabel(self)
+        self.lbl_hdd_mon.move(2, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.lbl_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_hdd_mon.setFont(self.font_s8b)
         self.lbl_hdd_mon.setText(' HDD')
@@ -527,7 +577,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_hdd_mon)
 
         self.btn_hdd_mon = QPushButton(self)
-        self.btn_hdd_mon.move(self.monitor_btn_w + 4, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon.move(self.monitor_btn_w + 4, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_hdd_mon.setFont(self.font_s8b)
         self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
@@ -536,35 +586,61 @@ class App(QMainWindow):
 
         self.btn_hdd_mon_rgb_on = QLineEdit(self)
         self.btn_hdd_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_hdd_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon_rgb_on.move((self.monitor_btn_w * 2) + 6, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_hdd_mon_rgb_on.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_on.returnPressed.connect(self.btn_hdd_mon_rgb_on_function)
         self.btn_hdd_mon_rgb_on.setStyleSheet(self.qle_unselected)
 
         self.btn_hdd_mon_rgb_off = QLineEdit(self)
         self.btn_hdd_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_hdd_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_mon_rgb_off.move((self.monitor_btn_w * 3) + 8, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_hdd_mon_rgb_off.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_off.returnPressed.connect(self.btn_hdd_mon_rgb_off_function)
         self.btn_hdd_mon_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_hdd_led_time_on = QLineEdit(self)
-        self.btn_hdd_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_hdd_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 5))
+        self.btn_hdd_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_hdd_led_time_on.move((self.monitor_btn_w * 4) + 10, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_hdd_led_time_on.setFont(self.font_s8b)
         self.btn_hdd_led_time_on.returnPressed.connect(self.btn_hdd_led_time_on_function)
         self.btn_hdd_led_time_on.setStyleSheet(self.qle_unselected)
 
+        self.lbl_network_traffic_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 6) + (self.inner_group_spacing_h * 6) + (self.group_spacing_h * 2))
+
+        self.lbl_network_traffic = QLabel(self)
+        self.lbl_network_traffic.move(2, self.lbl_network_traffic_anchor_h)
+        self.lbl_network_traffic.resize(self.width - 4, self.monitor_btn_h)
+        self.lbl_network_traffic.setFont(self.font_s8b)
+        self.lbl_network_traffic.setText('NETWORK TRAFFIC')
+        self.lbl_network_traffic.setAlignment(Qt.AlignCenter)
+        self.lbl_network_traffic.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_network_traffic)
+
         self.lbl_network_adapter = QLabel(self)
-        self.lbl_network_adapter.move(2, (self.monitor_btn_pos_h * 6))
-        self.lbl_network_adapter.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_network_adapter.move(2, self.lbl_network_traffic_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.lbl_network_adapter.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_network_adapter.setFont(self.font_s8b)
-        self.lbl_network_adapter.setText(' NETWORK TRAFFIC')
+        self.lbl_network_adapter.setText(' ADAPTER')
         self.lbl_network_adapter.setStyleSheet(self.lbl_data_style)
         print('-- created:', self.lbl_network_adapter)
 
+        self.cmb_network_adapter_name = QComboBox(self)
+        self.cmb_network_adapter_name.resize((self.monitor_btn_w * 3) + 4, self.monitor_btn_h)
+        self.cmb_network_adapter_name.move(self.monitor_btn_w + 4, self.lbl_network_traffic_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.cmb_network_adapter_name.setStyleSheet(self.cmb_style)
+        self.cmb_network_adapter_name.activated[str].connect(self.cmb_network_adapter_name_function)
+
+        self.btn_network_adapter_refresh = QPushButton(self)
+        self.btn_network_adapter_refresh.move((self.monitor_btn_w * 4) + 10, self.lbl_network_traffic_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.btn_network_adapter_refresh.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_network_adapter_refresh.setIcon(QIcon("./image/baseline_refresh_white_24dp.png"))
+        self.btn_network_adapter_refresh.setIconSize(QSize(14, 14))
+        self.btn_network_adapter_refresh.setStyleSheet(self.btn_disabled_style)
+        self.btn_network_adapter_refresh.clicked.connect(self.btn_network_adapter_refresh_function)
+        print('-- created:', self.btn_network_adapter_refresh)
+
         self.btn_network_adapter = QPushButton(self)
-        self.btn_network_adapter.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 6))
+        self.btn_network_adapter.move((self.monitor_btn_w * 2) + 6, self.lbl_network_traffic_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_network_adapter.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_network_adapter.setFont(self.font_s8b)
         self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
@@ -573,93 +649,39 @@ class App(QMainWindow):
 
         self.btn_network_adapter_rgb_off = QLineEdit(self)
         self.btn_network_adapter_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_rgb_off.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 6))
+        self.btn_network_adapter_rgb_off.move((self.monitor_btn_w * 3) + 8, self.lbl_network_traffic_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_network_adapter_rgb_off.setFont(self.font_s8b)
         self.btn_network_adapter_rgb_off.returnPressed.connect(self.btn_network_adapter_mon_rgb_off_function)
         self.btn_network_adapter_rgb_off.setStyleSheet(self.qle_unselected)
 
         self.btn_network_adapter_led_time_on = QLineEdit(self)
-        self.btn_network_adapter_led_time_on.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_led_time_on.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 6))
+        self.btn_network_adapter_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
+        self.btn_network_adapter_led_time_on.move((self.monitor_btn_w * 4) + 10, self.lbl_network_traffic_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_network_adapter_led_time_on.setFont(self.font_s8b)
         self.btn_network_adapter_led_time_on.returnPressed.connect(self.btn_network_adapter_led_time_on_function)
         self.btn_network_adapter_led_time_on.setStyleSheet(self.qle_unselected)
 
-        self.cmb_network_adapter_name = QComboBox(self)
-        self.cmb_network_adapter_name.resize(226, self.monitor_btn_h)
-        self.cmb_network_adapter_name.move(self.monitor_btn_w + 2, (self.monitor_btn_pos_h * 7))
-        self.cmb_network_adapter_name.setStyleSheet("""QComboBox {background-color: rgb(0, 0, 0);
-                           color: rgb(200, 200, 200);
-                           border:0px solid rgb(35, 35, 35);}""")
-        self.cmb_network_adapter_name.activated[str].connect(self.cmb_network_adapter_name_function)
+        self.lbl_connectivity_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 9) + (self.inner_group_spacing_h * 9) + (self.group_spacing_h * 3))
 
-        self.btn_network_adapter_refresh = QPushButton(self)
-        self.btn_network_adapter_refresh.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 7))
-        self.btn_network_adapter_refresh.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_network_adapter_refresh.setFont(self.font_s8b)
-        self.btn_network_adapter_refresh.setText('REFRESH')
-        self.btn_network_adapter_refresh.setStyleSheet(self.btn_enabled_style)
-        self.btn_network_adapter_refresh.clicked.connect(self.btn_network_adapter_refresh_function)
-        print('-- created:', self.btn_network_adapter_refresh)
-
-        self.lbl_exclusive_con = QLabel(self)
-        self.lbl_exclusive_con.move(2, (self.height - ((self.monitor_btn_pos_h * 3) - 6)))
-        self.lbl_exclusive_con.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
-        self.lbl_exclusive_con.setFont(self.font_s8b)
-        self.lbl_exclusive_con.setText(' EXCLUSIVE CONTROL')
-        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_exclusive_con)
-
-        self.btn_exclusive_con = QPushButton(self)
-        self.btn_exclusive_con.move((self.monitor_btn_w * 2) + 6, (self.height - ((self.monitor_btn_pos_h * 3) - 6)))
-        self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_exclusive_con.setFont(self.font_s8b)
-        self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
-        self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
-        print('-- created:', self.btn_exclusive_con)
-
-        self.lbl_run_startup = QLabel(self)
-        self.lbl_run_startup.move(2, (self.height - ((self.monitor_btn_pos_h * 2) - 4)))
-        self.lbl_run_startup.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
-        self.lbl_run_startup.setFont(self.font_s8b)
-        self.lbl_run_startup.setText(' AUTOMATIC STARTUP')
-        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_run_startup)
-
-        self.btn_run_startup = QPushButton(self)
-        self.btn_run_startup.move((self.monitor_btn_w * 2) + 6, (self.height - ((self.monitor_btn_pos_h * 2) - 4)))
-        self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_run_startup.setFont(self.font_s8b)
-        self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
-        self.btn_run_startup.clicked.connect(self.btn_run_startup_function)
-        print('-- created:', self.btn_run_startup)
-
-        self.lbl_start_minimized = QLabel(self)
-        self.lbl_start_minimized.move(2, (self.height - (self.monitor_btn_pos_h - 2)))
-        self.lbl_start_minimized.resize((self.monitor_btn_w * 2 + 2), self.monitor_btn_h)
-        self.lbl_start_minimized.setFont(self.font_s8b)
-        self.lbl_start_minimized.setText(' START MINIMIZED')
-        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
-        print('-- created:', self.lbl_start_minimized)
-
-        self.btn_start_minimized = QPushButton(self)
-        self.btn_start_minimized.move((self.monitor_btn_w * 2) + 6, (self.height - (self.monitor_btn_pos_h - 2)))
-        self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
-        self.btn_start_minimized.setFont(self.font_s8b)
-        self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
-        self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
-        print('-- created:', self.btn_start_minimized)
+        self.lbl_connectivity = QLabel(self)
+        self.lbl_connectivity.move(2, self.lbl_connectivity_anchor_h)
+        self.lbl_connectivity.resize(self.width - 4, self.monitor_btn_h)
+        self.lbl_connectivity.setFont(self.font_s8b)
+        self.lbl_connectivity.setText('INTERNET CONNECTIVITY')
+        self.lbl_connectivity.setAlignment(Qt.AlignCenter)
+        self.lbl_connectivity.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_connectivity)
 
         self.lbl_net_con_mouse = QLabel(self)
-        self.lbl_net_con_mouse.move(2, (self.monitor_btn_pos_h * 8))
-        self.lbl_net_con_mouse.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_net_con_mouse.move(2, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.lbl_net_con_mouse.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
         self.lbl_net_con_mouse.setFont(self.font_s8b)
-        self.lbl_net_con_mouse.setText(' ONLINE: MOUSE')
+        self.lbl_net_con_mouse.setText(' MOUSE')
         self.lbl_net_con_mouse.setStyleSheet(self.lbl_data_style)
         print('-- created:', self.lbl_net_con_mouse)
 
         self.btn_net_con_mouse = QPushButton(self)
-        self.btn_net_con_mouse.move(self.monitor_btn_w * 2 + 6, (self.monitor_btn_pos_h * 8))
+        self.btn_net_con_mouse.move(self.monitor_btn_w + 6, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.btn_net_con_mouse.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_net_con_mouse.setFont(self.font_s8b)
         self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
@@ -667,8 +689,8 @@ class App(QMainWindow):
         print('-- created:', self.btn_net_con_mouse)
 
         self.btn_net_con_mouse_led_selected_prev = QPushButton(self)
-        self.btn_net_con_mouse_led_selected_prev.move((self.monitor_btn_w * 3) + 8, (self.monitor_btn_pos_h * 8))
-        self.btn_net_con_mouse_led_selected_prev.resize((self.monitor_btn_w / 2) - 2, self.monitor_btn_h)
+        self.btn_net_con_mouse_led_selected_prev.move((self.monitor_btn_w * 2) + 8, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.btn_net_con_mouse_led_selected_prev.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
         self.btn_net_con_mouse_led_selected_prev.setFont(self.font_s8b)
         self.btn_net_con_mouse_led_selected_prev.setText('-')
         self.btn_net_con_mouse_led_selected_prev.setStyleSheet(self.btn_disabled_style)
@@ -676,32 +698,31 @@ class App(QMainWindow):
         print('-- created:', self.btn_net_con_mouse_led_selected_prev)
 
         self.lbl_net_con_mouse_led_selected = QLabel(self)
-        self.lbl_net_con_mouse_led_selected.move((self.monitor_btn_w * 3) + (self.monitor_btn_w / 2) + 8, (self.monitor_btn_pos_h * 8))
-        self.lbl_net_con_mouse_led_selected.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
+        self.lbl_net_con_mouse_led_selected.move((self.monitor_btn_w * 2) + (self.monitor_btn_w / 3) + 10, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.lbl_net_con_mouse_led_selected.resize(self.monitor_btn_w / 2 + 8, self.monitor_btn_h)
         self.lbl_net_con_mouse_led_selected.setFont(self.font_s8b)
         self.lbl_net_con_mouse_led_selected.setStyleSheet(self.lbl_data_style)
         print('-- created:', self.lbl_net_con_mouse_led_selected)
 
         self.btn_net_con_mouse_led_selected_next = QPushButton(self)
-        self.btn_net_con_mouse_led_selected_next.move((self.monitor_btn_w * 4) + (self.monitor_btn_w / 2) + 12, (self.monitor_btn_pos_h * 8))
-        self.btn_net_con_mouse_led_selected_next.resize((self.monitor_btn_w / 2) - 2, self.monitor_btn_h)
+        self.btn_net_con_mouse_led_selected_next.move((self.monitor_btn_w * 2) + (self.monitor_btn_w / 2) + (self.monitor_btn_w / 3) + 20, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.btn_net_con_mouse_led_selected_next.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
         self.btn_net_con_mouse_led_selected_next.setFont(self.font_s8b)
         self.btn_net_con_mouse_led_selected_next.setText('+')
         self.btn_net_con_mouse_led_selected_next.setStyleSheet(self.btn_disabled_style)
         self.btn_net_con_mouse_led_selected_next.clicked.connect(self.btn_net_con_mouse_led_selected_next_function)
         print('-- created:', self.btn_net_con_mouse_led_selected_next)
 
-        # ToDo -->
         self.lbl_net_con_kb = QLabel(self)
-        self.lbl_net_con_kb.move(2, (self.monitor_btn_pos_h * 9))
-        self.lbl_net_con_kb.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_net_con_kb.move(2, self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
+        self.lbl_net_con_kb.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
         self.lbl_net_con_kb.setFont(self.font_s8b)
-        self.lbl_net_con_kb.setText(' ONLINE: KEYBOARD')
+        self.lbl_net_con_kb.setText(' KEYBOARD')
         self.lbl_net_con_kb.setStyleSheet(self.lbl_data_style)
         print('-- created:', self.lbl_net_con_kb)
 
         self.btn_net_con_kb = QPushButton(self)
-        self.btn_net_con_kb.move((self.monitor_btn_w * 2) + 6, (self.monitor_btn_pos_h * 9))
+        self.btn_net_con_kb.move(self.monitor_btn_w + 6, self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
         self.btn_net_con_kb.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_net_con_kb.setFont(self.font_s8b)
         self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
@@ -709,12 +730,72 @@ class App(QMainWindow):
         print('-- created:', self.btn_net_con_kb)
 
         self.btn_net_con = QPushButton(self)
-        self.btn_net_con.move((self.monitor_btn_w * 4) + 10, (self.monitor_btn_pos_h * 9))
-        self.btn_net_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_net_con.move((self.monitor_btn_w * 3) + 10 + (self.monitor_btn_w / 3), self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
+        self.btn_net_con.resize(self.monitor_btn_w, (self.monitor_btn_h * 2) + self.inner_group_spacing_h)
         self.btn_net_con.setFont(self.font_s8b)
         self.btn_net_con.setStyleSheet(self.btn_disabled_style)
         self.btn_net_con.clicked.connect(self.btn_net_con_function)
         print('-- created:', self.btn_net_con)
+
+        self.lbl_settings = QLabel(self)
+        self.lbl_settings.move(2, ((self.height - self.monitor_btn_h * 4) - 16))
+        self.lbl_settings.resize(self.width - 4, self.monitor_btn_h)
+        self.lbl_settings.setFont(self.font_s8b)
+        self.lbl_settings.setText('SETTINGS')
+        self.lbl_settings.setAlignment(Qt.AlignCenter)
+        self.lbl_settings.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_settings)
+
+        self.lbl_exclusive_con = QLabel(self)
+        self.lbl_exclusive_con.move(2, ((self.height - self.monitor_btn_h * 3) - 12))
+        self.lbl_exclusive_con.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_exclusive_con.setFont(self.font_s8b)
+        self.lbl_exclusive_con.setText(' EXCLUSIVE CONTROL')
+        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_exclusive_con)
+
+        self.btn_exclusive_con = QPushButton(self)
+        self.btn_exclusive_con.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 3) - 12))
+        self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_exclusive_con.setFont(self.font_s8b)
+        self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
+        self.btn_exclusive_con.clicked.connect(self.btn_exclusive_con_function)
+        print('-- created:', self.btn_exclusive_con)
+
+        self.lbl_run_startup = QLabel(self)
+        self.lbl_run_startup.move(2, ((self.height - self.monitor_btn_h * 2) - 8))
+        self.lbl_run_startup.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
+        self.lbl_run_startup.setFont(self.font_s8b)
+        self.lbl_run_startup.setText(' AUTOMATIC STARTUP')
+        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_run_startup)
+
+        self.btn_run_startup = QPushButton(self)
+        self.btn_run_startup.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 2) - 8))
+        self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_run_startup.setFont(self.font_s8b)
+        self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+        self.btn_run_startup.clicked.connect(self.btn_run_startup_function)
+        print('-- created:', self.btn_run_startup)
+
+        self.lbl_start_minimized = QLabel(self)
+        self.lbl_start_minimized.move(2, ((self.height - self.monitor_btn_h) - 4))
+        self.lbl_start_minimized.resize((self.monitor_btn_w * 2 + 2), self.monitor_btn_h)
+        self.lbl_start_minimized.setFont(self.font_s8b)
+        self.lbl_start_minimized.setText(' START MINIMIZED')
+        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
+        print('-- created:', self.lbl_start_minimized)
+
+        self.btn_start_minimized = QPushButton(self)
+        self.btn_start_minimized.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h) - 4))
+        self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
+        self.btn_start_minimized.setFont(self.font_s8b)
+        self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
+        self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
+        print('-- created:', self.btn_start_minimized)
+
+        self.height_tmp = self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2) + (self.object_height * 4) + (self.group_spacing_h)
+        print(self.height_tmp)
 
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
@@ -1530,7 +1611,7 @@ class App(QMainWindow):
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
         global start_minimized_bool, compile_devices_thread
-        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat, self.lbl_con_stat_false, self.lbl_con_stat_true)
+        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat_name, self.lbl_con_stat_false, self.lbl_con_stat_true)
         compile_devices_thread.append(compile_devices_thread_0)
         compile_devices_thread[0].start()
         read_configuration_thread = ReadConfigurationClass()
@@ -1596,9 +1677,9 @@ class App(QMainWindow):
             self.btn_exclusive_con.setText('DISABLED')
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
         if connected_bool is False:
-            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
+            self.lbl_con_stat_name.setText(' Connected:  False')
         elif connected_bool is True:
-            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_true)
+            self.lbl_con_stat_name.setText(' Connected:  True')
         if network_adapter_startup_bool is False:
             self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
             self.btn_network_adapter.setText('DISABLED')
@@ -1720,9 +1801,9 @@ class App(QMainWindow):
 
 
 class CompileDevicesClass(QThread):
-    def __init__(self, lbl_con_stat, lbl_con_stat_false, lbl_con_stat_true):
+    def __init__(self, lbl_con_stat_name, lbl_con_stat_false, lbl_con_stat_true):
         QThread.__init__(self)
-        self.lbl_con_stat = lbl_con_stat
+        self.lbl_con_stat_name = lbl_con_stat_name
         self.lbl_con_stat_false = lbl_con_stat_false
         self.lbl_con_stat_true = lbl_con_stat_true
         self.device_str = ''
@@ -2079,14 +2160,14 @@ class CompileDevicesClass(QThread):
                 connected_bool_prev = connected_bool
                 self.stop_all_threads()
             prev_device = []
-            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
+            self.lbl_con_stat_name.setText(' Connected:  False')
             time.sleep(2)
             self.attempt_connect()
 
         elif connected:
             # print('-- connected to icue')
             connected_bool = True
-            self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_true)
+            self.lbl_con_stat_name.setText(' Connected:  True')
             self.get_devices()
 
     def get_devices(self):
