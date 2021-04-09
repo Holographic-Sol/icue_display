@@ -299,55 +299,61 @@ class App(QMainWindow):
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
         self.font_s9b = QFont("Segoe UI", 10, QFont.Bold)
 
-        self.cmb_style = """QComboBox {background-color: rgb(35, 35, 35);
-                   color: rgb(200, 200, 200);
-                   border-top:1px solid rgb(40, 40, 40);
-                   border-left:1px solid rgb(40, 40, 40);}"""
+        self.cmb_style = """QComboBox {background-color: rgb(0, 0, 0);
+                   color: rgb(180, 180, 180);
+                   border-top:2px solid rgb(0, 0, 0);
+                   border-bottom:2px solid rgb(0, 0, 0);
+                   border-right:2px solid rgb(0, 0, 0);
+                   border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.lbl_stat_style = """QLabel {background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border-top:1px solid rgb(0, 0, 0);
-                   border-left:1px solid rgb(0, 0, 0);}"""
+        self.lbl_stat_con_style_sub = """QLabel {background-color: rgb(0, 0, 0);
+                   color: rgb(0, 255, 0);
+                   border-top:2px solid rgb(0, 0, 0);
+                   border-bottom:2px solid rgb(0, 0, 0);
+                   border-right:2px solid rgb(0, 0, 0);
+                   border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.lbl_data_style = """QLabel {background-color: rgb(35, 35, 35);
-           color: rgb(200, 200, 200);
-           border-top:1px solid rgb(40, 40, 40);
-           border-left:1px solid rgb(40, 40, 40);}"""
+        self.lbl_data_style_title = """QLabel {background-color: rgb(35, 35, 35);
+                   color: rgb(220, 220, 220);
+                   border-top:2px solid rgb(40, 40, 40);
+                   border-bottom:2px solid rgb(0, 0, 0);
+                   border-right:2px solid rgb(40, 40, 40);
+                   border-left:2px solid rgb(40, 40, 40);}"""
 
-        self.btn_enabled_style = """QPushButton{background-color: rgb(0, 0, 0);
-                   color: rgb(200, 200, 200);
-                   border-bottom:1px solid rgb(35, 35, 35);
-                   border-right:1px solid rgb(35, 35, 35);
-                   border-top:1px solid rgb(40, 40, 40);
-                   border-left:1px solid rgb(40, 40, 40);}"""
+        self.lbl_data_style_sub = """QLabel {background-color: rgb(35, 35, 35);
+           color: rgb(190, 190, 190);
+           border-top:2px solid rgb(0, 0, 0);
+           border-bottom:2px solid rgb(0, 0, 0);
+           border-right:2px solid rgb(0, 0, 0);
+           border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.btn_disabled_style = """QPushButton{background-color: rgb(35, 35, 35);
-                           color: rgb(200, 200, 200);
-                           border-bottom:1px solid rgb(35, 35, 35);
-                           border-right:1px solid rgb(35, 35, 35);
-                           border-top:1px solid rgb(40, 40, 40);
-                           border-left:1px solid rgb(40, 40, 40);}"""
+        self.btn_enabled_style = """QPushButton{background-color: rgb(35, 35, 35);
+                   color: rgb(180, 180, 180);
+                   border-bottom:2px solid rgb(0, 0, 0);
+                   border-right:2px solid rgb(0, 0, 0);
+                   border-top:2px solid rgb(0, 0, 0);
+                   border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.qle_selected = """QLineEdit{background-color: rgb(0, 0, 0);
-               color: rgb(200, 200, 200);
-               border-bottom:1px solid rgb(35, 35, 35);
-               border-right:1px solid rgb(35, 35, 35);
-               border-top:1px solid rgb(40, 40, 40);
-               border-left:1px solid rgb(40, 40, 40);}"""
+        self.btn_disabled_style = """QPushButton{background-color: rgb(32, 32, 32);
+                           color: rgb(100, 100, 100);
+                           border-bottom:2px solid rgb(0, 0, 0);
+                           border-right:2px solid rgb(0, 0, 0);
+                           border-top:2px solid rgb(0, 0, 0);
+                           border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.qle_unselected = """QLineEdit{background-color: rgb(0, 0, 0);
-                       color: rgb(200, 200, 200);
-                       border-bottom:1px solid rgb(35, 35, 35);
-                       border-right:1px solid rgb(35, 35, 35);
-                       border-top:1px solid rgb(40, 40, 40);
-                       border-left:1px solid rgb(40, 40, 40);}"""
+        self.qle_selected = """QLineEdit{background-color: rgb(35, 35, 35);
+               color: rgb(180, 180, 180);
+               border-bottom:2px solid rgb(0, 0, 0);
+               border-right:2px solid rgb(0, 0, 0);
+               border-top:2px solid rgb(0, 0, 0);
+               border-left:2px solid rgb(0, 0, 0);}"""
 
-        self.lbl_con_stat_false = """QLabel {background-color: rgb(255, 0, 0);
-                                               color: rgb(0, 0, 0);
-                                               border:2px solid rgb(35, 35, 35);}"""
-        self.lbl_con_stat_true = """QLabel {background-color: rgb(0, 255, 0);
-                                                       color: rgb(0, 0, 0);
-                                                       border:2px solid rgb(35, 35, 35);}"""
+        self.qle_unselected = """QLineEdit{background-color: rgb(35, 35, 35);
+                       color: rgb(180, 180, 180);
+                       border-bottom:2px solid rgb(0, 0, 0);
+                       border-right:2px solid rgb(0, 0, 0);
+                       border-top:2px solid rgb(0, 0, 0);
+                       border-left:2px solid rgb(0, 0, 0);}"""
 
         self.title_bar_h = 20
         self.title_bar_btn_w = (self.title_bar_h * 1.5)
@@ -422,7 +428,7 @@ class App(QMainWindow):
         self.lbl_status.setFont(self.font_s8b)
         self.lbl_status.setText('STATUS')
         self.lbl_status.setAlignment(Qt.AlignCenter)
-        self.lbl_status.setStyleSheet(self.lbl_data_style)
+        self.lbl_status.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_status)
 
         self.lbl_con_stat_name = QLabel(self)
@@ -430,7 +436,7 @@ class App(QMainWindow):
         self.lbl_con_stat_name.resize(self.monitor_btn_w * 2, self.monitor_btn_h)
         self.lbl_con_stat_name.setFont(self.font_s8b)
         self.lbl_con_stat_name.setText(' Connected: ')
-        self.lbl_con_stat_name.setStyleSheet(self.lbl_stat_style)
+        self.lbl_con_stat_name.setStyleSheet(self.lbl_stat_con_style_sub)
         print('-- created:', self.lbl_con_stat_name)
 
         # self.lbl_utilization_anchor_h = 100
@@ -442,7 +448,7 @@ class App(QMainWindow):
         self.lbl_utilization.setFont(self.font_s8b)
         self.lbl_utilization.setText('UTILIZATION')
         self.lbl_utilization.setAlignment(Qt.AlignCenter)
-        self.lbl_utilization.setStyleSheet(self.lbl_data_style)
+        self.lbl_utilization.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_utilization)
 
         self.lbl_cpu_mon = QLabel(self)
@@ -450,7 +456,7 @@ class App(QMainWindow):
         self.lbl_cpu_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_cpu_mon.setFont(self.font_s8b)
         self.lbl_cpu_mon.setText(' CPU')
-        self.lbl_cpu_mon.setStyleSheet(self.lbl_data_style)
+        self.lbl_cpu_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_cpu_mon)
 
         self.btn_cpu_mon = QPushButton(self)
@@ -488,7 +494,7 @@ class App(QMainWindow):
         self.lbl_dram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_dram_mon.setFont(self.font_s8b)
         self.lbl_dram_mon.setText(' DRAM')
-        self.lbl_dram_mon.setStyleSheet(self.lbl_data_style)
+        self.lbl_dram_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_dram_mon)
 
         self.btn_dram_mon = QPushButton(self)
@@ -525,7 +531,7 @@ class App(QMainWindow):
         self.lbl_vram_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_vram_mon.setFont(self.font_s8b)
         self.lbl_vram_mon.setText(' VRAM')
-        self.lbl_vram_mon.setStyleSheet(self.lbl_data_style)
+        self.lbl_vram_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_vram_mon)
 
         self.btn_vram_mon = QPushButton(self)
@@ -565,15 +571,15 @@ class App(QMainWindow):
         self.lbl_hdd_mon.setFont(self.font_s8b)
         self.lbl_hdd_mon.setText('DISKS')
         self.lbl_hdd_mon.setAlignment(Qt.AlignCenter)
-        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style)
+        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_hdd_mon)
 
         self.lbl_hdd_mon = QLabel(self)
         self.lbl_hdd_mon.move(2, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.lbl_hdd_mon.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_hdd_mon.setFont(self.font_s8b)
-        self.lbl_hdd_mon.setText(' HDD')
-        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style)
+        self.lbl_hdd_mon.setText(' D. WRITES')
+        self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_hdd_mon)
 
         self.btn_hdd_mon = QPushButton(self)
@@ -613,7 +619,7 @@ class App(QMainWindow):
         self.lbl_network_traffic.setFont(self.font_s8b)
         self.lbl_network_traffic.setText('NETWORK TRAFFIC')
         self.lbl_network_traffic.setAlignment(Qt.AlignCenter)
-        self.lbl_network_traffic.setStyleSheet(self.lbl_data_style)
+        self.lbl_network_traffic.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_network_traffic)
 
         self.lbl_network_adapter = QLabel(self)
@@ -621,7 +627,7 @@ class App(QMainWindow):
         self.lbl_network_adapter.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.lbl_network_adapter.setFont(self.font_s8b)
         self.lbl_network_adapter.setText(' ADAPTER')
-        self.lbl_network_adapter.setStyleSheet(self.lbl_data_style)
+        self.lbl_network_adapter.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_network_adapter)
 
         self.cmb_network_adapter_name = QComboBox(self)
@@ -669,7 +675,7 @@ class App(QMainWindow):
         self.lbl_connectivity.setFont(self.font_s8b)
         self.lbl_connectivity.setText('INTERNET CONNECTIVITY')
         self.lbl_connectivity.setAlignment(Qt.AlignCenter)
-        self.lbl_connectivity.setStyleSheet(self.lbl_data_style)
+        self.lbl_connectivity.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_connectivity)
 
         self.lbl_net_con_mouse = QLabel(self)
@@ -677,7 +683,7 @@ class App(QMainWindow):
         self.lbl_net_con_mouse.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
         self.lbl_net_con_mouse.setFont(self.font_s8b)
         self.lbl_net_con_mouse.setText(' MOUSE')
-        self.lbl_net_con_mouse.setStyleSheet(self.lbl_data_style)
+        self.lbl_net_con_mouse.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_mouse)
 
         self.btn_net_con_mouse = QPushButton(self)
@@ -693,7 +699,7 @@ class App(QMainWindow):
         self.btn_net_con_mouse_led_selected_prev.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
         self.btn_net_con_mouse_led_selected_prev.setFont(self.font_s8b)
         self.btn_net_con_mouse_led_selected_prev.setText('-')
-        self.btn_net_con_mouse_led_selected_prev.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_mouse_led_selected_prev.setStyleSheet(self.btn_enabled_style)
         self.btn_net_con_mouse_led_selected_prev.clicked.connect(self.btn_net_con_mouse_led_selected_prev_function)
         print('-- created:', self.btn_net_con_mouse_led_selected_prev)
 
@@ -701,7 +707,7 @@ class App(QMainWindow):
         self.lbl_net_con_mouse_led_selected.move((self.monitor_btn_w * 2) + (self.monitor_btn_w / 3) + 10, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.lbl_net_con_mouse_led_selected.resize(self.monitor_btn_w / 2 + 8, self.monitor_btn_h)
         self.lbl_net_con_mouse_led_selected.setFont(self.font_s8b)
-        self.lbl_net_con_mouse_led_selected.setStyleSheet(self.lbl_data_style)
+        self.lbl_net_con_mouse_led_selected.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_mouse_led_selected)
 
         self.btn_net_con_mouse_led_selected_next = QPushButton(self)
@@ -709,7 +715,7 @@ class App(QMainWindow):
         self.btn_net_con_mouse_led_selected_next.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
         self.btn_net_con_mouse_led_selected_next.setFont(self.font_s8b)
         self.btn_net_con_mouse_led_selected_next.setText('+')
-        self.btn_net_con_mouse_led_selected_next.setStyleSheet(self.btn_disabled_style)
+        self.btn_net_con_mouse_led_selected_next.setStyleSheet(self.btn_enabled_style)
         self.btn_net_con_mouse_led_selected_next.clicked.connect(self.btn_net_con_mouse_led_selected_next_function)
         print('-- created:', self.btn_net_con_mouse_led_selected_next)
 
@@ -718,7 +724,7 @@ class App(QMainWindow):
         self.lbl_net_con_kb.resize(self.monitor_btn_w + 2, self.monitor_btn_h)
         self.lbl_net_con_kb.setFont(self.font_s8b)
         self.lbl_net_con_kb.setText(' KEYBOARD')
-        self.lbl_net_con_kb.setStyleSheet(self.lbl_data_style)
+        self.lbl_net_con_kb.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_kb)
 
         self.btn_net_con_kb = QPushButton(self)
@@ -743,7 +749,7 @@ class App(QMainWindow):
         self.lbl_settings.setFont(self.font_s8b)
         self.lbl_settings.setText('SETTINGS')
         self.lbl_settings.setAlignment(Qt.AlignCenter)
-        self.lbl_settings.setStyleSheet(self.lbl_data_style)
+        self.lbl_settings.setStyleSheet(self.lbl_data_style_title)
         print('-- created:', self.lbl_settings)
 
         self.lbl_exclusive_con = QLabel(self)
@@ -751,7 +757,7 @@ class App(QMainWindow):
         self.lbl_exclusive_con.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
         self.lbl_exclusive_con.setFont(self.font_s8b)
         self.lbl_exclusive_con.setText(' EXCLUSIVE CONTROL')
-        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style)
+        self.lbl_exclusive_con.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_exclusive_con)
 
         self.btn_exclusive_con = QPushButton(self)
@@ -767,7 +773,7 @@ class App(QMainWindow):
         self.lbl_run_startup.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
         self.lbl_run_startup.setFont(self.font_s8b)
         self.lbl_run_startup.setText(' AUTOMATIC STARTUP')
-        self.lbl_run_startup.setStyleSheet(self.lbl_data_style)
+        self.lbl_run_startup.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_run_startup)
 
         self.btn_run_startup = QPushButton(self)
@@ -783,7 +789,7 @@ class App(QMainWindow):
         self.lbl_start_minimized.resize((self.monitor_btn_w * 2 + 2), self.monitor_btn_h)
         self.lbl_start_minimized.setFont(self.font_s8b)
         self.lbl_start_minimized.setText(' START MINIMIZED')
-        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style)
+        self.lbl_start_minimized.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_start_minimized)
 
         self.btn_start_minimized = QPushButton(self)
@@ -1611,7 +1617,7 @@ class App(QMainWindow):
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
         global start_minimized_bool, compile_devices_thread
-        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat_name, self.lbl_con_stat_false, self.lbl_con_stat_true)
+        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat_name)
         compile_devices_thread.append(compile_devices_thread_0)
         compile_devices_thread[0].start()
         read_configuration_thread = ReadConfigurationClass()
@@ -1801,11 +1807,9 @@ class App(QMainWindow):
 
 
 class CompileDevicesClass(QThread):
-    def __init__(self, lbl_con_stat_name, lbl_con_stat_false, lbl_con_stat_true):
+    def __init__(self, lbl_con_stat_name):
         QThread.__init__(self)
         self.lbl_con_stat_name = lbl_con_stat_name
-        self.lbl_con_stat_false = lbl_con_stat_false
-        self.lbl_con_stat_true = lbl_con_stat_true
         self.device_str = ''
         self.device_index = ()
         self.compile_dicts_key = ()
@@ -2138,7 +2142,7 @@ class CompileDevicesClass(QThread):
             sdk.request_control()
 
     def config_wait(self):
-        print('-- plugged in: config_wait')
+        # print('-- plugged in: config_wait')
         global configuration_read_complete
         if configuration_read_complete is False:
             print('-- waiting for configuration file to be read')
@@ -2150,7 +2154,7 @@ class CompileDevicesClass(QThread):
             print('-- configuration read bool:', configuration_read_complete)
 
     def attempt_connect(self):
-        print('-- plugged in: attempt_connect')
+        # print('-- plugged in: attempt_connect')
         global sdk, connected_bool, prev_device, connected_bool_prev
         connected = sdk.connect()
 
@@ -2171,7 +2175,7 @@ class CompileDevicesClass(QThread):
             self.get_devices()
 
     def get_devices(self):
-        print('-- plugged in: get_devices')
+        # print('-- plugged in: get_devices')
         global sdk, prev_device, enum_compile_kb_bool, enum_compile_m_bool, mon_threads, key_board, mouse_device
         enum_compile_kb_bool = False
         enum_compile_m_bool = False
@@ -2181,7 +2185,7 @@ class CompileDevicesClass(QThread):
         device_i = 0
         for _ in device:
             target_name = str(device[device_i])
-            print('Device:', target_name)
+            # print('Device:', target_name)
             self.device_index = device_i
             self.device_str = target_name
             if str(device) != str(prev_device):
