@@ -1503,22 +1503,26 @@ class App(QMainWindow):
         print('clicked: btn_exclusive_con_function')
         self.setFocus()
         global exclusive_access_bool
-        if exclusive_access_bool is True:
+        if exclusive_access_bool is False:
             print('-- exclusive access request changed: requesting control')
             self.write_var = 'exclusive_access: true'
             sdk.request_control()
-            exclusive_access_bool = False
+            exclusive_access_bool = True
             self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
             self.btn_exclusive_con.setText('ENABLED')
 
-        elif exclusive_access_bool is False:
+        elif exclusive_access_bool is True:
             print('-- exclusive access request changed: releasing control')
             self.write_var = 'exclusive_access: false'
             sdk.release_control()
-            exclusive_access_bool = True
+            exclusive_access_bool = False
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
             self.btn_exclusive_con.setText('DISABLED')
         self.write_changes()
+        global compile_devices_thread, prev_device
+        compile_devices_thread[0].stop()
+        prev_device = []
+        compile_devices_thread[0].start()
 
     def initUI(self):
         global mon_threads, conf_thread, allow_display_application, exclusive_access_bool
@@ -1587,11 +1591,9 @@ class App(QMainWindow):
             self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         if exclusive_access_bool is True:
             self.btn_exclusive_con.setText('ENABLED')
-            exclusive_access_bool = True
             self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
         elif exclusive_access_bool is False:
             self.btn_exclusive_con.setText('DISABLED')
-            exclusive_access_bool = False
             self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
         if connected_bool is False:
             self.lbl_con_stat.setStyleSheet(self.lbl_con_stat_false)
@@ -1973,7 +1975,7 @@ class CompileDevicesClass(QThread):
                         m_key_id[3] = int(var_1)
 
     def stop_all_threads(self):
-        global exclusive_access_bool, connected_bool_prev, conf_thread, mon_threads
+        global connected_bool_prev, conf_thread, mon_threads
         print('-- stopping all threads:', )
         conf_thread[0].stop()
         mon_threads[0].stop()
@@ -2485,7 +2487,7 @@ class ReadConfigurationClass(QThread):
 
     def run(self):
         print('-- thread started: ReadConfigurationClass(QThread).run(self)')
-        global exclusive_access_bool, allow_display_application, connected_bool
+        global allow_display_application, connected_bool
         global configuration_read_complete
         try:
             configuration_read_complete = False
