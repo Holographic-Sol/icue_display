@@ -377,10 +377,10 @@ class App(QMainWindow):
         print('-- created:', self.lbl_title_bg)
 
         self.lbl_title = QLabel(self)
-        self.lbl_title.move((self.width / 2) - 44, 20)
-        self.lbl_title.resize(86, 20)
+        self.lbl_title.move((self.width / 2) - 45, 20)
+        self.lbl_title.resize(90, 20)
         self.lbl_title.setFont(self.font_s9b)
-        self.lbl_title.setText('iCUE-DISPLAY')
+        self.lbl_title.setText(' iCUE-DISPLAY')
         self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
