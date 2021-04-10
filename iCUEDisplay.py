@@ -16,7 +16,7 @@ import subprocess
 from cuesdk import CueSdk
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QCursor, QFont
-from PyQt5.QtCore import Qt, QThread, QSize, QPoint, QCoreApplication, QTimer, QEvent
+from PyQt5.QtCore import Qt, QThread, QSize, QPoint, QCoreApplication, QTimer, QEvent, QObject
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QDesktopWidget, QLineEdit, QComboBox
 
 
@@ -257,6 +257,123 @@ def create_new():
                 install_bool = True
 
 
+global_tooltip = []
+global_obj_enable_disable = []
+global_obj_time_interval = []
+global_obj_rgb_color_on = []
+global_obj_rgb_color_off = []
+global_obj_inet_con = []
+global_obj_combo = []
+global_obj_refresh = []
+
+
+class ObjEveFilter(QObject):
+    def eventFilter(self, obj, event):
+        obj_eve = obj, event
+
+        # Uncomment This Line To See All Object Events
+        # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+
+        # Refresh
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_refresh:
+            # print('-- filtered mouse move event in global_obj_time_interval for object:')
+            if obj_eve[0] == global_obj_refresh[0]:
+                global_tooltip[0].setText('Refresh list of network adapters')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_refresh:
+            global_tooltip[0].setText('')
+
+        # Combo Box
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_combo:
+            # print('-- filtered mouse move event in global_obj_time_interval for object:')
+            if obj_eve[0] == global_obj_combo[0]:
+                global_tooltip[0].setText('Select network adapter to monitor snt/rcv network traffic')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_combo:
+            global_tooltip[0].setText('')
+
+        # Time interval
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_enable_disable:
+            # print('-- filtered mouse move event in global_obj_time_interval for object:')
+            if obj_eve[0] == global_obj_enable_disable[0]:
+                global_tooltip[0].setText('Enables/Disables CPU Monitor')
+            if obj_eve[0] == global_obj_enable_disable[1]:
+                global_tooltip[0].setText('Enables/Disables DRAM Monitor')
+            if obj_eve[0] == global_obj_enable_disable[2]:
+                global_tooltip[0].setText('Enables/Disables VRAM Monitor')
+            if obj_eve[0] == global_obj_enable_disable[3]:
+                global_tooltip[0].setText('Enables/Disables Disk Write Monitor')
+            if obj_eve[0] == global_obj_enable_disable[4]:
+                global_tooltip[0].setText('Enables/Disables Snt/Rcv Monitor')
+            if obj_eve[0] == global_obj_enable_disable[5]:
+                global_tooltip[0].setText('Enables/Disables Internet Connectivity Monitor on Mouse')
+            if obj_eve[0] == global_obj_enable_disable[6]:
+                global_tooltip[0].setText('Enables/Disables Internet Connectivity Monitor on Keyboard')
+            if obj_eve[0] == global_obj_enable_disable[7]:
+                global_tooltip[0].setText('Enables/Disables Internet Connectivity Monitor')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_enable_disable:
+            global_tooltip[0].setText('')
+
+        # Time interval
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_time_interval:
+            # print('-- filtered mouse move event in global_obj_time_interval for object:')
+            if obj_eve[0] == global_obj_time_interval[0]:
+                global_tooltip[0].setText('CPU Monitor Time Interval: Between 0.1 and 5 seconds')
+            if obj_eve[0] == global_obj_time_interval[1]:
+                global_tooltip[0].setText('DRAM Monitor Time Interval: Between 0.1 and 5 seconds')
+            if obj_eve[0] == global_obj_time_interval[2]:
+                global_tooltip[0].setText('VRAM Monitor Time Interval: Between 0.1 and 5 seconds')
+            if obj_eve[0] == global_obj_time_interval[3]:
+                global_tooltip[0].setText('Disk Write Monitor Time Interval: Between 0.1 and 5 seconds')
+            if obj_eve[0] == global_obj_time_interval[4]:
+                global_tooltip[0].setText('Snt/Rcv Monitor Time Interval: Between 0.1 and 5 seconds')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_time_interval:
+            global_tooltip[0].setText('')
+
+        # RGB color on
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_on:
+            # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
+            if obj_eve[0] == global_obj_rgb_color_on[0]:
+                global_tooltip[0].setText('CPU Monitor: Set RGB color on (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_on[1]:
+                global_tooltip[0].setText('DRAM Monitor: Set RGB color on (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_on[2]:
+                global_tooltip[0].setText('VRAM Monitor: Set RGB color on (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_on[3]:
+                global_tooltip[0].setText('Disk Write Monitor: Set RGB color on (Red, Green, Blue) 0-255')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_rgb_color_on:
+            global_tooltip[0].setText('')
+
+        # RGB color off
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_off:
+            # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
+            global_tooltip[0].setText('Set RGB color off (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_off[0]:
+                global_tooltip[0].setText('CPU Monitor: Set RGB color off (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_off[1]:
+                global_tooltip[0].setText('DRAM Monitor: Set RGB color off (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_off[2]:
+                global_tooltip[0].setText('VRAM Monitor: Set RGB color off (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_off[3]:
+                global_tooltip[0].setText('Disk Write Monitor: Set RGB color off (Red, Green, Blue) 0-255')
+            if obj_eve[0] == global_obj_rgb_color_off[4]:
+                global_tooltip[0].setText('Snt/Rcv Monitor: Set RGB color off (Red, Green, Blue) 0-255')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_rgb_color_off:
+            global_tooltip[0].setText('')
+
+        # Select which mouse led's display internet connectivity
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_inet_con:
+            # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
+            if obj_eve[0] == global_obj_inet_con[0]:
+                global_tooltip[0].setText('Set which mouse LED will display internet connectivity (Prev.)')
+            if obj_eve[0] == global_obj_inet_con[1]:
+                global_tooltip[0].setText('Displays which mouse LED displays internet connectivity')
+            if obj_eve[0] == global_obj_inet_con[2]:
+                global_tooltip[0].setText('Set which mouse LED will display internet connectivity (Next)')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_inet_con:
+            global_tooltip[0].setText('')
+
+        return False
+
+
 class App(QMainWindow):
     cursorMove = QtCore.pyqtSignal(object)
 
@@ -267,6 +384,9 @@ class App(QMainWindow):
         create_new()
         if install_bool is True:
             sys.exit()
+
+        self.filter = ObjEveFilter()
+        # self.installEventFilter(self.filter)
 
         self.cursorMove.connect(self.handleCursorMove)
         self.timer = QTimer(self)
@@ -281,7 +401,7 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
 
         self.width = 324
-        self.height = 534
+        self.height = 564
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -297,6 +417,7 @@ class App(QMainWindow):
         self.setPalette(p)
 
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
+        self.font_s8 = QFont("Segoe UI", 8)
         self.font_s9b = QFont("Segoe UI", 10, QFont.Bold)
 
         self.cmb_style = """QComboBox {background-color: rgb(0, 0, 0);
@@ -326,6 +447,13 @@ class App(QMainWindow):
            border-bottom:2px solid rgb(0, 0, 0);
            border-right:2px solid rgb(0, 0, 0);
            border-left:2px solid rgb(0, 0, 0);}"""
+
+        self.lbl_data_style_tooltip = """QLabel {background-color: rgb(35, 35, 35);
+                   color: rgb(180, 180, 180);
+                   border-top:0px solid rgb(35, 35, 35);
+                   border-bottom:0px solid rgb(35, 35, 35);
+                   border-right:0px solid rgb(0, 0, 0);
+                   border-left:0px solid rgb(0, 0, 0);}"""
 
         self.btn_enabled_style = """QPushButton{background-color: rgb(35, 35, 35);
                    color: rgb(180, 180, 180);
@@ -381,6 +509,16 @@ class App(QMainWindow):
            border:0px solid rgb(35, 35, 35);}"""
         )
         print('-- created:', self.lbl_title_bg)
+
+        self.lbl_main_bg = QLabel(self)
+        self.lbl_main_bg.move(0, 20)
+        self.lbl_main_bg.resize(self.width, self.height)
+        self.lbl_main_bg.setStyleSheet(
+            """QLabel {background-color: rgb(0, 0, 0);
+           border:0px solid rgb(35, 35, 35);}"""
+        )
+        print('-- created:', self.lbl_main_bg)
+        self.lbl_main_bg.installEventFilter(self.filter)
 
         self.lbl_title = QLabel(self)
         self.lbl_title.move((self.width / 2) - 45, 20)
@@ -467,6 +605,8 @@ class App(QMainWindow):
         self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_cpu_mon.clicked.connect(self.btn_cpu_mon_function)
         print('-- created:', self.btn_cpu_mon)
+        global_obj_enable_disable.append(self.btn_cpu_mon)
+        self.btn_cpu_mon.installEventFilter(self.filter)
 
         self.btn_cpu_mon_rgb_on = QLineEdit(self)
         self.btn_cpu_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -474,6 +614,9 @@ class App(QMainWindow):
         self.btn_cpu_mon_rgb_on.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_on.returnPressed.connect(self.btn_cpu_mon_rgb_on_function)
         self.btn_cpu_mon_rgb_on.setStyleSheet(self.qle_unselected)
+        print('-- created:', self.btn_cpu_mon_rgb_on)
+        global_obj_rgb_color_on.append(self.btn_cpu_mon_rgb_on)
+        self.btn_cpu_mon_rgb_on.installEventFilter(self.filter)
 
         self.btn_cpu_mon_rgb_off = QLineEdit(self)
         self.btn_cpu_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -481,6 +624,9 @@ class App(QMainWindow):
         self.btn_cpu_mon_rgb_off.setFont(self.font_s8b)
         self.btn_cpu_mon_rgb_off.returnPressed.connect(self.btn_cpu_mon_rgb_off_function)
         self.btn_cpu_mon_rgb_off.setStyleSheet(self.qle_unselected)
+        print('-- created:', self.btn_cpu_mon_rgb_off)
+        global_obj_rgb_color_off.append(self.btn_cpu_mon_rgb_off)
+        self.btn_cpu_mon_rgb_off.installEventFilter(self.filter)
 
         self.btn_cpu_led_time_on = QLineEdit(self)
         self.btn_cpu_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
@@ -488,6 +634,9 @@ class App(QMainWindow):
         self.btn_cpu_led_time_on.setFont(self.font_s8b)
         self.btn_cpu_led_time_on.returnPressed.connect(self.btn_cpu_led_time_on_function)
         self.btn_cpu_led_time_on.setStyleSheet(self.qle_unselected)
+        global_obj_time_interval.append(self.btn_cpu_led_time_on)
+        self.btn_cpu_led_time_on.installEventFilter(self.filter)
+        print('-- created btn_cpu_led_time_on:', self.btn_cpu_led_time_on)
 
         self.lbl_dram_mon = QLabel(self)
         self.lbl_dram_mon.move(2, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
@@ -504,6 +653,8 @@ class App(QMainWindow):
         self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_dram_mon.clicked.connect(self.btn_dram_mon_function)
         print('-- created:', self.btn_dram_mon)
+        global_obj_enable_disable.append(self.btn_dram_mon)
+        self.btn_dram_mon.installEventFilter(self.filter)
 
         self.btn_dram_mon_rgb_on = QLineEdit(self)
         self.btn_dram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -511,6 +662,8 @@ class App(QMainWindow):
         self.btn_dram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_on.returnPressed.connect(self.btn_dram_mon_rgb_on_function)
         self.btn_dram_mon_rgb_on.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_on.append(self.btn_dram_mon_rgb_on)
+        self.btn_dram_mon_rgb_on.installEventFilter(self.filter)
 
         self.btn_dram_mon_rgb_off = QLineEdit(self)
         self.btn_dram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -518,6 +671,8 @@ class App(QMainWindow):
         self.btn_dram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_dram_mon_rgb_off.returnPressed.connect(self.btn_dram_mon_rgb_off_function)
         self.btn_dram_mon_rgb_off.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_off.append(self.btn_dram_mon_rgb_off)
+        self.btn_dram_mon_rgb_off.installEventFilter(self.filter)
 
         self.btn_dram_led_time_on = QLineEdit(self)
         self.btn_dram_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
@@ -525,6 +680,9 @@ class App(QMainWindow):
         self.btn_dram_led_time_on.setFont(self.font_s8b)
         self.btn_dram_led_time_on.returnPressed.connect(self.btn_dram_led_time_on_function)
         self.btn_dram_led_time_on.setStyleSheet(self.qle_unselected)
+        global_obj_time_interval.append(self.btn_dram_led_time_on)
+        self.btn_dram_led_time_on.installEventFilter(self.filter)
+        print('-- created btn_dram_led_time_on:', self.btn_dram_led_time_on)
 
         self.lbl_vram_mon = QLabel(self)
         self.lbl_vram_mon.move(2, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
@@ -541,6 +699,8 @@ class App(QMainWindow):
         self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_vram_mon.clicked.connect(self.btn_vram_mon_function)
         print('-- created:', self.btn_vram_mon)
+        global_obj_enable_disable.append(self.btn_vram_mon)
+        self.btn_vram_mon.installEventFilter(self.filter)
 
         self.btn_vram_mon_rgb_on = QLineEdit(self)
         self.btn_vram_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -548,6 +708,8 @@ class App(QMainWindow):
         self.btn_vram_mon_rgb_on.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_on.returnPressed.connect(self.btn_vram_mon_rgb_on_function)
         self.btn_vram_mon_rgb_on.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_on.append(self.btn_vram_mon_rgb_on)
+        self.btn_vram_mon_rgb_on.installEventFilter(self.filter)
 
         self.btn_vram_mon_rgb_off = QLineEdit(self)
         self.btn_vram_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -555,6 +717,8 @@ class App(QMainWindow):
         self.btn_vram_mon_rgb_off.setFont(self.font_s8b)
         self.btn_vram_mon_rgb_off.returnPressed.connect(self.btn_vram_mon_rgb_off_function)
         self.btn_vram_mon_rgb_off.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_off.append(self.btn_vram_mon_rgb_off)
+        self.btn_vram_mon_rgb_off.installEventFilter(self.filter)
 
         self.btn_vram_led_time_on = QLineEdit(self)
         self.btn_vram_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
@@ -562,6 +726,9 @@ class App(QMainWindow):
         self.btn_vram_led_time_on.setFont(self.font_s8b)
         self.btn_vram_led_time_on.returnPressed.connect(self.btn_vram_led_time_on_function)
         self.btn_vram_led_time_on.setStyleSheet(self.qle_unselected)
+        global_obj_time_interval.append(self.btn_vram_led_time_on)
+        self.btn_vram_led_time_on.installEventFilter(self.filter)
+        print('-- created btn_vram_led_time_on:', self.btn_vram_led_time_on)
 
         self.lbl_disks_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 4) + (self.inner_group_spacing_h * 4) + self.group_spacing_h)
 
@@ -589,6 +756,8 @@ class App(QMainWindow):
         self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
         self.btn_hdd_mon.clicked.connect(self.btn_hdd_mon_function)
         print('-- created:', self.btn_hdd_mon)
+        global_obj_enable_disable.append(self.btn_hdd_mon)
+        self.btn_hdd_mon.installEventFilter(self.filter)
 
         self.btn_hdd_mon_rgb_on = QLineEdit(self)
         self.btn_hdd_mon_rgb_on.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -596,6 +765,8 @@ class App(QMainWindow):
         self.btn_hdd_mon_rgb_on.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_on.returnPressed.connect(self.btn_hdd_mon_rgb_on_function)
         self.btn_hdd_mon_rgb_on.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_on.append(self.btn_hdd_mon_rgb_on)
+        self.btn_hdd_mon_rgb_on.installEventFilter(self.filter)
 
         self.btn_hdd_mon_rgb_off = QLineEdit(self)
         self.btn_hdd_mon_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -603,6 +774,8 @@ class App(QMainWindow):
         self.btn_hdd_mon_rgb_off.setFont(self.font_s8b)
         self.btn_hdd_mon_rgb_off.returnPressed.connect(self.btn_hdd_mon_rgb_off_function)
         self.btn_hdd_mon_rgb_off.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_off.append(self.btn_hdd_mon_rgb_off)
+        self.btn_hdd_mon_rgb_off.installEventFilter(self.filter)
 
         self.btn_hdd_led_time_on = QLineEdit(self)
         self.btn_hdd_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
@@ -610,6 +783,9 @@ class App(QMainWindow):
         self.btn_hdd_led_time_on.setFont(self.font_s8b)
         self.btn_hdd_led_time_on.returnPressed.connect(self.btn_hdd_led_time_on_function)
         self.btn_hdd_led_time_on.setStyleSheet(self.qle_unselected)
+        global_obj_time_interval.append(self.btn_hdd_led_time_on)
+        self.btn_hdd_led_time_on.installEventFilter(self.filter)
+        print('-- created btn_hdd_led_time_on:', self.btn_hdd_led_time_on)
 
         self.lbl_network_traffic_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 6) + (self.inner_group_spacing_h * 6) + (self.group_spacing_h * 2))
 
@@ -635,6 +811,8 @@ class App(QMainWindow):
         self.cmb_network_adapter_name.move(self.monitor_btn_w + 4, self.lbl_network_traffic_anchor_h + self.object_height + self.inner_group_spacing_h)
         self.cmb_network_adapter_name.setStyleSheet(self.cmb_style)
         self.cmb_network_adapter_name.activated[str].connect(self.cmb_network_adapter_name_function)
+        global_obj_combo.append(self.cmb_network_adapter_name)
+        self.cmb_network_adapter_name.installEventFilter(self.filter)
 
         self.btn_network_adapter_refresh = QPushButton(self)
         self.btn_network_adapter_refresh.move((self.monitor_btn_w * 4) + 10, self.lbl_network_traffic_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -644,6 +822,8 @@ class App(QMainWindow):
         self.btn_network_adapter_refresh.setStyleSheet(self.btn_disabled_style)
         self.btn_network_adapter_refresh.clicked.connect(self.btn_network_adapter_refresh_function)
         print('-- created:', self.btn_network_adapter_refresh)
+        global_obj_refresh.append(self.btn_network_adapter_refresh)
+        self.btn_network_adapter_refresh.installEventFilter(self.filter)
 
         self.btn_network_adapter = QPushButton(self)
         self.btn_network_adapter.move((self.monitor_btn_w * 2) + 6, self.lbl_network_traffic_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
@@ -652,6 +832,8 @@ class App(QMainWindow):
         self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
         self.btn_network_adapter.clicked.connect(self.btn_network_adapter_function)
         print('-- created:', self.btn_network_adapter)
+        global_obj_enable_disable.append(self.btn_network_adapter)
+        self.btn_network_adapter.installEventFilter(self.filter)
 
         self.btn_network_adapter_rgb_off = QLineEdit(self)
         self.btn_network_adapter_rgb_off.resize(self.monitor_btn_w, self.monitor_btn_h)
@@ -659,6 +841,8 @@ class App(QMainWindow):
         self.btn_network_adapter_rgb_off.setFont(self.font_s8b)
         self.btn_network_adapter_rgb_off.returnPressed.connect(self.btn_network_adapter_mon_rgb_off_function)
         self.btn_network_adapter_rgb_off.setStyleSheet(self.qle_unselected)
+        global_obj_rgb_color_off.append(self.btn_network_adapter_rgb_off)
+        self.btn_network_adapter_rgb_off.installEventFilter(self.filter)
 
         self.btn_network_adapter_led_time_on = QLineEdit(self)
         self.btn_network_adapter_led_time_on.resize(self.monitor_btn_w / 3, self.monitor_btn_h)
@@ -666,6 +850,9 @@ class App(QMainWindow):
         self.btn_network_adapter_led_time_on.setFont(self.font_s8b)
         self.btn_network_adapter_led_time_on.returnPressed.connect(self.btn_network_adapter_led_time_on_function)
         self.btn_network_adapter_led_time_on.setStyleSheet(self.qle_unselected)
+        global_obj_time_interval.append(self.btn_network_adapter_led_time_on)
+        self.btn_network_adapter_led_time_on.installEventFilter(self.filter)
+        print('-- created btn_network_adapter_led_time_on:', self.btn_network_adapter_led_time_on)
 
         self.lbl_connectivity_anchor_h = (self.lbl_utilization_anchor_h + (self.object_height * 9) + (self.inner_group_spacing_h * 9) + (self.group_spacing_h * 3))
 
@@ -693,6 +880,8 @@ class App(QMainWindow):
         self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
         self.btn_net_con_mouse.clicked.connect(self.btn_net_con_mouse_function)
         print('-- created:', self.btn_net_con_mouse)
+        global_obj_enable_disable.append(self.btn_net_con_mouse)
+        self.btn_net_con_mouse.installEventFilter(self.filter)
 
         self.btn_net_con_mouse_led_selected_prev = QPushButton(self)
         self.btn_net_con_mouse_led_selected_prev.move((self.monitor_btn_w * 2) + 8, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -702,6 +891,8 @@ class App(QMainWindow):
         self.btn_net_con_mouse_led_selected_prev.setStyleSheet(self.btn_enabled_style)
         self.btn_net_con_mouse_led_selected_prev.clicked.connect(self.btn_net_con_mouse_led_selected_prev_function)
         print('-- created:', self.btn_net_con_mouse_led_selected_prev)
+        global_obj_inet_con.append(self.btn_net_con_mouse_led_selected_prev)
+        self.btn_net_con_mouse_led_selected_prev.installEventFilter(self.filter)
 
         self.lbl_net_con_mouse_led_selected = QLabel(self)
         self.lbl_net_con_mouse_led_selected.move((self.monitor_btn_w * 2) + (self.monitor_btn_w / 3) + 10, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -709,6 +900,8 @@ class App(QMainWindow):
         self.lbl_net_con_mouse_led_selected.setFont(self.font_s8b)
         self.lbl_net_con_mouse_led_selected.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_mouse_led_selected)
+        global_obj_inet_con.append(self.lbl_net_con_mouse_led_selected)
+        self.lbl_net_con_mouse_led_selected.installEventFilter(self.filter)
 
         self.btn_net_con_mouse_led_selected_next = QPushButton(self)
         self.btn_net_con_mouse_led_selected_next.move((self.monitor_btn_w * 2) + (self.monitor_btn_w / 2) + (self.monitor_btn_w / 3) + 20, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -718,6 +911,8 @@ class App(QMainWindow):
         self.btn_net_con_mouse_led_selected_next.setStyleSheet(self.btn_enabled_style)
         self.btn_net_con_mouse_led_selected_next.clicked.connect(self.btn_net_con_mouse_led_selected_next_function)
         print('-- created:', self.btn_net_con_mouse_led_selected_next)
+        global_obj_inet_con.append(self.btn_net_con_mouse_led_selected_next)
+        self.btn_net_con_mouse_led_selected_next.installEventFilter(self.filter)
 
         self.lbl_net_con_kb = QLabel(self)
         self.lbl_net_con_kb.move(2, self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
@@ -734,6 +929,8 @@ class App(QMainWindow):
         self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
         self.btn_net_con_kb.clicked.connect(self.btn_net_con_kb_function)
         print('-- created:', self.btn_net_con_kb)
+        global_obj_enable_disable.append(self.btn_net_con_kb)
+        self.btn_net_con_kb.installEventFilter(self.filter)
 
         self.btn_net_con = QPushButton(self)
         self.btn_net_con.move((self.monitor_btn_w * 3) + 10 + (self.monitor_btn_w / 3), self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -742,9 +939,11 @@ class App(QMainWindow):
         self.btn_net_con.setStyleSheet(self.btn_disabled_style)
         self.btn_net_con.clicked.connect(self.btn_net_con_function)
         print('-- created:', self.btn_net_con)
+        global_obj_enable_disable.append(self.btn_net_con)
+        self.btn_net_con.installEventFilter(self.filter)
 
         self.lbl_settings = QLabel(self)
-        self.lbl_settings.move(2, ((self.height - self.monitor_btn_h * 4) - 16))
+        self.lbl_settings.move(2, ((self.height - self.monitor_btn_h * 4) - 46))
         self.lbl_settings.resize(self.width - 4, self.monitor_btn_h)
         self.lbl_settings.setFont(self.font_s8b)
         self.lbl_settings.setText('SETTINGS')
@@ -753,7 +952,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_settings)
 
         self.lbl_exclusive_con = QLabel(self)
-        self.lbl_exclusive_con.move(2, ((self.height - self.monitor_btn_h * 3) - 12))
+        self.lbl_exclusive_con.move(2, ((self.height - self.monitor_btn_h * 3) - 42))
         self.lbl_exclusive_con.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
         self.lbl_exclusive_con.setFont(self.font_s8b)
         self.lbl_exclusive_con.setText(' EXCLUSIVE CONTROL')
@@ -761,7 +960,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_exclusive_con)
 
         self.btn_exclusive_con = QPushButton(self)
-        self.btn_exclusive_con.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 3) - 12))
+        self.btn_exclusive_con.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 3) - 42))
         self.btn_exclusive_con.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_exclusive_con.setFont(self.font_s8b)
         self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
@@ -769,7 +968,7 @@ class App(QMainWindow):
         print('-- created:', self.btn_exclusive_con)
 
         self.lbl_run_startup = QLabel(self)
-        self.lbl_run_startup.move(2, ((self.height - self.monitor_btn_h * 2) - 8))
+        self.lbl_run_startup.move(2, ((self.height - self.monitor_btn_h * 2) - 38))
         self.lbl_run_startup.resize((self.monitor_btn_w * 2) + 2, self.monitor_btn_h)
         self.lbl_run_startup.setFont(self.font_s8b)
         self.lbl_run_startup.setText(' AUTOMATIC STARTUP')
@@ -777,7 +976,7 @@ class App(QMainWindow):
         print('-- created:', self.lbl_run_startup)
 
         self.btn_run_startup = QPushButton(self)
-        self.btn_run_startup.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 2) - 8))
+        self.btn_run_startup.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h * 2) - 38))
         self.btn_run_startup.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_run_startup.setFont(self.font_s8b)
         self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
@@ -785,7 +984,7 @@ class App(QMainWindow):
         print('-- created:', self.btn_run_startup)
 
         self.lbl_start_minimized = QLabel(self)
-        self.lbl_start_minimized.move(2, ((self.height - self.monitor_btn_h) - 4))
+        self.lbl_start_minimized.move(2, ((self.height - self.monitor_btn_h) - 34))
         self.lbl_start_minimized.resize((self.monitor_btn_w * 2 + 2), self.monitor_btn_h)
         self.lbl_start_minimized.setFont(self.font_s8b)
         self.lbl_start_minimized.setText(' START MINIMIZED')
@@ -793,12 +992,22 @@ class App(QMainWindow):
         print('-- created:', self.lbl_start_minimized)
 
         self.btn_start_minimized = QPushButton(self)
-        self.btn_start_minimized.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h) - 4))
+        self.btn_start_minimized.move((self.monitor_btn_w * 2) + 6, ((self.height - self.monitor_btn_h) - 34))
         self.btn_start_minimized.resize(self.monitor_btn_w, self.monitor_btn_h)
         self.btn_start_minimized.setFont(self.font_s8b)
         self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
         self.btn_start_minimized.clicked.connect(self.btn_start_minimized_function)
         print('-- created:', self.btn_start_minimized)
+
+        self.lbl_tooltip = QLabel(self)
+        self.lbl_tooltip.move(0, self.height - 20)
+        self.lbl_tooltip.resize(self.width, 20)
+        self.lbl_tooltip.setFont(self.font_s8b)
+        # self.lbl_tooltip.setText('')
+        self.lbl_tooltip.setAlignment(Qt.AlignCenter)
+        self.lbl_tooltip.setStyleSheet(self.lbl_data_style_tooltip)
+        print('-- created:', self.lbl_tooltip)
+        global_tooltip.append(self.lbl_tooltip)
 
         self.height_tmp = self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2) + (self.object_height * 4) + (self.group_spacing_h)
         print(self.height_tmp)
