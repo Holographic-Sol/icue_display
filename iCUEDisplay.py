@@ -3388,11 +3388,11 @@ class HddMonClass(QThread):
                 if self.hdd_display_key_read_bool[hdd_i] is True and self.hdd_display_key_read_bool_prev[hdd_i] != self.hdd_display_key_read_bool[hdd_i]:
                     sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_read_item[hdd_i])
                     self.hdd_display_key_read_bool_prev[hdd_i] = True
-                    # print('-- setting drive letter:', hdd_led_item[hdd_i], 'True')
+                    # print('-- setting drive letter:', hdd_led_read_item[hdd_i], 'True')
                 elif self.hdd_display_key_read_bool[hdd_i] is False and self.hdd_display_key_read_bool_prev[hdd_i] != self.hdd_display_key_read_bool[hdd_i]:
-                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_read_item[hdd_i])
+                    sdk.set_led_colors_buffer_by_device_index(key_board[key_board_selected], hdd_led_off_item[hdd_i])
                     self.hdd_display_key_read_bool_prev[hdd_i] = False
-                    # print('-- setting drive letter:', hdd_led_item[hdd_i], 'False')
+                    # print('-- setting drive letter:', hdd_led_read_item[hdd_i], 'False')
 
                 hdd_i += 1
         except Exception as e:
@@ -3418,9 +3418,7 @@ class HddMonClass(QThread):
                             if len(var) >= 2:
                                 disk_letter = var[1]
                                 disk_letter = disk_letter.replace(':', '')
-
                                 if len(disk_letter) == 1:
-                                    # if int(objItem.DiskWriteBytesPersec) > 0:
                                     i = 0
                                     for _ in alpha_str:
                                         if canonical_caseless(disk_letter) == canonical_caseless(alpha_str[i]):
@@ -3429,7 +3427,6 @@ class HddMonClass(QThread):
                                             elif int(objItem.DiskReadBytesPersec) > 0:
                                                 self.hdd_display_key_read_bool[i] = True
                                         i += 1
-
                         except Exception as e:
                             print('[NAME]: HddMonClass [FUNCTION]: get_stat [EXCEPTION]:', e)
         except Exception as e:
