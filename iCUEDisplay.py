@@ -3427,7 +3427,7 @@ class HddMonClass(QThread):
                                         if canonical_caseless(disk_letter) == canonical_caseless(alpha_str[i]):
                                             if int(objItem.DiskWriteBytesPersec) > 0:
                                                 self.hdd_display_key_bool[i] = True
-                                            elif int(objItem.DiskReadBytesPersec) > 0:
+                                            if int(objItem.DiskReadBytesPersec) > 0:
                                                 self.hdd_display_key_read_bool[i] = True
                                         i += 1
                         except Exception as e:
