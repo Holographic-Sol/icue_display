@@ -78,6 +78,8 @@ mon_threads = []
 conf_thread = []
 key_board = []
 key_board_selected = 0
+key_board_name = []
+mouse_name = []
 mouse_device = []
 mouse_device_selected = 0
 prev_device = []
@@ -386,7 +388,6 @@ class App(QMainWindow):
             sys.exit()
 
         self.filter = ObjEveFilter()
-        # self.installEventFilter(self.filter)
 
         self.cursorMove.connect(self.handleCursorMove)
         self.timer = QTimer(self)
@@ -401,7 +402,7 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
 
         self.width = 324
-        self.height = 564
+        self.height = 608
         self.prev_pos = self.pos()
         self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
         self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
@@ -428,7 +429,7 @@ class App(QMainWindow):
                    border-left:2px solid rgb(0, 0, 0);}"""
 
         self.lbl_stat_con_style_sub = """QLabel {background-color: rgb(0, 0, 0);
-                   color: rgb(0, 255, 0);
+                   color: rgb(180, 180, 180);
                    border-top:2px solid rgb(0, 0, 0);
                    border-bottom:2px solid rgb(0, 0, 0);
                    border-right:2px solid rgb(0, 0, 0);
@@ -490,17 +491,6 @@ class App(QMainWindow):
         self.monitor_btn_pos_w = 2
         self.monitor_btn_pos_h = 24
 
-        self.btn_title_logo = QPushButton(self)
-        self.btn_title_logo.move(0, 0)
-        self.btn_title_logo.resize(self.title_bar_h, self.title_bar_h)
-        self.btn_title_logo.setIconSize(QSize(self.title_bar_btn_w, self.title_bar_btn_w))
-        self.btn_title_logo.setStyleSheet(
-            """QPushButton{background-color: rgb(0, 0, 0);
-               border:0px solid rgb(0, 0, 0);}"""
-        )
-        self.btn_title_logo.setEnabled(False)
-        print('-- created:', self.btn_title_logo)
-
         self.lbl_title_bg = QLabel(self)
         self.lbl_title_bg.move(self.title_bar_btn_w, 0)
         self.lbl_title_bg.resize((self.width - (self.title_bar_btn_w * 2)), self.title_bar_h)
@@ -530,6 +520,17 @@ class App(QMainWindow):
                            border:0px solid rgb(35, 35, 35);}""")
         print('-- created:', self.lbl_title)
 
+        self.btn_title_logo = QPushButton(self)
+        self.btn_title_logo.move(4, 0)
+        self.btn_title_logo.resize(54, 54)
+        self.btn_title_logo.setIcon(QIcon("./image/logo.png"))
+        self.btn_title_logo.setIconSize(QSize(54, 54))
+        self.btn_title_logo.setStyleSheet(
+            """QPushButton{background-color: rgb(0, 0, 0);
+               border:0px solid rgb(0, 0, 0);}"""
+        )
+        print('-- created:', self.btn_title_logo)
+
         self.btn_quit = QPushButton(self)
         self.btn_quit.move((self.width - 20), 0)
         self.btn_quit.resize(20, 20)
@@ -558,7 +559,7 @@ class App(QMainWindow):
         self.group_spacing_h = 10
         self.object_height = 20
 
-        self.lbl_status_anchor_h = 50
+        self.lbl_status_anchor_h = 54
 
         self.lbl_status = QLabel(self)
         self.lbl_status.move(2, self.lbl_status_anchor_h)
@@ -571,14 +572,30 @@ class App(QMainWindow):
 
         self.lbl_con_stat_name = QLabel(self)
         self.lbl_con_stat_name.move(2, self.lbl_status_anchor_h + self.object_height + self.inner_group_spacing_h)
-        self.lbl_con_stat_name.resize(self.monitor_btn_w * 2, self.monitor_btn_h)
+        self.lbl_con_stat_name.resize(self.width - 4, self.monitor_btn_h)
         self.lbl_con_stat_name.setFont(self.font_s8b)
         self.lbl_con_stat_name.setText(' Connected: ')
+        self.lbl_con_stat_name.setAlignment(Qt.AlignCenter)
         self.lbl_con_stat_name.setStyleSheet(self.lbl_stat_con_style_sub)
         print('-- created:', self.lbl_con_stat_name)
 
-        # self.lbl_utilization_anchor_h = 100
-        self.lbl_utilization_anchor_h = (self.lbl_status_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2) + self.group_spacing_h)
+        self.lbl_con_stat_kb = QLabel(self)
+        self.lbl_con_stat_kb.move(2, self.lbl_status_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
+        self.lbl_con_stat_kb.resize(self.monitor_btn_w * 4, self.monitor_btn_h)
+        self.lbl_con_stat_kb.setFont(self.font_s8b)
+        self.lbl_con_stat_kb.setText(' Keyboard: ')
+        self.lbl_con_stat_kb.setStyleSheet(self.lbl_stat_con_style_sub)
+        print('-- created:', self.lbl_con_stat_kb)
+
+        self.lbl_con_stat_mouse = QLabel(self)
+        self.lbl_con_stat_mouse.move(2, self.lbl_status_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
+        self.lbl_con_stat_mouse.resize(self.monitor_btn_w * 4, self.monitor_btn_h)
+        self.lbl_con_stat_mouse.setFont(self.font_s8b)
+        self.lbl_con_stat_mouse.setText(' Mouse: ')
+        self.lbl_con_stat_mouse.setStyleSheet(self.lbl_stat_con_style_sub)
+        print('-- created:', self.lbl_con_stat_mouse)
+
+        self.lbl_utilization_anchor_h = (self.lbl_status_anchor_h + (self.object_height * 4) + (self.inner_group_spacing_h * 4) + self.group_spacing_h)
 
         self.lbl_utilization = QLabel(self)
         self.lbl_utilization.move(2, self.lbl_utilization_anchor_h)
@@ -1826,7 +1843,7 @@ class App(QMainWindow):
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color
         global cpu_led_color_off, dram_led_color_off, vram_led_color_off, hdd_led_color_off
         global start_minimized_bool, compile_devices_thread
-        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat_name)
+        compile_devices_thread_0 = CompileDevicesClass(self.lbl_con_stat_name, self.lbl_con_stat_kb, self.lbl_con_stat_mouse)
         compile_devices_thread.append(compile_devices_thread_0)
         compile_devices_thread[0].start()
         read_configuration_thread = ReadConfigurationClass()
@@ -2016,9 +2033,11 @@ class App(QMainWindow):
 
 
 class CompileDevicesClass(QThread):
-    def __init__(self, lbl_con_stat_name):
+    def __init__(self, lbl_con_stat_name, lbl_con_stat_kb, lbl_con_stat_mouse):
         QThread.__init__(self)
         self.lbl_con_stat_name = lbl_con_stat_name
+        self.lbl_con_stat_kb = lbl_con_stat_kb
+        self.lbl_con_stat_mouse = lbl_con_stat_mouse
         self.device_str = ''
         self.device_index = ()
         self.compile_dicts_key = ()
@@ -2178,7 +2197,7 @@ class CompileDevicesClass(QThread):
         global network_adapter_led_rcv_item_unit_led, network_adapter_led_snt_item_unit_led
         global cpu_led_id, dram_led_id, vram_led_id, cpu_led, dram_led, vram_led
         global enum_compile_kb_bool, enum_compile_m_bool, ping_test_f11, ping_test_f12
-        global corsair_led_id_f11, corsair_led_id_f12
+        global corsair_led_id_f11, corsair_led_id_f12, key_board_name, mouse_name
         print('-- enumerating device:', self.device_str)
 
         # 1. Get Key Names & Key IDs
@@ -2194,7 +2213,10 @@ class CompileDevicesClass(QThread):
                 key_name = []
                 key_id = []
                 key_board = []
+                key_board_name = []
                 key_board.append(self.device_index)
+                key_board_name.append(sdk.get_device_info(key_board[0]))
+                print('KEYBOARD NAME:', key_board_name)
                 for _ in led_position_str:
                     var = _.split()
                     var_0 = var[0]
@@ -2250,7 +2272,10 @@ class CompileDevicesClass(QThread):
                 enum_compile_m_bool = False
                 mouse_device = []
                 m_key_id = ['', '', '', '']
+                mouse_name = []
                 mouse_device.append(int(self.device_index))
+                mouse_name.append(sdk.get_device_info(mouse_device[0]))
+                print('MOUSE NAME:', mouse_name[0])
                 for _ in led_position_str:
                     var = _.split()
                     var_0 = var[0]
@@ -2374,6 +2399,7 @@ class CompileDevicesClass(QThread):
                 self.stop_all_threads()
             prev_device = []
             self.lbl_con_stat_name.setText(' Connected:  False')
+            self.lbl_con_stat_name.setAlignment(Qt.AlignCenter)
             time.sleep(2)
             self.attempt_connect()
 
@@ -2381,11 +2407,12 @@ class CompileDevicesClass(QThread):
             # print('-- connected to icue')
             connected_bool = True
             self.lbl_con_stat_name.setText(' Connected:  True')
+            self.lbl_con_stat_name.setAlignment(Qt.AlignCenter)
             self.get_devices()
 
     def get_devices(self):
         # print('-- plugged in: get_devices')
-        global sdk, prev_device, enum_compile_kb_bool, enum_compile_m_bool, mon_threads, key_board, mouse_device
+        global sdk, prev_device, enum_compile_kb_bool, enum_compile_m_bool, mon_threads, key_board, mouse_device, key_board_name
         enum_compile_kb_bool = False
         enum_compile_m_bool = False
         fresh_start = False
@@ -2417,6 +2444,15 @@ class CompileDevicesClass(QThread):
             self.start_kb_threads()
             self.start_m_threads()
             self.start_mouse_kb_threads()
+
+            if len(key_board) >= 1:
+                self.lbl_con_stat_kb.setText(' Keyboard:  ' + str(key_board_name[0]))
+            elif len(key_board) < 1:
+                self.lbl_con_stat_kb.setText(' Keyboard: ')
+            if len(mouse_device) >= 1:
+                self.lbl_con_stat_mouse.setText(' Mouse:       ' + str(mouse_name[0]))
+            elif len(mouse_device) < 1:
+                self.lbl_con_stat_mouse.setText(' Mouse: ')
 
     def run(self):
         print('-- plugged in: CompileDevicesClass.run')
