@@ -260,6 +260,7 @@ def create_new():
 
 
 global_tooltip = []
+global_obj_sub_title = []
 global_obj_enable_disable = []
 global_obj_time_interval = []
 global_obj_rgb_color_on = []
@@ -271,13 +272,36 @@ global_obj_refresh = []
 
 class ObjEveFilter(QObject):
     def eventFilter(self, obj, event):
+        global global_tooltip
         obj_eve = obj, event
 
         # Uncomment This Line To See All Object Events
-        # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+        print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+
+        # Sub-titles
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] in global_obj_sub_title:
+            print('-- filtered mouse move event in global_obj_time_interval for object:', global_obj_sub_title)
+            print('obj_eve[0]:', obj_eve[0], '   glpbal_obj_sub_title[0]:', global_obj_sub_title[0])
+            if obj_eve[0] == global_obj_sub_title[0]:
+                print('TRUE')
+                global_tooltip[0].setText('CPU Monitor: Keypad 1,4,7,Numlock (25% intervals)')
+            if obj_eve[0] == global_obj_sub_title[1]:
+                global_tooltip[0].setText('DRAM Monitor: Keypad 2,5,6,Slash (25% intervals)')
+            if obj_eve[0] == global_obj_sub_title[2]:
+                global_tooltip[0].setText('VRAM Monitor: Keypad 3,6,9,Asterisk (25% intervals)')
+            if obj_eve[0] == global_obj_sub_title[3]:
+                global_tooltip[0].setText('Write Monitor: Display writes to disk on keyboard keys A-Z')
+            if obj_eve[0] == global_obj_sub_title[4]:
+                global_tooltip[0].setText('Network Traffic Monitor: bytes/KB/MB/GB/TB 1/10/100/1000+')
+            if obj_eve[0] == global_obj_sub_title[5]:
+                global_tooltip[0].setText('Internet Connection Monitor: Displayed on Mouse')
+            if obj_eve[0] == global_obj_sub_title[6]:
+                global_tooltip[0].setText('Internet Connection Monitor: Displayed on Keyboard')
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEvent') and obj_eve[0] not in global_obj_sub_title:
+            global_tooltip[0].setText('')
 
         # Refresh
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_refresh:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_refresh:
             # print('-- filtered mouse move event in global_obj_time_interval for object:')
             if obj_eve[0] == global_obj_refresh[0]:
                 global_tooltip[0].setText('Refresh list of network adapters')
@@ -285,7 +309,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # Combo Box
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_combo:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_combo:
             # print('-- filtered mouse move event in global_obj_time_interval for object:')
             if obj_eve[0] == global_obj_combo[0]:
                 global_tooltip[0].setText('Select network adapter to monitor snt/rcv network traffic')
@@ -293,7 +317,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # Time interval
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_enable_disable:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_enable_disable:
             # print('-- filtered mouse move event in global_obj_time_interval for object:')
             if obj_eve[0] == global_obj_enable_disable[0]:
                 global_tooltip[0].setText('Enables/Disables CPU Monitor')
@@ -315,7 +339,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # Time interval
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_time_interval:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_time_interval:
             # print('-- filtered mouse move event in global_obj_time_interval for object:')
             if obj_eve[0] == global_obj_time_interval[0]:
                 global_tooltip[0].setText('CPU Monitor Time Interval: Between 0.1 and 5 seconds')
@@ -331,7 +355,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # RGB color on
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_on:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_on:
             # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
             if obj_eve[0] == global_obj_rgb_color_on[0]:
                 global_tooltip[0].setText('CPU Monitor: Set RGB color on (Red, Green, Blue) 0-255')
@@ -345,7 +369,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # RGB color off
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_off:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_rgb_color_off:
             # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
             global_tooltip[0].setText('Set RGB color off (Red, Green, Blue) 0-255')
             if obj_eve[0] == global_obj_rgb_color_off[0]:
@@ -362,7 +386,7 @@ class ObjEveFilter(QObject):
             global_tooltip[0].setText('')
 
         # Select which mouse led's display internet connectivity
-        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_inet_con:
+        elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QHoverEvent') and obj_eve[0] in global_obj_inet_con:
             # print('-- filtered mouse move event in global_obj_rgb_color_on for object:')
             if obj_eve[0] == global_obj_inet_con[0]:
                 global_tooltip[0].setText('Set which mouse LED will display internet connectivity (Prev.)')
@@ -381,7 +405,7 @@ class App(QMainWindow):
 
     def __init__(self):
         super(App, self).__init__()
-        global install_bool
+        global install_bool, global_tooltip
 
         create_new()
         if install_bool is True:
@@ -420,6 +444,13 @@ class App(QMainWindow):
         self.font_s8b = QFont("Segoe UI", 8, QFont.Bold)
         self.font_s8 = QFont("Segoe UI", 8)
         self.font_s9b = QFont("Segoe UI", 10, QFont.Bold)
+
+        self.tooltip_style = """QToolTip {background-color: rgb(35, 35, 35);
+                           color: rgb(180, 180, 180);
+                           border-top:0px solid rgb(35, 35, 35);
+                           border-bottom:0px solid rgb(35, 35, 35);
+                           border-right:0px solid rgb(0, 0, 0);
+                           border-left:0px solid rgb(0, 0, 0);}"""
 
         self.cmb_style = """QComboBox {background-color: rgb(0, 0, 0);
                    color: rgb(180, 180, 180);
@@ -483,6 +514,8 @@ class App(QMainWindow):
                        border-right:2px solid rgb(0, 0, 0);
                        border-top:2px solid rgb(0, 0, 0);
                        border-left:2px solid rgb(0, 0, 0);}"""
+
+        self.setStyleSheet(self.tooltip_style)
 
         self.title_bar_h = 20
         self.title_bar_btn_w = (self.title_bar_h * 1.5)
@@ -613,6 +646,8 @@ class App(QMainWindow):
         self.lbl_cpu_mon.setText(' CPU')
         self.lbl_cpu_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_cpu_mon)
+        global_obj_sub_title.append(self.lbl_cpu_mon)
+        self.lbl_cpu_mon.installEventFilter(self.filter)
 
         self.btn_cpu_mon = QPushButton(self)
         self.btn_cpu_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -662,6 +697,8 @@ class App(QMainWindow):
         self.lbl_dram_mon.setText(' DRAM')
         self.lbl_dram_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_dram_mon)
+        global_obj_sub_title.append(self.lbl_dram_mon)
+        self.lbl_dram_mon.installEventFilter(self.filter)
 
         self.btn_dram_mon = QPushButton(self)
         self.btn_dram_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
@@ -708,6 +745,8 @@ class App(QMainWindow):
         self.lbl_vram_mon.setText(' VRAM')
         self.lbl_vram_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_vram_mon)
+        global_obj_sub_title.append(self.lbl_vram_mon)
+        self.lbl_vram_mon.installEventFilter(self.filter)
 
         self.btn_vram_mon = QPushButton(self)
         self.btn_vram_mon.move(self.monitor_btn_w + 4, self.lbl_utilization_anchor_h + (self.object_height * 3) + (self.inner_group_spacing_h * 3))
@@ -765,6 +804,8 @@ class App(QMainWindow):
         self.lbl_hdd_mon.setText(' D. WRITES')
         self.lbl_hdd_mon.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_hdd_mon)
+        global_obj_sub_title.append(self.lbl_hdd_mon)
+        self.lbl_hdd_mon.installEventFilter(self.filter)
 
         self.btn_hdd_mon = QPushButton(self)
         self.btn_hdd_mon.move(self.monitor_btn_w + 4, self.lbl_disks_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -822,6 +863,9 @@ class App(QMainWindow):
         self.lbl_network_adapter.setText(' ADAPTER')
         self.lbl_network_adapter.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_network_adapter)
+        global_obj_sub_title.append(self.lbl_network_adapter)
+        self.lbl_network_adapter.installEventFilter(self.filter)
+        self.lbl_network_adapter.setToolTip('Network Bytes Sent:\nNumber of Bytes: F1 - F9\nBytes: Red\nKB: Green\nMB: Blue\nGB: Light Blue\nTB: White\nF10: Units (Red) Tens (Blue) Hundreds (Light Blue) Thousands+ (White)\n\nNetwork Bytes Received:\nNumber of Bytes: 1 - 9\nBytes: Red\nKB: Green\nMB: Blue\nGB: Light Blue\nTB: White\n10: Units (Red) Tens (Blue) Hundreds (Light Blue) Thousands+ (White)')
 
         self.cmb_network_adapter_name = QComboBox(self)
         self.cmb_network_adapter_name.resize((self.monitor_btn_w * 3) + 4, self.monitor_btn_h)
@@ -889,6 +933,8 @@ class App(QMainWindow):
         self.lbl_net_con_mouse.setText(' MOUSE')
         self.lbl_net_con_mouse.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_mouse)
+        global_obj_sub_title.append(self.lbl_net_con_mouse)
+        self.lbl_net_con_mouse.installEventFilter(self.filter)
 
         self.btn_net_con_mouse = QPushButton(self)
         self.btn_net_con_mouse.move(self.monitor_btn_w + 6, self.lbl_connectivity_anchor_h + self.object_height + self.inner_group_spacing_h)
@@ -938,6 +984,8 @@ class App(QMainWindow):
         self.lbl_net_con_kb.setText(' KEYBOARD')
         self.lbl_net_con_kb.setStyleSheet(self.lbl_data_style_sub)
         print('-- created:', self.lbl_net_con_kb)
+        global_obj_sub_title.append(self.lbl_net_con_kb)
+        self.lbl_net_con_kb.installEventFilter(self.filter)
 
         self.btn_net_con_kb = QPushButton(self)
         self.btn_net_con_kb.move(self.monitor_btn_w + 6, self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2))
