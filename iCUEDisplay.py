@@ -279,14 +279,12 @@ class ObjEveFilter(QObject):
         obj_eve = obj, event
 
         # Uncomment This Line To See All Object Events
-        print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+        # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
 
         # Sub-titles
         if str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] in global_obj_sub_title:
-            print('-- filtered mouse move event in global_obj_time_interval for object:', global_obj_sub_title)
-            print('obj_eve[0]:', obj_eve[0], '   glpbal_obj_sub_title[0]:', global_obj_sub_title[0])
+            # print('-- filtered mouse move event in global_obj_time_interval for object:', global_obj_sub_title)
             if obj_eve[0] == global_obj_sub_title[0]:
-                print('TRUE')
                 global_tooltip[0].setText('CPU Monitor: Keypad 1,4,7,Numlock (25% intervals)')
             if obj_eve[0] == global_obj_sub_title[1]:
                 global_tooltip[0].setText('DRAM Monitor: Keypad 2,5,6,Slash (25% intervals)')
@@ -353,7 +351,7 @@ class ObjEveFilter(QObject):
             if obj_eve[0] == global_obj_time_interval[2]:
                 global_tooltip[0].setText('VRAM Monitor Time Interval: Between 0.1 and 5 seconds')
             if obj_eve[0] == global_obj_time_interval[3]:
-                global_tooltip[0].setText('Disk Write Monitor Time Interval: Between 0.1 and 5 seconds')
+                global_tooltip[0].setText('Disk Write Monitor Time Interval: Between 0 and 5 seconds')
             if obj_eve[0] == global_obj_time_interval[4]:
                 global_tooltip[0].setText('Snt/Rcv Monitor Time Interval: Between 0.1 and 5 seconds')
         elif str(obj_eve[1]).startswith('<PyQt5.QtGui.QEnterEvent') and obj_eve[0] not in global_obj_time_interval:
@@ -1447,7 +1445,7 @@ class App(QMainWindow):
         try:
             self.write_var_float = float(float(self.write_var))
             print('-- write_var: is float', self.write_var_float)
-            if float(self.write_var_float) >= 0.1 and float(self.write_var_float) <= 5:
+            if float(self.write_var_float) >= 0.1 and float(self.write_var_float) <= 5 and self.write_var_key != 3:
                 if self.write_var_key == 0:
                     cpu_led_time_on = self.write_var_float
                     self.write_var = 'cpu_led_time_on: ' + self.write_var
@@ -1460,13 +1458,17 @@ class App(QMainWindow):
                     vram_led_time_on = self.write_var_float
                     self.write_var = 'vram_led_time_on: ' + self.write_var
                     self.write_var_bool = True
-                elif self.write_var_key == 3:
-                    hdd_led_time_on = self.write_var_float
-                    self.write_var = 'hdd_led_time_on: ' + self.write_var
-                    self.write_var_bool = True
+                # elif self.write_var_key == 3:
+                #     hdd_led_time_on = self.write_var_float
+                #     self.write_var = 'hdd_led_time_on: ' + self.write_var
+                #     self.write_var_bool = True
                 elif self.write_var_key == 4:
                     network_adapter_time_on = self.write_var_float
                     self.write_var = 'network_adapter_time_on: ' + self.write_var
+                    self.write_var_bool = True
+            if float(self.write_var_float) >= 0 and float(self.write_var_float) <= 5 and self.write_var_key == 3:
+                    hdd_led_time_on = self.write_var_float
+                    self.write_var = 'hdd_led_time_on: ' + self.write_var
                     self.write_var_bool = True
         except Exception as e:
             print('sanitize_interval:', e)
@@ -2785,7 +2787,7 @@ class ReadConfigurationClass(QThread):
                     line = line.replace('hdd_led_time_on: ', '')
                     try:
                         line = float(float(line))
-                        if line >= 0.1 and line <= 5:
+                        if line >= 0 and line <= 5:
                             hdd_led_time_on = line
                     except Exception as e:
                         hdd_led_time_on = 0.5
@@ -3395,6 +3397,7 @@ class HddMonClass(QThread):
                     # print('-- setting drive letter:', hdd_led_read_item[hdd_i], 'False')
 
                 hdd_i += 1
+
         except Exception as e:
             print('HddMonClass:', e)
         sdk.set_led_colors_flush_buffer()
