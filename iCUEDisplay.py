@@ -190,29 +190,29 @@ def create_new():
         print('-- creating new: configuration file')
         open('./config.dat', 'w').close()
         with open('./config.dat', 'a') as fo:
-            fo.writelines('cpu_led_color: 255,0,255\n')
+            fo.writelines('cpu_led_color: 0,255,0\n')
             fo.writelines('cpu_led_color_off: 0,0,0\n')
-            fo.writelines('cpu_led_time_on: 1.0\n')
+            fo.writelines('cpu_led_time_on: 0.1\n')
             fo.writelines('cpu_startup: true\n')
-            fo.writelines('dram_led_color: 255,0,255\n')
+            fo.writelines('dram_led_color: 0,255,0\n')
             fo.writelines('dram_led_color_off: 0,0,0\n')
-            fo.writelines('dram_led_time_on: 1\n')
+            fo.writelines('dram_led_time_on: 2.0\n')
             fo.writelines('dram_startup: true\n')
-            fo.writelines('vram_led_color: 255,0,255\n')
+            fo.writelines('vram_led_color: 0,255,0\n')
             fo.writelines('vram_led_color_off: 0,0,0\n')
-            fo.writelines('vram_led_time_on: 1\n')
+            fo.writelines('vram_led_time_on: 2.0\n')
             fo.writelines('vram_startup: true\n')
             fo.writelines('gpu_num: 0\n')
-            fo.writelines('hdd_led_color: 255,0,255\n')
+            fo.writelines('hdd_led_color: 0,255,0\n')
             fo.writelines('hdd_led_read_color: 255,255,0\n')
             fo.writelines('hdd_led_color_off: 0,0,0\n')
-            fo.writelines('hdd_led_time_on: 0.1\n')
+            fo.writelines('hdd_led_time_on: 0\n')
             fo.writelines('hdd_startup: true\n')
             fo.writelines('exclusive_access: true\n')
             fo.writelines('start_minimized: false\n')
             fo.writelines('run_startup: false\n')
             fo.writelines('network_adapter_color_off: 0,0,0\n')
-            fo.writelines('network_adapter_time_on: 1\n')
+            fo.writelines('network_adapter_time_on: 0.1\n')
             fo.writelines('network_adapter_startup: false\n')
             fo.writelines('network_adapter_name: \n')
             fo.writelines('mouse_net_con_startup: true\n')
@@ -223,7 +223,7 @@ def create_new():
     if not os.path.exists('./iCUEDisplay.vbs') or not os.path.exists('./iCUEDisplay.bat'):
         print('-- installing')
         cwd = os.getcwd()
-        print(cwd)
+        print('-- current working directory:', cwd)
         path_for_in_bat = os.path.join('"' + cwd + '\\iCUEDisplay.exe"')
         path_to_bat = cwd + '\\iCUEDisplay.bat'
         path_for_in_vbs = 'WshShell.Run chr(34) & "' + path_to_bat + '" & Chr(34), 0'
@@ -952,9 +952,6 @@ class App(QMainWindow):
         self.lbl_start_minimized.setToolTip('Start Minimized\n\nWhen launching iCUE-Display, the\napplication will be minimized to taskbar.\n\nThis Feature is useful when automatic\nstartup is also enabled.')
         self.btn_start_minimized.setToolTip('Start Minimized\n\nEnables/Disables iCUE-Display window starting minimized\nwhen launched.')
 
-        self.height_tmp = self.lbl_connectivity_anchor_h + (self.object_height * 2) + (self.inner_group_spacing_h * 2) + (self.object_height * 4) + (self.group_spacing_h)
-        print(self.height_tmp)
-
         self.cpu_led_color_str = ""
         self.dram_led_color_str = ""
         self.vram_led_color_str = ""
@@ -1312,15 +1309,11 @@ class App(QMainWindow):
                     vram_led_time_on = self.write_var_float
                     self.write_var = 'vram_led_time_on: ' + self.write_var
                     self.write_var_bool = True
-                # elif self.write_var_key == 3:
-                #     hdd_led_time_on = self.write_var_float
-                #     self.write_var = 'hdd_led_time_on: ' + self.write_var
-                #     self.write_var_bool = True
                 elif self.write_var_key == 4:
                     network_adapter_time_on = self.write_var_float
                     self.write_var = 'network_adapter_time_on: ' + self.write_var
                     self.write_var_bool = True
-            if float(self.write_var_float) >= 0 and float(self.write_var_float) <= 5 and self.write_var_key == 3:
+            elif float(self.write_var_float) >= 0 and float(self.write_var_float) <= 5 and self.write_var_key == 3:
                     hdd_led_time_on = self.write_var_float
                     self.write_var = 'hdd_led_time_on: ' + self.write_var
                     self.write_var_bool = True
@@ -1371,9 +1364,9 @@ class App(QMainWindow):
         with open('./config.dat', 'r') as fo:
             for line in fo:
                 line = line.strip()
-                print('0', line)
+                print('-- reading configuration line:', line)
                 if line.startswith(write_var_split_key):
-                    print('1', line)
+                    print('-- swapping configuration line:', line)
                     new_config_data.append(self.write_var)
                     print(self.write_var)
                 else:
@@ -1774,7 +1767,7 @@ class App(QMainWindow):
         self.write_changes()
 
     def btn_exclusive_con_function(self):
-        print('clicked: btn_exclusive_con_function')
+        print('-- clicked: btn_exclusive_con_function')
         self.setFocus()
         global exclusive_access_bool
         if exclusive_access_bool is False:
@@ -2025,7 +2018,7 @@ class CompileDevicesClass(QThread):
         global cpu_led_off_item, dram_led_off_item, vram_led_off_item, net_adapter_connected_item
 
         if self.compile_dicts_key == 0:
-            print('-- compiling list of dictionaries for keyboard:')
+            print('-- compiling lists of dictionaries for keyboard using enumerated led id integers with configuration rgb values:')
             hdd_led_item = []
             hdd_led_off_item = []
             cpu_led_item = []
@@ -2142,8 +2135,8 @@ class CompileDevicesClass(QThread):
             print('Compiled network_adapter_led_off_rcv_item:', network_adapter_led_off_rcv_item)
             print('Compiled network_adapter_led_off_snt_item:', network_adapter_led_off_snt_item)
 
-            print('network_adapter_led_rcv_item_unit_led:', network_adapter_led_rcv_item_unit_led)
-            print('network_adapter_led_snt_item_unit_led:', network_adapter_led_snt_item_unit_led)
+            print('Compiled network_adapter_led_rcv_item_unit_led:', network_adapter_led_rcv_item_unit_led)
+            print('Compiled network_adapter_led_snt_item_unit_led:', network_adapter_led_snt_item_unit_led)
             network_adapter_led_rcv_item_unit = [({network_adapter_led_rcv_item_unit_led: (255, 0, 0)}),
                                                  ({network_adapter_led_rcv_item_unit_led: (0, 0, 255)}),
                                                  ({network_adapter_led_rcv_item_unit_led: (0, 255, 255)}),
@@ -2154,10 +2147,10 @@ class CompileDevicesClass(QThread):
                                                  ({network_adapter_led_snt_item_unit_led: (0, 255, 255)}),
                                                  ({network_adapter_led_snt_item_unit_led: (255, 255, 255)}),
                                                  ({network_adapter_led_snt_item_unit_led: (0, 0, 0)})]
-            print('network_adapter_led_rcv_item_unit:', network_adapter_led_rcv_item_unit)
-            print('network_adapter_led_snt_item_unit:', network_adapter_led_snt_item_unit)
-        elif self.compile_dicts_key == 1:
-            print('-- compiling list of dictionaries for mouse:')
+            print('Compiled network_adapter_led_rcv_item_unit:', network_adapter_led_rcv_item_unit)
+            print('Compiled network_adapter_led_snt_item_unit:', network_adapter_led_snt_item_unit)
+        # elif self.compile_dicts_key == 1:
+        #     print('-- compiling list of dictionaries for mouse:')
 
     def enumerate_device(self):
         global key_board, mouse_device
@@ -2174,7 +2167,7 @@ class CompileDevicesClass(QThread):
         led_position = sdk.get_led_positions_by_device_index(self.device_index)
         led_position_str = str(led_position).split('), ')
         led_position_str_tmp = led_position_str[0].split()
-        print(led_position_str_tmp)
+        # print(led_position_str_tmp)
 
         if 'CorsairLedId.K_' in led_position_str_tmp[0]:
             if enum_compile_kb_bool is True:
@@ -2350,11 +2343,11 @@ class CompileDevicesClass(QThread):
         global configuration_read_complete
         if configuration_read_complete is False:
             print('-- waiting for configuration file to be read')
-            i = 0
+            # i = 0
             while configuration_read_complete is False:
-                print('-- waiting', i, 'seconds')
+                # print('-- waiting', i, 'seconds')
                 time.sleep(1)
-                i += 1
+                # i += 1
             print('-- configuration read bool:', configuration_read_complete)
 
     def attempt_connect(self):
