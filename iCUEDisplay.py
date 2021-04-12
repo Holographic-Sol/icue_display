@@ -1105,166 +1105,173 @@ class App(QMainWindow):
 
     def cmb_network_adapter_name_function(self, text):
         global network_adapter_name, conf_thread
-        network_adapter_name = text
-        print('-- setting network_adapter_name:', network_adapter_name)
-        self.setFocus()
-        self.write_var = 'network_adapter_name: ' + network_adapter_name
-        self.write_changes()
-        conf_thread[0].start()
+        if self.write_engaged is False:
+            network_adapter_name = text
+            print('-- setting network_adapter_name:', network_adapter_name)
+            self.setFocus()
+            self.write_var = 'network_adapter_name: ' + network_adapter_name
+            self.write_changes()
+            conf_thread[0].start()
 
     def btn_network_adapter_refresh_function(self, text):
         print('-- cmb_network_adapter_name_update_function:', text)
-        pythoncom.CoInitialize()
-        self.cmb_network_adapter_name.clear()
-        try:
-            wmis = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-            wbems = wmis.ConnectServer(".", "root\\cimv2")
-            col_items = wbems.ExecQuery('SELECT * FROM Win32_PerfFormattedData_Tcpip_NetworkAdapter')
-            for objItem in col_items:
-                if objItem.Name != None:
-                    print('Found:', objItem.Name)
-                    self.cmb_network_adapter_name.addItem(objItem.Name)
-        except Exception as e:
-            print('-- Exception in Function: network_adapter_sanitize.', e)
+        if self.write_engaged is False:
+            pythoncom.CoInitialize()
+            self.cmb_network_adapter_name.clear()
+            try:
+                wmis = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+                wbems = wmis.ConnectServer(".", "root\\cimv2")
+                col_items = wbems.ExecQuery('SELECT * FROM Win32_PerfFormattedData_Tcpip_NetworkAdapter')
+                for objItem in col_items:
+                    if objItem.Name != None:
+                        print('Found:', objItem.Name)
+                        self.cmb_network_adapter_name.addItem(objItem.Name)
+            except Exception as e:
+                print('-- Exception in Function: network_adapter_sanitize.', e)
 
     def btn_network_adapter_mon_rgb_off_function(self):
         print('-- btn_network_adapter_mon_rgb_off_function')
         global conf_thread
         self.setFocus()
-        self.write_var_key = 8
-        self.write_var = self.btn_network_adapter_rgb_off.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_network_adapter_rgb_off.text())
-            self.write_changes()
-            self.network_adapter_led_color_off_str = self.btn_network_adapter_rgb_off.text().replace(' ', '')
-            self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
-            self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_network_adapter_rgb_off.text())
-            self.network_adapter_led_color_off_str = str(network_adapter_color_off).replace('[', '')
-            self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(']', '')
-            self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(' ', '')
-            self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
-            self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 8
+            self.write_var = self.btn_network_adapter_rgb_off.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_network_adapter_rgb_off.text())
+                self.write_changes()
+                self.network_adapter_led_color_off_str = self.btn_network_adapter_rgb_off.text().replace(' ', '')
+                self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
+                self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_network_adapter_rgb_off.text())
+                self.network_adapter_led_color_off_str = str(network_adapter_color_off).replace('[', '')
+                self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(']', '')
+                self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(' ', '')
+                self.network_adapter_led_color_off_str = self.network_adapter_led_color_off_str.replace(',', ', ')
+                self.btn_network_adapter_rgb_off.setText(self.network_adapter_led_color_off_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_network_adapter_led_time_on_function(self):
         print('-- btn_network_adapter_led_time_on_function')
         global conf_thread
         self.setFocus()
-        self.write_var_key = 4
-        self.write_var = self.btn_network_adapter_led_time_on.text()
-        self.sanitize_interval()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_network_adapter_led_time_on.text())
-            self.write_changes()
-            self.network_adapter_led_time_on_str = self.btn_network_adapter_led_time_on.text().replace(' ', '')
-            self.btn_network_adapter_led_time_on.setText(self.network_adapter_led_time_on_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_network_adapter_led_time_on.text())
-            self.network_adapter_led_time_on_str = str(network_adapter_time_on).replace(' ', '')
-            self.btn_network_adapter_led_time_on.setText(self.network_adapter_led_time_on_str)
-            conf_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 4
+            self.write_var = self.btn_network_adapter_led_time_on.text()
+            self.sanitize_interval()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_network_adapter_led_time_on.text())
+                self.write_changes()
+                self.network_adapter_led_time_on_str = self.btn_network_adapter_led_time_on.text().replace(' ', '')
+                self.btn_network_adapter_led_time_on.setText(self.network_adapter_led_time_on_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_network_adapter_led_time_on.text())
+                self.network_adapter_led_time_on_str = str(network_adapter_time_on).replace(' ', '')
+                self.btn_network_adapter_led_time_on.setText(self.network_adapter_led_time_on_str)
+                conf_thread[0].start()
 
     def btn_network_adapter_function(self):
         global network_adapter_startup_bool
         self.setFocus()
-        if network_adapter_startup_bool is True:
-            network_adapter_startup_bool = False
-            print('-- setting network_adapter_startup_bool:', network_adapter_startup_bool)
-            self.write_var = 'network_adapter_startup: false'
-            mon_threads[4].stop()
-            self.write_changes()
-            self.btn_network_adapter.setText('DISABLED')
-            self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
-        elif network_adapter_startup_bool is False:
-            network_adapter_startup_bool = True
-            print('-- setting network_adapter_startup_bool:', network_adapter_startup_bool)
-            self.write_var = 'network_adapter_startup: true'
-            mon_threads[4].start()
-            self.write_changes()
-            self.btn_network_adapter.setText('ENABLED')
-            self.btn_network_adapter.setStyleSheet(self.btn_enabled_style)
+        if self.write_engaged is False:
+            if network_adapter_startup_bool is True:
+                network_adapter_startup_bool = False
+                print('-- setting network_adapter_startup_bool:', network_adapter_startup_bool)
+                self.write_var = 'network_adapter_startup: false'
+                mon_threads[4].stop()
+                self.write_changes()
+                self.btn_network_adapter.setText('DISABLED')
+                self.btn_network_adapter.setStyleSheet(self.btn_disabled_style)
+            elif network_adapter_startup_bool is False:
+                network_adapter_startup_bool = True
+                print('-- setting network_adapter_startup_bool:', network_adapter_startup_bool)
+                self.write_var = 'network_adapter_startup: true'
+                mon_threads[4].start()
+                self.write_changes()
+                self.btn_network_adapter.setText('ENABLED')
+                self.btn_network_adapter.setStyleSheet(self.btn_enabled_style)
 
     def btn_run_startup_function(self):
         global run_startup_bool
         self.setFocus()
-        cwd = os.getcwd()
-        shortcut_in = os.path.join(cwd + '\\iCUEDisplay.vbs')
-        shortcut_out = os.path.join(os.path.expanduser('~') + '/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/iCUEDisplay.lnk')
+        if self.write_engaged is False:
+            cwd = os.getcwd()
+            shortcut_in = os.path.join(cwd + '\\iCUEDisplay.vbs')
+            shortcut_out = os.path.join(os.path.expanduser('~') + '/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/iCUEDisplay.lnk')
 
-        # Remove shortcut
-        if run_startup_bool is True:
-            run_startup_bool = False
-            print('-- setting run_startup_bool:', run_startup_bool)
-            self.write_var = 'run_startup: false'
-            self.write_changes()
-            print('-- searching for:', shortcut_out)
-            if os.path.exists(shortcut_out):
-                print('-- removing:', shortcut_out)
-                try:
-                    os.remove(shortcut_out)
-                except Exception as e:
-                    print('-- btn_run_startup_function:', e)
-            self.btn_run_startup.setText('DISABLED')
-            self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
-
-        # Create shortcut
-        elif run_startup_bool is False:
-            if os.path.exists(shortcut_in):
-                print('-- copying:', shortcut_in)
-                try:
-                    target = os.path.join(cwd + '\\iCUEDisplay.vbs')
-                    icon = cwd + './icon.ico'
-                    shell = win32com.client.Dispatch("WScript.Shell")
-                    shortcut = shell.CreateShortCut(shortcut_out)
-                    shortcut.Targetpath = target
-                    shortcut.WorkingDirectory = cwd
-                    shortcut.IconLocation = icon
-                    shortcut.save()
-                except Exception as e:
-                    print('-- Error creating new shortcut file:', e)
-
-            # Check new shortcut file exists
-            if os.path.exists(shortcut_out):
-                print('-- run at startup: file copied successfully')
-                self.btn_run_startup.setText('ENABLED')
-                self.btn_run_startup.setStyleSheet(self.btn_enabled_style)
-                run_startup_bool = True
+            # Remove shortcut
+            if run_startup_bool is True:
+                run_startup_bool = False
                 print('-- setting run_startup_bool:', run_startup_bool)
-                self.write_var = 'run_startup: true'
+                self.write_var = 'run_startup: false'
                 self.write_changes()
-
-            elif not os.path.exists(shortcut_out):
-                print('-- run at startup: shortcut file failed to be created')
+                print('-- searching for:', shortcut_out)
+                if os.path.exists(shortcut_out):
+                    print('-- removing:', shortcut_out)
+                    try:
+                        os.remove(shortcut_out)
+                    except Exception as e:
+                        print('-- btn_run_startup_function:', e)
                 self.btn_run_startup.setText('DISABLED')
                 self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
+
+            # Create shortcut
+            elif run_startup_bool is False:
+                if os.path.exists(shortcut_in):
+                    print('-- copying:', shortcut_in)
+                    try:
+                        target = os.path.join(cwd + '\\iCUEDisplay.vbs')
+                        icon = cwd + './icon.ico'
+                        shell = win32com.client.Dispatch("WScript.Shell")
+                        shortcut = shell.CreateShortCut(shortcut_out)
+                        shortcut.Targetpath = target
+                        shortcut.WorkingDirectory = cwd
+                        shortcut.IconLocation = icon
+                        shortcut.save()
+                    except Exception as e:
+                        print('-- Error creating new shortcut file:', e)
+
+                # Check new shortcut file exists
+                if os.path.exists(shortcut_out):
+                    print('-- run at startup: file copied successfully')
+                    self.btn_run_startup.setText('ENABLED')
+                    self.btn_run_startup.setStyleSheet(self.btn_enabled_style)
+                    run_startup_bool = True
+                    print('-- setting run_startup_bool:', run_startup_bool)
+                    self.write_var = 'run_startup: true'
+                    self.write_changes()
+
+                elif not os.path.exists(shortcut_out):
+                    print('-- run at startup: shortcut file failed to be created')
+                    self.btn_run_startup.setText('DISABLED')
+                    self.btn_run_startup.setStyleSheet(self.btn_disabled_style)
 
     def btn_start_minimized_function(self):
         self.setFocus()
         global start_minimized_bool
-        if start_minimized_bool is True:
-            start_minimized_bool = False
-            print('-- setting start_minimized_bool:', start_minimized_bool)
-            self.write_var = 'start_minimized: false'
-            self.write_changes()
-            self.btn_start_minimized.setText('DISABLED')
-            self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
+        if self.write_engaged is False:
+            if start_minimized_bool is True:
+                start_minimized_bool = False
+                print('-- setting start_minimized_bool:', start_minimized_bool)
+                self.write_var = 'start_minimized: false'
+                self.write_changes()
+                self.btn_start_minimized.setText('DISABLED')
+                self.btn_start_minimized.setStyleSheet(self.btn_disabled_style)
 
-        elif start_minimized_bool is False:
-            start_minimized_bool = True
-            print('-- setting start_minimized_bool:', start_minimized_bool)
-            self.write_var = 'start_minimized: true'
-            self.write_changes()
-            self.btn_start_minimized.setText('ENABLED')
-            self.btn_start_minimized.setStyleSheet(self.btn_enabled_style)
+            elif start_minimized_bool is False:
+                start_minimized_bool = True
+                print('-- setting start_minimized_bool:', start_minimized_bool)
+                self.write_var = 'start_minimized: true'
+                self.write_changes()
+                self.btn_start_minimized.setText('ENABLED')
+                self.btn_start_minimized.setStyleSheet(self.btn_enabled_style)
 
     def sanitize_rgb_values(self):
         global cpu_led_color, dram_led_color, vram_led_color, hdd_led_color, hdd_led_read_color
@@ -1273,7 +1280,6 @@ class App(QMainWindow):
         var_str = self.write_var
         var_str = var_str.replace(' ', '')
         var_str = var_str.split(',')
-
         self.write_var_bool = False
         if len(var_str) == 3:
             if len(var_str[0]) >= 1 and len(var_str[0]) <= 3:
@@ -1388,442 +1394,461 @@ class App(QMainWindow):
 
     def write_changes(self):
         self.write_engaged = True
-        self.read_only_true()
-        write_var_split = self.write_var.split()
-        write_var_split_key = write_var_split[0]
-        self.write_var = self.write_var.strip()
-        new_config_data = []
-        print('-- writing changes to configuration file:', self.write_var)
-        with open('./config.dat', 'r') as fo:
-            for line in fo:
-                line = line.strip()
-                print('-- reading configuration line:', line)
-                if line.startswith(write_var_split_key):
-                    print('-- swapping configuration line:', line)
-                    new_config_data.append(self.write_var)
-                    print(self.write_var)
-                else:
-                    new_config_data.append(line)
-        fo.close()
-        open('./config.dat', 'w').close()
-        with open('./config.dat', 'a') as fo:
-            i = 0
-            for _ in new_config_data:
-                fo.writelines(new_config_data[i] + '\n')
-                i += 1
-        fo.close()
-        self.read_only_false()
+        try:
+            self.read_only_true()
+            write_var_split = self.write_var.split()
+            write_var_split_key = write_var_split[0]
+            self.write_var = self.write_var.strip()
+            new_config_data = []
+            print('-- writing changes to configuration file:', self.write_var)
+            with open('./config.dat', 'r') as fo:
+                for line in fo:
+                    line = line.strip()
+                    print('-- reading configuration line:', line)
+                    if line.startswith(write_var_split_key):
+                        print('-- swapping configuration line:', line)
+                        new_config_data.append(self.write_var)
+                        print(self.write_var)
+                    else:
+                        new_config_data.append(line)
+            fo.close()
+            open('./config.dat', 'w').close()
+            with open('./config.dat', 'a') as fo:
+                i = 0
+                for _ in new_config_data:
+                    fo.writelines(new_config_data[i] + '\n')
+                    i += 1
+            fo.close()
+            self.read_only_false()
+        except Exception as e:
+            print('write_changes:', e)
         self.write_engaged = False
 
     def btn_cpu_led_time_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 0
-        self.write_var = self.btn_cpu_led_time_on.text()
-        self.sanitize_interval()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_cpu_led_time_on.text())
-            self.write_changes()
-            self.cpu_led_time_on_str = self.btn_cpu_led_time_on.text().replace(' ', '')
-            self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_cpu_led_time_on.text())
-            self.cpu_led_time_on_str = str(cpu_led_time_on).replace(' ', '')
-            self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
-            conf_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 0
+            self.write_var = self.btn_cpu_led_time_on.text()
+            self.sanitize_interval()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_cpu_led_time_on.text())
+                self.write_changes()
+                self.cpu_led_time_on_str = self.btn_cpu_led_time_on.text().replace(' ', '')
+                self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_cpu_led_time_on.text())
+                self.cpu_led_time_on_str = str(cpu_led_time_on).replace(' ', '')
+                self.btn_cpu_led_time_on.setText(self.cpu_led_time_on_str)
+                conf_thread[0].start()
 
     def btn_dram_led_time_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 1
-        self.write_var = self.btn_dram_led_time_on.text()
-        self.sanitize_interval()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_dram_led_time_on.text())
-            self.write_changes()
-            self.dram_led_time_on_str = self.btn_dram_led_time_on.text().replace(' ', '')
-            self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_dram_led_time_on.text())
-            self.dram_led_time_on_str = str(dram_led_time_on).replace(' ', '')
-            self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
-            conf_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 1
+            self.write_var = self.btn_dram_led_time_on.text()
+            self.sanitize_interval()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_dram_led_time_on.text())
+                self.write_changes()
+                self.dram_led_time_on_str = self.btn_dram_led_time_on.text().replace(' ', '')
+                self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_dram_led_time_on.text())
+                self.dram_led_time_on_str = str(dram_led_time_on).replace(' ', '')
+                self.btn_dram_led_time_on.setText(self.dram_led_time_on_str)
+                conf_thread[0].start()
 
     def btn_vram_led_time_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 2
-        self.write_var = self.btn_vram_led_time_on.text()
-        self.sanitize_interval()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_vram_led_time_on.text())
-            self.write_changes()
-            self.vram_led_time_on_str = self.btn_vram_led_time_on.text().replace(' ', '')
-            self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_vram_led_time_on.text())
-            self.vram_led_time_on_str = str(vram_led_time_on).replace(' ', '')
-            self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
-            conf_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 2
+            self.write_var = self.btn_vram_led_time_on.text()
+            self.sanitize_interval()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_vram_led_time_on.text())
+                self.write_changes()
+                self.vram_led_time_on_str = self.btn_vram_led_time_on.text().replace(' ', '')
+                self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_vram_led_time_on.text())
+                self.vram_led_time_on_str = str(vram_led_time_on).replace(' ', '')
+                self.btn_vram_led_time_on.setText(self.vram_led_time_on_str)
+                conf_thread[0].start()
 
     def btn_hdd_led_time_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 3
-        self.write_var = self.btn_hdd_led_time_on.text()
-        self.sanitize_interval()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_hdd_led_time_on.text())
-            self.write_changes()
-            self.hdd_led_time_on_str = self.btn_hdd_led_time_on.text().replace(' ', '')
-            self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_hdd_led_time_on.text())
-            self.hdd_led_time_on_str = str(hdd_led_time_on).replace(' ', '')
-            self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
-            conf_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 3
+            self.write_var = self.btn_hdd_led_time_on.text()
+            self.sanitize_interval()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_hdd_led_time_on.text())
+                self.write_changes()
+                self.hdd_led_time_on_str = self.btn_hdd_led_time_on.text().replace(' ', '')
+                self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_hdd_led_time_on.text())
+                self.hdd_led_time_on_str = str(hdd_led_time_on).replace(' ', '')
+                self.btn_hdd_led_time_on.setText(self.hdd_led_time_on_str)
+                conf_thread[0].start()
 
     def btn_cpu_mon_rgb_off_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 4
-        self.write_var = self.btn_cpu_mon_rgb_off.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
-            self.write_changes()
-            self.cpu_led_color_off_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
-            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
-            self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
-            self.cpu_led_color_off_str = str(cpu_led_color_off).replace('[', '')
-            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(']', '')
-            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(' ', '')
-            self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
-            self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 4
+            self.write_var = self.btn_cpu_mon_rgb_off.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
+                self.write_changes()
+                self.cpu_led_color_off_str = self.btn_cpu_mon_rgb_off.text().replace(' ', '')
+                self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
+                self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_off.text())
+                self.cpu_led_color_off_str = str(cpu_led_color_off).replace('[', '')
+                self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(']', '')
+                self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(' ', '')
+                self.cpu_led_color_off_str = self.cpu_led_color_off_str.replace(',', ', ')
+                self.btn_cpu_mon_rgb_off.setText(self.cpu_led_color_off_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_off_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 5
-        self.write_var = self.btn_dram_mon_rgb_off.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_off.text())
-            self.write_changes()
-            self.dram_led_color_off_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
-            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
-            self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_off.text())
-            self.dram_led_color_off_str = str(dram_led_color_off).replace('[', '')
-            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(']', '')
-            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(' ', '')
-            self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
-            self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 5
+            self.write_var = self.btn_dram_mon_rgb_off.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_off.text())
+                self.write_changes()
+                self.dram_led_color_off_str = self.btn_dram_mon_rgb_off.text().replace(' ', '')
+                self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
+                self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_off.text())
+                self.dram_led_color_off_str = str(dram_led_color_off).replace('[', '')
+                self.dram_led_color_off_str = self.dram_led_color_off_str.replace(']', '')
+                self.dram_led_color_off_str = self.dram_led_color_off_str.replace(' ', '')
+                self.dram_led_color_off_str = self.dram_led_color_off_str.replace(',', ', ')
+                self.btn_dram_mon_rgb_off.setText(self.dram_led_color_off_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_off_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 6
-        self.write_var = self.btn_vram_mon_rgb_off.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_off.text())
-            self.write_changes()
-            self.vram_led_color_off_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
-            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
-            self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_off.text())
-            self.vram_led_color_off_str = str(vram_led_color_off).replace('[', '')
-            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(']', '')
-            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(' ', '')
-            self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
-            self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 6
+            self.write_var = self.btn_vram_mon_rgb_off.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_off.text())
+                self.write_changes()
+                self.vram_led_color_off_str = self.btn_vram_mon_rgb_off.text().replace(' ', '')
+                self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
+                self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_off.text())
+                self.vram_led_color_off_str = str(vram_led_color_off).replace('[', '')
+                self.vram_led_color_off_str = self.vram_led_color_off_str.replace(']', '')
+                self.vram_led_color_off_str = self.vram_led_color_off_str.replace(' ', '')
+                self.vram_led_color_off_str = self.vram_led_color_off_str.replace(',', ', ')
+                self.btn_vram_mon_rgb_off.setText(self.vram_led_color_off_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_off_function(self):
         global hdd_led_color, conf_thread
         self.setFocus()
-        self.write_var_key = 7
-        self.write_var = self.btn_hdd_mon_rgb_off.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
-            self.write_changes()
-            self.hdd_led_color_off_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
-            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
-            self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
-            self.hdd_led_color_off_str = str(hdd_led_color_off).replace('[', '')
-            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
-            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(' ', '')
-            self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
-            self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 7
+            self.write_var = self.btn_hdd_mon_rgb_off.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
+                self.write_changes()
+                self.hdd_led_color_off_str = self.btn_hdd_mon_rgb_off.text().replace(' ', '')
+                self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
+                self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_off.text())
+                self.hdd_led_color_off_str = str(hdd_led_color_off).replace('[', '')
+                self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(']', '')
+                self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(' ', '')
+                self.hdd_led_color_off_str = self.hdd_led_color_off_str.replace(',', ', ')
+                self.btn_hdd_mon_rgb_off.setText(self.hdd_led_color_off_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_cpu_mon_rgb_on_function(self):
         global cpu_led_color, conf_thread, compile_devices_thread, prev_device
         self.setFocus()
-        self.write_var_key = 0
-        self.write_var = self.btn_cpu_mon_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
-            self.write_changes()
-            self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
-            self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
-            self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
-            self.cpu_led_color_str = str(cpu_led_color).replace('[', '')
-            self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
-            self.cpu_led_color_str = self.cpu_led_color_str.replace(' ', '')
-            self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
-            self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
-            conf_thread[0].start()
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 0
+            self.write_var = self.btn_cpu_mon_rgb_on.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
+                self.write_changes()
+                self.cpu_led_color_str = self.btn_cpu_mon_rgb_on.text().replace(' ', '')
+                self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
+                self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_cpu_mon_rgb_on.text())
+                self.cpu_led_color_str = str(cpu_led_color).replace('[', '')
+                self.cpu_led_color_str = self.cpu_led_color_str.replace(']', '')
+                self.cpu_led_color_str = self.cpu_led_color_str.replace(' ', '')
+                self.cpu_led_color_str = self.cpu_led_color_str.replace(',', ', ')
+                self.btn_cpu_mon_rgb_on.setText(self.cpu_led_color_str)
+                conf_thread[0].start()
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_dram_mon_rgb_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 1
-        self.write_var = self.btn_dram_mon_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_on.text())
-            self.write_changes()
-            self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
-            self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
-            self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_on.text())
-            self.dram_led_color_str = str(dram_led_color).replace('[', '')
-            self.dram_led_color_str = self.dram_led_color_str.replace(']', '')
-            self.dram_led_color_str = self.dram_led_color_str.text().replace(' ', '')
-            self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
-            self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 1
+            self.write_var = self.btn_dram_mon_rgb_on.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_dram_mon_rgb_on.text())
+                self.write_changes()
+                self.dram_led_color_str = self.btn_dram_mon_rgb_on.text().replace(' ', '')
+                self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
+                self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_dram_mon_rgb_on.text())
+                self.dram_led_color_str = str(dram_led_color).replace('[', '')
+                self.dram_led_color_str = self.dram_led_color_str.replace(']', '')
+                self.dram_led_color_str = self.dram_led_color_str.text().replace(' ', '')
+                self.dram_led_color_str = self.dram_led_color_str.replace(',', ', ')
+                self.btn_dram_mon_rgb_on.setText(self.dram_led_color_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_vram_mon_rgb_on_function(self):
         global conf_thread
         self.setFocus()
-        self.write_var_key = 2
-        self.write_var = self.btn_vram_mon_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_on.text())
-            self.write_changes()
-            self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
-            self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
-            self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_on.text())
-            self.vram_led_color_str = str(vram_led_color).replace('[', '')
-            self.vram_led_color_str = self.vram_led_color_str.replace(']', '')
-            self.vram_led_color_str = self.vram_led_color_str.replace(' ', '')
-            self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
-            self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 2
+            self.write_var = self.btn_vram_mon_rgb_on.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_vram_mon_rgb_on.text())
+                self.write_changes()
+                self.vram_led_color_str = self.btn_vram_mon_rgb_on.text().replace(' ', '')
+                self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
+                self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_vram_mon_rgb_on.text())
+                self.vram_led_color_str = str(vram_led_color).replace('[', '')
+                self.vram_led_color_str = self.vram_led_color_str.replace(']', '')
+                self.vram_led_color_str = self.vram_led_color_str.replace(' ', '')
+                self.vram_led_color_str = self.vram_led_color_str.replace(',', ', ')
+                self.btn_vram_mon_rgb_on.setText(self.vram_led_color_str)
+                conf_thread[0].start()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_hdd_read_mon_rgb_on_function(self):
-        global hdd_led_read_color, conf_thread
+        global hdd_led_read_color, conf_thread, compile_devices_thread, prev_device
         self.setFocus()
-        self.write_var_key = 9
-        self.write_var = self.btn_hdd_read_mon_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_hdd_read_mon_rgb_on.text())
-            self.write_changes()
-            self.hdd_led_read_color_str = self.btn_hdd_read_mon_rgb_on.text().replace(' ', '')
-            self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(',', ', ')
-            self.btn_hdd_read_mon_rgb_on.setText(self.hdd_led_read_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_hdd_read_mon_rgb_on.text())
-            self.hdd_led_read_color_str = str(hdd_led_read_color).replace('[', '')
-            self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(']', '')
-            self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(' ', '')
-            self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(',', ', ')
-            self.btn_hdd_read_mon_rgb_on.setText(self.hdd_led_read_color_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 9
+            self.write_var = self.btn_hdd_read_mon_rgb_on.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_hdd_read_mon_rgb_on.text())
+                self.write_changes()
+                self.hdd_led_read_color_str = self.btn_hdd_read_mon_rgb_on.text().replace(' ', '')
+                self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(',', ', ')
+                self.btn_hdd_read_mon_rgb_on.setText(self.hdd_led_read_color_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_hdd_read_mon_rgb_on.text())
+                self.hdd_led_read_color_str = str(hdd_led_read_color).replace('[', '')
+                self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(']', '')
+                self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(' ', '')
+                self.hdd_led_read_color_str = self.hdd_led_read_color_str.replace(',', ', ')
+                self.btn_hdd_read_mon_rgb_on.setText(self.hdd_led_read_color_str)
+                conf_thread[0].start()
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_hdd_mon_rgb_on_function(self):
-        global hdd_led_color, conf_thread
+        global hdd_led_color, conf_thread, compile_devices_thread, prev_device
         self.setFocus()
-        self.write_var_key = 3
-        self.write_var = self.btn_hdd_mon_rgb_on.text()
-        self.sanitize_rgb_values()
-        if self.write_var_bool is True:
-            print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
-            self.write_changes()
-            self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
-            self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
-            self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
-            conf_thread[0].start()
-        else:
-            print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
-            self.hdd_led_color_str = str(hdd_led_color).replace('[', '')
-            self.hdd_led_color_str = self.hdd_led_color_str.replace(']', '')
-            self.hdd_led_color_str = self.hdd_led_color_str.replace(' ', '')
-            self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
-            self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
-            conf_thread[0].start()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+        if self.write_engaged is False:
+            self.write_var_key = 3
+            self.write_var = self.btn_hdd_mon_rgb_on.text()
+            self.sanitize_rgb_values()
+            if self.write_var_bool is True:
+                print('-- self.write_var passed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
+                self.write_changes()
+                self.hdd_led_color_str = self.btn_hdd_mon_rgb_on.text().replace(' ', '')
+                self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
+                self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+                conf_thread[0].start()
+            else:
+                print('-- self.write_var failed sanitization checks:', self.btn_hdd_mon_rgb_on.text())
+                self.hdd_led_color_str = str(hdd_led_color).replace('[', '')
+                self.hdd_led_color_str = self.hdd_led_color_str.replace(']', '')
+                self.hdd_led_color_str = self.hdd_led_color_str.replace(' ', '')
+                self.hdd_led_color_str = self.hdd_led_color_str.replace(',', ', ')
+                self.btn_hdd_mon_rgb_on.setText(self.hdd_led_color_str)
+                conf_thread[0].start()
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def btn_cpu_mon_function(self):
         print('-- clicked: btn_cpu_mon')
         self.setFocus()
-        global cpu_startup_bool, mon_threads
-        if cpu_startup_bool is True:
-            print('-- stopping: cpu monitor')
-            self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
-            self.write_var = 'cpu_startup: false'
-            mon_threads[1].stop()
-            cpu_startup_bool = False
-            self.btn_cpu_mon.setText('DISABLED')
-        elif cpu_startup_bool is False:
-            print('-- starting: cpu monitor')
-            self.btn_cpu_mon.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'cpu_startup: true'
-            mon_threads[1].start()
-            cpu_startup_bool = True
-            self.btn_cpu_mon.setText('ENABLED')
-        self.write_changes()
+        if self.write_engaged is False:
+            global cpu_startup_bool, mon_threads
+            if cpu_startup_bool is True:
+                print('-- stopping: cpu monitor')
+                self.btn_cpu_mon.setStyleSheet(self.btn_disabled_style)
+                self.write_var = 'cpu_startup: false'
+                mon_threads[1].stop()
+                cpu_startup_bool = False
+                self.btn_cpu_mon.setText('DISABLED')
+            elif cpu_startup_bool is False:
+                print('-- starting: cpu monitor')
+                self.btn_cpu_mon.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'cpu_startup: true'
+                mon_threads[1].start()
+                cpu_startup_bool = True
+                self.btn_cpu_mon.setText('ENABLED')
+            self.write_changes()
 
     def btn_dram_mon_function(self):
         print('-- clicked: btn_dram_mon')
         self.setFocus()
-        global dram_startup_bool
-        if dram_startup_bool is True:
-            print('-- stopping: dram monitor')
-            self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
-            self.write_var = 'dram_startup: false'
-            mon_threads[2].stop()
-            dram_startup_bool = False
-            self.btn_dram_mon.setText('DISABLED')
-        elif dram_startup_bool is False:
-            print('-- starting: dram monitor')
-            self.btn_dram_mon.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'dram_startup: true'
-            mon_threads[2].start()
-            dram_startup_bool = True
-            self.btn_dram_mon.setText('ENABLED')
-        self.write_changes()
+        if self.write_engaged is False:
+            global dram_startup_bool
+            if dram_startup_bool is True:
+                print('-- stopping: dram monitor')
+                self.btn_dram_mon.setStyleSheet(self.btn_disabled_style)
+                self.write_var = 'dram_startup: false'
+                mon_threads[2].stop()
+                dram_startup_bool = False
+                self.btn_dram_mon.setText('DISABLED')
+            elif dram_startup_bool is False:
+                print('-- starting: dram monitor')
+                self.btn_dram_mon.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'dram_startup: true'
+                mon_threads[2].start()
+                dram_startup_bool = True
+                self.btn_dram_mon.setText('ENABLED')
+            self.write_changes()
 
     def btn_vram_mon_function(self):
         print('-- clicked: btn_vram_mon')
         self.setFocus()
-        global vram_startup_bool
-        if vram_startup_bool is True:
-            print('-- stopping: vram monitor')
-            self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
-            self.write_var = 'vram_startup: false'
-            mon_threads[3].stop()
-            vram_startup_bool = False
-            self.btn_vram_mon.setText('DISABLED')
-        elif vram_startup_bool is False:
-            print('-- starting: vram monitor')
-            self.btn_vram_mon.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'vram_startup: true'
-            mon_threads[3].start()
-            vram_startup_bool = True
-            self.btn_vram_mon.setText('ENABLED')
-        self.write_changes()
+        if self.write_engaged is False:
+            global vram_startup_bool
+            if vram_startup_bool is True:
+                print('-- stopping: vram monitor')
+                self.btn_vram_mon.setStyleSheet(self.btn_disabled_style)
+                self.write_var = 'vram_startup: false'
+                mon_threads[3].stop()
+                vram_startup_bool = False
+                self.btn_vram_mon.setText('DISABLED')
+            elif vram_startup_bool is False:
+                print('-- starting: vram monitor')
+                self.btn_vram_mon.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'vram_startup: true'
+                mon_threads[3].start()
+                vram_startup_bool = True
+                self.btn_vram_mon.setText('ENABLED')
+            self.write_changes()
 
     def btn_hdd_mon_function(self):
         print('-- clicked: btn_hdd_mon')
         self.setFocus()
-        global hdd_startup_bool
-        if hdd_startup_bool is True:
-            print('-- stopping: hdd monitor')
-            self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
-            self.write_var = 'hdd_startup: false'
-            mon_threads[0].stop()
-            hdd_startup_bool = False
-            self.btn_hdd_mon.setText('DISABLED')
-        elif hdd_startup_bool is False:
-            print('-- starting: hdd monitor')
-            self.btn_hdd_mon.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'hdd_startup: true'
-            mon_threads[0].start()
-            hdd_startup_bool = True
-            self.btn_hdd_mon.setText('ENABLED')
-        self.write_changes()
+        if self.write_engaged is False:
+            global hdd_startup_bool
+            if hdd_startup_bool is True:
+                print('-- stopping: hdd monitor')
+                self.btn_hdd_mon.setStyleSheet(self.btn_disabled_style)
+                self.write_var = 'hdd_startup: false'
+                mon_threads[0].stop()
+                hdd_startup_bool = False
+                self.btn_hdd_mon.setText('DISABLED')
+            elif hdd_startup_bool is False:
+                print('-- starting: hdd monitor')
+                self.btn_hdd_mon.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'hdd_startup: true'
+                mon_threads[0].start()
+                hdd_startup_bool = True
+                self.btn_hdd_mon.setText('ENABLED')
+            self.write_changes()
 
     def btn_exclusive_con_function(self):
         print('-- clicked: btn_exclusive_con_function')
         self.setFocus()
-        global exclusive_access_bool
-        if exclusive_access_bool is False:
-            print('-- exclusive access request changed: requesting control')
-            self.write_var = 'exclusive_access: true'
-            sdk.request_control()
-            exclusive_access_bool = True
-            self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
-            self.btn_exclusive_con.setText('ENABLED')
+        if self.write_engaged is False:
+            global exclusive_access_bool
+            if exclusive_access_bool is False:
+                print('-- exclusive access request changed: requesting control')
+                self.write_var = 'exclusive_access: true'
+                sdk.request_control()
+                exclusive_access_bool = True
+                self.btn_exclusive_con.setStyleSheet(self.btn_enabled_style)
+                self.btn_exclusive_con.setText('ENABLED')
 
-        elif exclusive_access_bool is True:
-            print('-- exclusive access request changed: releasing control')
-            self.write_var = 'exclusive_access: false'
-            sdk.release_control()
-            exclusive_access_bool = False
-            self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
-            self.btn_exclusive_con.setText('DISABLED')
-        self.write_changes()
-        global compile_devices_thread, prev_device
-        compile_devices_thread[0].stop()
-        prev_device = []
-        compile_devices_thread[0].start()
+            elif exclusive_access_bool is True:
+                print('-- exclusive access request changed: releasing control')
+                self.write_var = 'exclusive_access: false'
+                sdk.release_control()
+                exclusive_access_bool = False
+                self.btn_exclusive_con.setStyleSheet(self.btn_disabled_style)
+                self.btn_exclusive_con.setText('DISABLED')
+            self.write_changes()
+            global compile_devices_thread, prev_device
+            compile_devices_thread[0].stop()
+            prev_device = []
+            compile_devices_thread[0].start()
 
     def initUI(self):
         global mon_threads, conf_thread, allow_display_application, exclusive_access_bool
