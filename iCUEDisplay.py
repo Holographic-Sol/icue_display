@@ -973,129 +973,135 @@ class App(QMainWindow):
         self.write_var = ''
         self.write_var_bool = False
         self.write_var_key = -1
+        self.write_engaged = False
 
         self.initUI()
 
     def btn_net_con_function(self):
         global net_con_startup
         self.setFocus()
-        if net_con_startup is True:
-            net_con_startup = False
-            print('-- setting net_con_startup:', net_con_startup)
-            self.write_var = 'net_con_startup: false'
-            self.write_changes()
-            mon_threads[5].stop()
-            self.btn_net_con.setText('DISABLED')
-            self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+        if self.write_engaged is False:
+            if net_con_startup is True:
+                net_con_startup = False
+                print('-- setting net_con_startup:', net_con_startup)
+                self.write_var = 'net_con_startup: false'
+                self.write_changes()
+                mon_threads[5].stop()
+                self.btn_net_con.setText('DISABLED')
+                self.btn_net_con.setStyleSheet(self.btn_disabled_style)
 
-        elif net_con_startup is False:
-            net_con_startup = True
-            print('-- setting net_con_startup:', net_con_startup)
-            self.write_var = 'net_con_startup: true'
-            self.write_changes()
-            mon_threads[5].start()
-            self.btn_net_con.setText('ENABLED')
-            self.btn_net_con.setStyleSheet(self.btn_enabled_style)
+            elif net_con_startup is False:
+                net_con_startup = True
+                print('-- setting net_con_startup:', net_con_startup)
+                self.write_var = 'net_con_startup: true'
+                self.write_changes()
+                mon_threads[5].start()
+                self.btn_net_con.setText('ENABLED')
+                self.btn_net_con.setStyleSheet(self.btn_enabled_style)
 
     def btn_net_con_kb_function(self):
         global kb_net_con_startup, net_con_startup, mouse_net_con_startup
         self.setFocus()
-        if kb_net_con_startup is True:
-            kb_net_con_startup = False
-            print('-- setting kb_net_con_startup:', kb_net_con_startup)
-            self.write_var = 'kb_net_con_startup: false'
-            self.write_changes()
-            mon_threads[5].stop()
-            self.btn_net_con_kb.setText('DISABLED')
-            self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
-            if mouse_net_con_startup is False:
-                self.write_var = 'net_con_startup: false'
+        if self.write_engaged is False:
+            if kb_net_con_startup is True:
+                kb_net_con_startup = False
+                print('-- setting kb_net_con_startup:', kb_net_con_startup)
+                self.write_var = 'kb_net_con_startup: false'
                 self.write_changes()
-                net_con_startup = False
-                self.btn_net_con.setText('DISABLED')
-                self.btn_net_con.setStyleSheet(self.btn_disabled_style)
-            elif mouse_net_con_startup is True and net_con_startup is True:
-                mon_threads[5].start()
+                mon_threads[5].stop()
+                self.btn_net_con_kb.setText('DISABLED')
+                self.btn_net_con_kb.setStyleSheet(self.btn_disabled_style)
+                if mouse_net_con_startup is False:
+                    self.write_var = 'net_con_startup: false'
+                    self.write_changes()
+                    net_con_startup = False
+                    self.btn_net_con.setText('DISABLED')
+                    self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+                elif mouse_net_con_startup is True and net_con_startup is True:
+                    mon_threads[5].start()
 
-        elif kb_net_con_startup is False:
-            kb_net_con_startup = True
-            print('-- setting kb_net_con_startup:', kb_net_con_startup)
-            self.write_var = 'kb_net_con_startup: true'
-            self.write_changes()
-            mon_threads[5].stop()
-            self.btn_net_con_kb.setText('ENABLED')
-            self.btn_net_con_kb.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'net_con_startup: true'
-            self.write_changes()
-            net_con_startup = True
-            self.btn_net_con.setText('ENABLED')
-            self.btn_net_con.setStyleSheet(self.btn_enabled_style)
-            mon_threads[5].start()
+            elif kb_net_con_startup is False:
+                kb_net_con_startup = True
+                print('-- setting kb_net_con_startup:', kb_net_con_startup)
+                self.write_var = 'kb_net_con_startup: true'
+                self.write_changes()
+                mon_threads[5].stop()
+                self.btn_net_con_kb.setText('ENABLED')
+                self.btn_net_con_kb.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'net_con_startup: true'
+                self.write_changes()
+                net_con_startup = True
+                self.btn_net_con.setText('ENABLED')
+                self.btn_net_con.setStyleSheet(self.btn_enabled_style)
+                mon_threads[5].start()
 
     def btn_net_con_mouse_led_selected_prev_function(self):
         global mouse_net_con_id, m_key_id, sdk, mouse_device_selected, mon_threads, mouse_net_con_startup
         self.setFocus()
-        if mouse_net_con_id > 0:
-            mon_threads[5].stop()
-            sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
-            mouse_net_con_id = int(mouse_net_con_id - 1)
-            print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
-            self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
-            self.write_changes()
-            if mouse_net_con_startup is True:
-                mon_threads[5].start()
-                self.btn_net_con.setText('ENABLED')
-            self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
+        if self.write_engaged is False:
+            if mouse_net_con_id > 0:
+                mon_threads[5].stop()
+                sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+                mouse_net_con_id = int(mouse_net_con_id - 1)
+                print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
+                self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
+                self.write_changes()
+                if mouse_net_con_startup is True:
+                    mon_threads[5].start()
+                    self.btn_net_con.setText('ENABLED')
+                self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
 
     def btn_net_con_mouse_led_selected_next_function(self):
         global mouse_net_con_id, m_key_id, sdk, mouse_device_selected, mon_threads, mouse_net_con_startup
         self.setFocus()
-        if mouse_net_con_id < len(m_key_id) - 1:
-            mon_threads[5].stop()
-            sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
-            mouse_net_con_id = int(mouse_net_con_id + 1)
-            print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
-            self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
-            self.write_changes()
-            if mouse_net_con_startup is True:
-                mon_threads[5].start()
-                self.btn_net_con.setText('ENABLED')
-            self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
+        if self.write_engaged is False:
+            if mouse_net_con_id < len(m_key_id) - 1:
+                mon_threads[5].stop()
+                sdk.set_led_colors_buffer_by_device_index(mouse_device[mouse_device_selected], ({m_key_id[mouse_net_con_id]: (0, 0, 0)}))
+                mouse_net_con_id = int(mouse_net_con_id + 1)
+                print('-- setting lbl_net_con_mouse_led_selected:', mouse_net_con_id)
+                self.write_var = 'mouse_net_con_id: ' + str(mouse_net_con_id)
+                self.write_changes()
+                if mouse_net_con_startup is True:
+                    mon_threads[5].start()
+                    self.btn_net_con.setText('ENABLED')
+                self.lbl_net_con_mouse_led_selected.setText(str(mouse_net_con_id))
 
     def btn_net_con_mouse_function(self):
         global mouse_net_con_startup, mon_threads, kb_net_con_startup, net_con_startup
         self.setFocus()
-        if mouse_net_con_startup is True:
-            mouse_net_con_startup = False
-            print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
-            self.write_var = 'mouse_net_con_startup: false'
-            self.write_changes()
-            mon_threads[5].stop()
-            self.btn_net_con_mouse.setText('DISABLED')
-            self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
-            if kb_net_con_startup is False:
-                self.write_var = 'net_con_startup: false'
+        if self.write_engaged is False:
+            if mouse_net_con_startup is True:
+                mouse_net_con_startup = False
+                print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
+                self.write_var = 'mouse_net_con_startup: false'
                 self.write_changes()
-                net_con_startup = False
-                self.btn_net_con.setText('DISABLED')
-                self.btn_net_con.setStyleSheet(self.btn_disabled_style)
-            elif kb_net_con_startup is True and net_con_startup is True:
-                mon_threads[5].start()
+                mon_threads[5].stop()
+                self.btn_net_con_mouse.setText('DISABLED')
+                self.btn_net_con_mouse.setStyleSheet(self.btn_disabled_style)
+                if kb_net_con_startup is False:
+                    self.write_var = 'net_con_startup: false'
+                    self.write_changes()
+                    net_con_startup = False
+                    self.btn_net_con.setText('DISABLED')
+                    self.btn_net_con.setStyleSheet(self.btn_disabled_style)
+                elif kb_net_con_startup is True and net_con_startup is True:
+                    mon_threads[5].start()
 
-        elif mouse_net_con_startup is False:
-            mouse_net_con_startup = True
-            print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
-            self.write_var = 'mouse_net_con_startup: true'
-            self.write_changes()
-            mon_threads[5].stop()
-            self.btn_net_con_mouse.setText('ENABLED')
-            self.btn_net_con_mouse.setStyleSheet(self.btn_enabled_style)
-            self.write_var = 'net_con_startup: true'
-            self.write_changes()
-            net_con_startup = True
-            self.btn_net_con.setText('ENABLED')
-            self.btn_net_con.setStyleSheet(self.btn_enabled_style)
-            mon_threads[5].start()
+            elif mouse_net_con_startup is False:
+                mouse_net_con_startup = True
+                print('-- setting mouse_net_con_startup:', mouse_net_con_startup)
+                self.write_var = 'mouse_net_con_startup: true'
+                self.write_changes()
+                mon_threads[5].stop()
+                self.btn_net_con_mouse.setText('ENABLED')
+                self.btn_net_con_mouse.setStyleSheet(self.btn_enabled_style)
+                self.write_var = 'net_con_startup: true'
+                self.write_changes()
+                net_con_startup = True
+                self.btn_net_con.setText('ENABLED')
+                self.btn_net_con.setStyleSheet(self.btn_enabled_style)
+                mon_threads[5].start()
 
     def cmb_network_adapter_name_function(self, text):
         global network_adapter_name, conf_thread
@@ -1381,6 +1387,7 @@ class App(QMainWindow):
         self.btn_hdd_led_time_on.setReadOnly(False)
 
     def write_changes(self):
+        self.write_engaged = True
         self.read_only_true()
         write_var_split = self.write_var.split()
         write_var_split_key = write_var_split[0]
@@ -1406,6 +1413,7 @@ class App(QMainWindow):
                 i += 1
         fo.close()
         self.read_only_false()
+        self.write_engaged = False
 
     def btn_cpu_led_time_on_function(self):
         global conf_thread
