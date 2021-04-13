@@ -455,10 +455,11 @@ class App(QMainWindow):
         # self.lbl_main_bg.installEventFilter(self.filter)
 
         self.lbl_title = QLabel(self)
-        self.lbl_title.move((self.width / 2) - 45, 20)
-        self.lbl_title.resize(90, 20)
+        self.lbl_title.move(0, 20)
+        self.lbl_title.resize(self.width, 20)
         self.lbl_title.setFont(self.font_s9b)
         self.lbl_title.setText(' iCUE-DISPLAY')
+        self.lbl_title.setAlignment(Qt.AlignCenter)
         self.lbl_title.setStyleSheet("""QLabel {background-color: rgb(0, 0, 0);
                            color: rgb(200, 200, 200);
                            border:0px solid rgb(35, 35, 35);}""")
