@@ -29,6 +29,7 @@ def canonical_caseless(text):
 
 
 print('-- initializing:')
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
     print('-- AA_EnableHighDpiScaling: True')
@@ -36,7 +37,7 @@ elif not hasattr(Qt, 'AA_EnableHighDpiScaling'):
     print('-- AA_EnableHighDpiScaling: False')
 if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    print('-- AA_UseHighDpiPixmaps: True')
+    print('-- AA_UseHighDpiPixmaps: False')
 elif not hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     print('-- AA_UseHighDpiPixmaps: False')
 priority_classes = [win32process.IDLE_PRIORITY_CLASS,
@@ -271,15 +272,34 @@ global_obj_rgb_color_off = []
 global_obj_inet_con = []
 global_obj_combo = []
 global_obj_refresh = []
+global_obj_self = []
 
 
 class ObjEveFilter(QObject):
+
     def eventFilter(self, obj, event):
-        global global_tooltip
+        global global_tooltip, global_obj_self
         obj_eve = obj, event
 
         # Uncomment This Line To See All Object Events
-        # print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+        print('-- ObjEveFilter(QObject).eventFilter(self, obj, event):', obj_eve)
+
+        """There is no Qt Layout for Qt objects and with everything made, I am trying to break the program.
+        Re-scaling will need to occur when windows scaling is changed. The following code is a temporary solution &
+        should not compensate permanently for Qt objects being placed inside a Qt layout or alternatively by doing
+        ones own calculations to re-scale the application when scaling is changed. 
+        """
+        if str(obj_eve[1]).startswith('<PyQt5.QtGui.QResizeEvent'):
+            print('-- ObjEveFilter: Handling resize event')
+            self.width = 324
+            self.height = 648
+            self.pos_w = ((QDesktopWidget().availableGeometry().width() / 2) - (self.width / 2))
+            self.pos_h = ((QDesktopWidget().availableGeometry().height() / 2) - (self.height / 2))
+            self.pos_w = int(self.pos_w)
+            self.pos_h = int(self.pos_h)
+            print('-- setting window dimensions:', self.width, self.height)
+            print('-- setting window position:', self.pos_w, self.pos_h)
+            global_obj_self[0].setGeometry(int(self.pos_w), int(self.pos_h), self.width, self.height)
 
         return False
 
@@ -289,7 +309,7 @@ class App(QMainWindow):
 
     def __init__(self):
         super(App, self).__init__()
-        global install_bool, global_tooltip
+        global install_bool, global_tooltip, global_obj_self
 
         create_new()
         if install_bool is True:
@@ -309,6 +329,8 @@ class App(QMainWindow):
         print('-- setting self.title as:', self.title)
         self.setWindowTitle(self.title)
 
+        # self.installEventFilter(self.filter)
+
         self.width = 324
         self.height = 648
         self.prev_pos = self.pos()
@@ -319,6 +341,11 @@ class App(QMainWindow):
         print('-- setting window dimensions:', self.width, self.height)
         print('-- setting window position:', self.pos_w, self.pos_h)
         self.setGeometry(int(self.pos_w), int(self.pos_h), self.width, self.height)
+
+        global_obj_self.append(self)
+
+        self.filter = ObjEveFilter()
+        self.installEventFilter(self.filter)
 
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.black)
@@ -2026,6 +2053,7 @@ class App(QMainWindow):
 
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
+            print('WindowStateChanged:', QEvent.WindowStateChange)
             if self.windowState() & Qt.WindowMinimized:
                 self.setFocus()
             else:
